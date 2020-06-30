@@ -66,9 +66,6 @@ class FireworkParticle {
       skewY: gsap.utils.random(-1, 1)
     });
 
-    this.skewX = gsap.utils.random(0, 1);
-    this.skewY = gsap.utils.random(0, 1);
-
     gsap.to(this, {
       duration,
       physics2D: {
