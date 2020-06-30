@@ -1,21 +1,27 @@
 class FireworkImage {
 
-  constructor(maxSize, image) {
+  constructor(app, image) {
+
+    this.app = app;
 
     this.texture = image;
-    this.resizeImage(maxSize, image);
+    // this.resizeImage(maxSize, image);
+    this.resizeImage(app.maxSize, image);
 
+    this.x = 0;
+    this.y = 0;
+    this.scale = 1;
     this.rotation = gsap.utils.random(0, Math.PI * 2);
 
     const sign = Math.random() < 0.5 ? 1 : -1;
 
-    gsap.to(this, {
-      rotation: "+=" + Math.PI * 2 * sign,
-      duration: gsap.utils.random(2, 4),
-      // duration: 4,
-      ease: "none",
-      repeat: -1
-    })
+    // gsap.to(this, {
+    //   rotation: "+=" + Math.PI * 2 * sign,
+    //   duration: gsap.utils.random(2, 4),
+    //   // duration: 4,
+    //   ease: "none",
+    //   repeat: -1
+    // })
   }
 
   resizeImage(maxSize = 100, image) {

@@ -2,12 +2,14 @@
   
   const settings = {
     canvas: document.querySelector("#canvas"),
-    maxImages: 20,
-    maxSize: 100
+    maxFireworks: 20,
+    maxImageSize: 100,
+    particleSize: 6
   };
 
   const scriptUrls = [
-    "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.3.4/gsap.min.js"
+    "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.3.4/gsap.min.js",
+    "scripts/Physics2DPlugin.min.js"
   ];
 
   Promise.all([

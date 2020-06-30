@@ -1,60 +1,106 @@
-
-const path = new Path2D();
-path.arc(0, 0, 3, 0, Math.PI * 2);
-
 class FireworkParticle {
 
-  constructor(settings) {
+  constructor(app, settings) {
     Object.assign(this, settings);
 
-    this.texture = document.createElement("canvas");
-    
-    const size = 6;
-    this.texture.width = this.width = size;
-    this.texture.height = this.height = size;
-    this.originX = this.width / 2;
-    this.originY = this.height / 2;
+    this.alive = false;
 
-    const ctx = this.texture.getContext("2d");
-    ctx.beginPath();
-    ctx.arc(this.originX, this.originY, Math.min(this.originX, this.originY), 0, Math.PI * 2);
-    ctx.fillStyle = this.color;
-    ctx.fill();
+    this.app = app;
+    this.size = app.particleSize;
+    this.originX = this.size / 2;
+    this.originY = this.size / 2;
+    this.scale = 1;
+    this.scaleX = 1;
+    this.scaleY = 1;
+    this.skewX = 0;
+    this.skewY = 0;
+    this.rotation = 0;
+    this.x = 0;
+    this.y = 0;
   }
 
   init(cx, cy, rotation) {
 
-    const dx = this.dx;
-    const dy = this.dy;
+    const { dx, dy } = this;
     const cos = Math.cos(rotation);
     const sin = Math.sin(rotation);
 
     this.x = ((cos * dx) - (sin * dy)) + cx;
     this.y = ((cos * dy) + (sin * dx)) + cy;
+
+    this.rotation = rotation;
+
+    const angle = Math.atan2(this.y - cy, this.x - cx) * 180 / Math.PI;
+
+    this.alive = true;
+    
+    gsap.to(this, {
+      duration: "random(1, 2)",
+      alpha: 0,
+      onComplete: () => this.alive = false
+    });
+
+    gsap.to(this, {
+      duration: "random(1, 2)",
+      rotation: "random(-6, 6)"
+    });
+
+    gsap.to(this, {
+      duration: "random(1, 2)",
+      scaleX: 0
+    });
+
+    gsap.to(this, {
+      duration: "random(1, 2)",
+      scaleY: 0
+    });
+
+    gsap.to(this, {
+      duration: "random(-2, 2)",
+      skewX: 0
+    });
+
+    gsap.to(this, {
+      duration: "random(-2, 2)",
+      skewY: 0
+    });
+
+    gsap.to(this, {
+      duration: "random(1, 2)",
+      physics2D: {
+        angle,
+        velocity: "random(300, 600)",
+        friction: "random(0.2, 0.5)",
+        gravity: 400
+      }
+    });
   }
 
-  update() {
+  render(ctx) {
 
-  }
-
-  render(ctx, delta) {
-    ctx.save();
     ctx.fillStyle = this.color;
     ctx.globalAlpha = this.alpha;
-    
-    // ctx.fillRect(this.x - 1, this.y - 1, 2, 2);
-    // ctx.fillRect(this.x - 3, this.y - 3, 6, 6);
 
-    // ctx.translate(this.x + this.originX, this.y + this.originY)
-    // ctx.drawImage(this.texture, -this.originX, -this.originY);
+    const { app, originX, originY, rotation, scale, scaleX, scaleY, skewX, skewY, size, x, y } = this;
+    const dpr = app.dpr;
 
-    // ctx.drawImage(this.texture, this.x + this.originX, this.y + this.originY);
-    // ctx.drawImage(this.texture, this.x - this.originX, this.y - this.originY);
-    // ctx.drawImage(this.texture, this.x, this.y);
+    // const cos = Math.cos(rotation) * scale;
+    // const sin = Math.sin(rotation) * scale;
 
-    ctx.translate(this.x, this.y);
-    ctx.fill(path);
+    // const a =  cos;
+    // const b =  sin;
+    // const c = -sin;
+    // const d =  cos; 
 
-    ctx.restore();
+    const a =  Math.cos(rotation + skewY) * scaleX;
+    const b =  Math.sin(rotation + skewY) * scaleX;
+    const c = -Math.sin(rotation - skewX) * scaleY;
+    const d =  Math.cos(rotation - skewX) * scaleY;         
+    const e = (x + originX) - ((originX * a) + (originY * c));
+    const f = (y + originY) - ((originX * b) + (originY * d));
+
+    ctx.transform(a, b, c, d, e, f);
+    ctx.fillRect(0, 0, size, size);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 }
