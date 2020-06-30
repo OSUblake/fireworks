@@ -29,48 +29,52 @@ class FireworkParticle {
     this.y = ((cos * dy) + (sin * dx)) + cy;
 
     this.rotation = rotation;
+    this.alive = true;
 
     const angle = Math.atan2(this.y - cy, this.x - cx) * 180 / Math.PI;
 
-    this.alive = true;
-    
+    const duration = gsap.utils.random(1, 2, true);
+
     gsap.to(this, {
-      duration: "random(1, 2)",
+      duration,
       alpha: 0,
       onComplete: () => this.alive = false
     });
 
     gsap.to(this, {
-      duration: "random(1, 2)",
-      rotation: "random(-6, 6)"
+      duration,
+      rotation: gsap.utils.random(-6, 6)
     });
 
     gsap.to(this, {
-      duration: "random(1, 2)",
+      duration,
       scaleX: 0
     });
 
     gsap.to(this, {
-      duration: "random(1, 2)",
+      duration,
       scaleY: 0
     });
 
     gsap.to(this, {
-      duration: "random(-2, 2)",
-      skewX: 0
+      duration,
+      skewX: gsap.utils.random(-1, 1)
     });
 
     gsap.to(this, {
-      duration: "random(-2, 2)",
-      skewY: 0
+      duration,
+      skewY: gsap.utils.random(-1, 1)
     });
 
+    this.skewX = gsap.utils.random(0, 1);
+    this.skewY = gsap.utils.random(0, 1);
+
     gsap.to(this, {
-      duration: "random(1, 2)",
+      duration,
       physics2D: {
         angle,
-        velocity: "random(300, 600)",
-        friction: "random(0.2, 0.5)",
+        velocity: gsap.utils.random(300, 600),
+        friction: gsap.utils.random(0.2, 0.5),
         gravity: 400
       }
     });
@@ -81,7 +85,7 @@ class FireworkParticle {
     ctx.fillStyle = this.color;
     ctx.globalAlpha = this.alpha;
 
-    const { app, originX, originY, rotation, scale, scaleX, scaleY, skewX, skewY, size, x, y } = this;
+    const { app, originX, originY, rotation, scaleX, scaleY, skewX, skewY, size, x, y } = this;
     const dpr = app.dpr;
 
     // const cos = Math.cos(rotation) * scale;
