@@ -68,7 +68,7 @@ class Fireworks {
         })
         .to(emitter, {
           duration: duration * 2,
-          eaes: "none",
+          ease: "none",
           rotation: "+=" + randomRotation() * sign
         }, 0)
         .to(emitter, {
