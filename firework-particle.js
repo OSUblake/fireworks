@@ -18,14 +18,14 @@ class FireworkParticle extends DisplayObject {
 
     const {
       duration,
-      friction,
-      gravity,
+      // friction,
+      // gravity,
       scale,
       skew,
-      spread,
+      // spread,
       startAlpha,
       rotation,
-      velocity
+      // velocity
     } = this.fireworks.particleVars;
 
     this.rotation = Math.random() * Math.PI;    
@@ -72,11 +72,11 @@ class FireworkParticle extends DisplayObject {
       duration,
       friction,
       gravity,
-      scale,
-      skew,
+      // scale,
+      // skew,
       spread,
-      startAlpha,
-      rotation,
+      // startAlpha,
+      // rotation,
       velocity
     } = fireworks.particleVars;
 

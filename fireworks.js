@@ -109,7 +109,7 @@ class Fireworks {
       rotation: gsap.utils.random(45 * RAD, 90 * RAD, true),
       spread: 60,
       skew: gsap.utils.random(-45 * RAD, 45 * RAD, true),
-      velocity: gsap.utils.random(500, 700, true),
+      velocity: gsap.utils.random(700, 1000, true),
     };
 
     return this;
