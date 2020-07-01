@@ -1,27 +1,11 @@
-class FireworkImage {
+class FireworkImage extends DisplayObject {
 
-  constructor(app, image) {
+  constructor(fireworks, image) {
 
-    this.app = app;
+    super(fireworks);
 
     this.texture = image;
-    // this.resizeImage(maxSize, image);
-    this.resizeImage(app.maxSize, image);
-
-    this.x = 0;
-    this.y = 0;
-    this.scale = 1;
-    this.rotation = gsap.utils.random(0, Math.PI * 2);
-
-    const sign = Math.random() < 0.5 ? 1 : -1;
-
-    // gsap.to(this, {
-    //   rotation: "+=" + Math.PI * 2 * sign,
-    //   duration: gsap.utils.random(2, 4),
-    //   // duration: 4,
-    //   ease: "none",
-    //   repeat: -1
-    // })
+    this.resizeImage(fireworks.maxImageSize, image);
   }
 
   resizeImage(maxSize = 100, image) {
@@ -63,7 +47,6 @@ class FireworkImage {
     ctx.imageSmoothingQuality = "high";
     ctx.clearRect(0, 0, this.width, this.height);
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-    // this.imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
   }
 
   getColor(x = 0, y = 0) {
@@ -87,12 +70,14 @@ class FireworkImage {
     };
   }
 
-  render(ctx, x, y) {
+  render() {
 
-    ctx.save();
-    ctx.translate(x + this.originX, y + this.originY);
-    ctx.rotate(this.rotation);
-    ctx.drawImage(this.texture, -this.originX, -this.originY);
-    ctx.restore();
+    const ctx = this.fireworks.ctx;
+
+    ctx.globalAlpha = 1;
+    this.setTransform();
+    ctx.drawImage(this.texture, 0, 0);
+
+    return this;
   }
 }

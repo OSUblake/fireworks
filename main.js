@@ -2,9 +2,10 @@
   
   const settings = {
     canvas: document.querySelector("#canvas"),
-    maxFireworks: 20,
+    numFireworks: 3,
     maxImageSize: 100,
-    particleSize: 6
+    particleSize: 20,
+    numParticles: 300
   };
 
   const scriptUrls = [
@@ -25,7 +26,11 @@
       images
     });    
 
-    fireworks.start();
+    
+
+    requestAnimationFrame(() => {
+      fireworks.start();
+    });
   }
 
   function loadImages(images) {  

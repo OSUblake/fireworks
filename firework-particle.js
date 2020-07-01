@@ -1,107 +1,150 @@
-class FireworkParticle {
+class FireworkParticle extends DisplayObject {
 
-  constructor(app, settings) {
+  constructor(fireworks, settings) {
+
+    super(fireworks);
+
     Object.assign(this, settings);
 
     this.alive = false;
-
-    this.app = app;
-    this.size = app.particleSize;
+    this.size = fireworks.particleSize;
     this.originX = this.size / 2;
     this.originY = this.size / 2;
-    this.scale = 1;
-    this.scaleX = 1;
-    this.scaleY = 1;
-    this.skewX = 0;
-    this.skewY = 0;
-    this.rotation = 0;
-    this.x = 0;
-    this.y = 0;
+
+    this.createTimeline();
   }
 
-  init(cx, cy, rotation) {
+  createTimeline() {
 
-    const { dx, dy } = this;
-    const cos = Math.cos(rotation);
-    const sin = Math.sin(rotation);
+    const {
+      duration,
+      friction,
+      gravity,
+      scale,
+      skew,
+      spread,
+      startAlpha,
+      rotation,
+      velocity
+    } = this.fireworks.particleVars;
 
-    this.x = ((cos * dx) - (sin * dy)) + cx;
-    this.y = ((cos * dy) + (sin * dx)) + cy;
+    this.rotation = Math.random() * Math.PI;    
+    this.alpha = startAlpha();
+    this.scaleX = this.scaleY = scale();
 
-    this.rotation = rotation;
+    this.timeline = gsap.timeline({
+        paused: true
+      })
+      .to(this, {
+        duration,
+        alpha: 0,
+        onComplete: () => this.kill()
+      }, 0)
+      .to(this, {
+        duration,
+        rotation: "+=" + rotation() * (Math.random() < 0.5 ? 1 : -1)
+      }, 0)
+      .to(this, {
+        duration,
+        scaleX: 0
+      }, 0)  
+      .to(this, {
+        duration,
+        scaleY: 0
+      }, 0)  
+      .to(this, {
+        duration,
+        skewX: skew
+      }, 0)  
+      .to(this, {
+        duration,
+        skewY: skew
+      }, 0);
+
+    return this;
+  }
+
+  init(cx, cy, currentRotation, rotationSign) {
+
+    const { dx, dy, fireworks } = this;
+
+    const {
+      duration,
+      friction,
+      gravity,
+      scale,
+      skew,
+      spread,
+      startAlpha,
+      rotation,
+      velocity
+    } = fireworks.particleVars;
+
+    const DEG = fireworks.DEG;
+
+    let angle = 0;
+    let minAngle = 0;
+    let maxAngle = 360;
+
+    if (!this.centered) {
+
+      const cos = Math.cos(currentRotation);
+      const sin = Math.sin(currentRotation);
+
+      this.x = ((cos * dx) - (sin * dy)) + cx;
+      this.y = ((cos * dy) + (sin * dx)) + cy;
+
+      angle = Math.atan2(this.y - cy, this.x - cx) * DEG;
+      minAngle = angle - spread;
+      maxAngle = angle + spread;
+
+      // this.x = cx;
+      // this.y = cy;
+
+    } else {
+
+      this.x = cx;
+      this.y = cy;
+    }
+
     this.alive = true;
 
-    const angle = Math.atan2(this.y - cy, this.x - cx) * 180 / Math.PI;
+    let frictionValue = friction();
+    
+    if (Math.random() < 0.3) {
+      frictionValue = Math.min(frictionValue * 2, 0.8);
+    } 
 
-    const duration = gsap.utils.random(1, 2, true);
-
-    gsap.to(this, {
-      duration,
-      alpha: 0,
-      onComplete: () => this.alive = false
-    });
-
-    gsap.to(this, {
-      duration,
-      rotation: gsap.utils.random(-6, 6)
-    });
-
-    gsap.to(this, {
-      duration,
-      scaleX: 0
-    });
-
-    gsap.to(this, {
-      duration,
-      scaleY: 0
-    });
-
-    gsap.to(this, {
-      duration,
-      skewX: gsap.utils.random(-1, 1)
-    });
-
-    gsap.to(this, {
-      duration,
-      skewY: gsap.utils.random(-1, 1)
-    });
-
-    gsap.to(this, {
+    this.timeline.to(this, {
       duration,
       physics2D: {
-        angle,
-        velocity: gsap.utils.random(300, 600),
-        friction: gsap.utils.random(0.2, 0.5),
-        gravity: 400
+        angle: gsap.utils.random(minAngle, maxAngle),
+        friction: frictionValue,
+        // friction: Math.random() > 0.3 ? friction() : friction() * 2,
+        velocity,
+        gravity
       }
-    });
+    }, 0).play()
   }
 
-  render(ctx) {
+  kill() {
+    this.timeline.kill();
+    this.alive = false;
+
+    return this;
+  }
+
+  render() {
+
+    const { fireworks, size } = this;
+    const ctx = fireworks.ctx;
 
     ctx.fillStyle = this.color;
     ctx.globalAlpha = this.alpha;
 
-    const { app, originX, originY, rotation, scaleX, scaleY, skewX, skewY, size, x, y } = this;
-    const dpr = app.dpr;
-
-    // const cos = Math.cos(rotation) * scale;
-    // const sin = Math.sin(rotation) * scale;
-
-    // const a =  cos;
-    // const b =  sin;
-    // const c = -sin;
-    // const d =  cos; 
-
-    const a =  Math.cos(rotation + skewY) * scaleX;
-    const b =  Math.sin(rotation + skewY) * scaleX;
-    const c = -Math.sin(rotation - skewX) * scaleY;
-    const d =  Math.cos(rotation - skewX) * scaleY;         
-    const e = (x + originX) - ((originX * a) + (originY * c));
-    const f = (y + originY) - ((originX * b) + (originY * d));
-
-    ctx.transform(a, b, c, d, e, f);
+    this.setTransform();
     ctx.fillRect(0, 0, size, size);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    return this;
   }
 }
