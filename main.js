@@ -26,11 +26,7 @@
       images
     });    
 
-    
-
-    requestAnimationFrame(() => {
-      fireworks.start();
-    });
+    fireworks.start();
   }
 
   function loadImages(images) {  

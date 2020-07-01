@@ -10,7 +10,6 @@ class Fireworks {
 
     this.render = this.render.bind(this);    
     this.dpr = window.devicePixelRatio;
-    // this.dpr = 3;
 
     this.ctx = this.canvas.getContext("2d");
 
@@ -100,11 +99,6 @@ class Fireworks {
   createVars() {
 
     const RAD = this.RAD;
-
-    this.emitterVars = {
-      delay: gsap.utils.random(0, 1, true),
-      rotation: gsap.utils.random(-90 * RAD, 90 * RAD, true),
-    };
 
     this.particleVars = {
       startAlpha: gsap.utils.random(0.5, 1, true),
