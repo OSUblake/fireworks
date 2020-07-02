@@ -80,14 +80,14 @@ class FireworkParticle extends DisplayObject {
         duration,
         scaleY: 0
       }, 0)  
-      .to(this, {
-        duration,
-        skewX: skew
-      }, 0)  
-      .to(this, {
-        duration,
-        skewY: skew
-      }, 0)
+      // .to(this, {
+      //   duration,
+      //   skewX: skew
+      // }, 0)  
+      // .to(this, {
+      //   duration,
+      //   skewY: skew
+      // }, 0)
       .to(this, {
         duration,
         physics2D: {

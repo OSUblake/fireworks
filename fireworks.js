@@ -148,9 +148,13 @@ class Fireworks {
   }
 
   play() {
-    this.fireworksTimeline.play();
-    // this.launchSound.play();
-    gsap.ticker.add(this.render);
+    
+    this.launchSound.play();
+
+    setTimeout(() => {
+      this.fireworksTimeline.play();
+      gsap.ticker.add(this.render);
+    }, 1630);   
   }
 
   kill() {
