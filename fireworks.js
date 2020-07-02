@@ -4,67 +4,72 @@ class Fireworks {
 
     Object.assign(this, settings);
 
-    this.targetFPMS = 60 / 1000;
-    this.RAD = Math.PI / 180;
-    this.DEG = 180 / Math.PI;
-
     this.render = this.render.bind(this);    
+    this.ctx = this.canvas.getContext("2d");
     this.dpr = window.devicePixelRatio;
 
-    this.ctx = this.canvas.getContext("2d");
+    this.fireworksTimeline = gsap.timeline({ paused: true });
 
-    this.createVars()
-      .createShapes()
-      .onResize()
-      .init();
+    this.shapeTextures = new ShapeTextures(this);
+
+    this.emitters = gsap.utils.shuffle(this.images.filter(img => img.naturalWidth))
+      .slice(0, this.numFireworks)
+      .map(img => new FireworkEmitter(this, img));
+
+    this.onResize();
+    this.createVars();
+    this.init();
+
+    this.shapeTextures.generate();
 
     window.addEventListener("resize", e => this.onResize());
-
-    // TODO: TEMP
-    // let numParticles = this.emitters.reduce((res, emitter) => {
-    //   const count = emitter.particles.length;
-    //   console.log("NUM PARTICLES", count);
-    //   return res + count;
-    // }, 0);
-
-    // console.log("TOTAL PARTICLES", numParticles);
   }
 
   init() {
 
     const minRotation = 80;
     const maxRotation = 120;
-    const spread = 100;
+    const spread = 200;
     const size = this.maxImageSize;
-    const cx = this.width / 2;
-    const cy = this.height / 2;
-    const xPos = gsap.utils.random(size, this.width - size, true);
-    const yPos = gsap.utils.random(cy - spread, cy + spread, true);
-    const offset = size * 2;
+    const offset = size * Math.SQRT2 + 1;
+    const spawnWidth = Math.min(this.spawnWidth, this.width) / 2;
+    let spawnSide = 1;
 
-    const randomRotation = gsap.utils.random(minRotation * this.RAD, maxRotation * this.RAD, true);
+    const cx = this.explodePoint.x;
+    const cy = -(this.height - this.explodePoint.y);
+
+    const randomX = gsap.utils.random(100, spawnWidth - size, true);
+    const randomY = gsap.utils.random(cy - spread, cy + spread, true);
+    const randomRotation = gsap.utils.random(minRotation * RAD, maxRotation * RAD, true);
     const randomDuration = gsap.utils.random(1, 1.5, true);
-    const randomDelay = gsap.utils.random(0.2, 0.5, true);
-    const randomMultiplier = gsap.utils.random(1.3, 1.5, true);
+    const randomDelay = gsap.utils.random(0.1, 0.5, true);
+    const randomDrop = gsap.utils.random(50, 80, true);
 
-    this.emitters = gsap.utils.shuffle(this.images.filter(img => img.naturalWidth))
-      .slice(0, this.numFireworks)
-      .map(img => new FireworkEmitter(this, img));
+    this.emitters.forEach((emitter, index) => {
 
-    this.emitters.forEach(emitter => {
-
-      const sign = Math.random() < 0.5 ? 1 : -1;
+      const isMain = !index;
+      const sign = randomChoice(1, -1);
       const duration = randomDuration();
-      // const explodeTime = duration * randomMultiplier();
-      const explodeTime = duration * 1.5;
+      const drop = randomDrop();
 
-      emitter.rotation = gsap.utils.random(0, Math.PI * 2);
+      let peakY, explodeY;
+
+      if (isMain) {
+        peakY = cy - drop;
+        explodeY = cy;
+      } else {
+        peakY = randomY();
+        explodeY = peakY + drop;
+      }
+
       emitter.rotationSign = sign;
-      emitter.x = xPos();
+      emitter.x = isMain ? cx : (cx + randomX() * spawnSide);
       emitter.y = 0;
+      emitter.y = offset;  
+      spawnSide *= -1;
 
-      const tl = gsap.timeline({
-          delay: randomDelay()          
+      const tl = gsap.timeline({       
+          paused: true
         })
         .to(emitter, {
           duration: duration * 2,
@@ -74,31 +79,48 @@ class Fireworks {
         .to(emitter, {
           duration,
           ease: "sine.out",
-          y: -(yPos() + offset)
+          y: peakY
         }, 0)
         .to(emitter, {
           duration,
           ease: "sine.in",
-          y: 0,
-          onComplete: () => emitter.explode()
+          y: 0
         }, ">");
 
-      gsap.delayedCall(explodeTime, () => {
-        tl.kill();
-        emitter.explode();
-      });        
+
+      tl.time(duration, true);
+
+      let explodeTime = 0;
+
+      for (let i = 0; i <= 1; i += 0.01) {
+
+        const currentTime = duration + duration * i;
+
+        tl.time(currentTime, true);
+
+        if (emitter.y > explodeY) {
+          emitter.init();
+          explodeTime = currentTime;
+          break;
+        }
+      }
+
+      tl.time(0, true)
+        .add(() => {
+          tl.kill();
+          emitter.explode();
+
+          if (isMain) {
+            this.alertTimeline.play();
+          }
+          
+        }, explodeTime);
+
+      this.fireworksTimeline.add(tl.play(), isMain ? 0 : randomDelay());        
     });
-
-    return this;
-  }
-
-  createShapes() {
-    return this;
   }
 
   createVars() {
-
-    const RAD = this.RAD;
 
     this.particleVars = {
       startAlpha: gsap.utils.random(0.5, 1, true),
@@ -111,8 +133,6 @@ class Fireworks {
       skew: gsap.utils.random(-45 * RAD, 45 * RAD, true),
       velocity: gsap.utils.random(700, 1000, true),
     };
-
-    return this;
   }
 
   onResize() {
@@ -122,44 +142,41 @@ class Fireworks {
     
     this.canvas.width = this.width * this.dpr;
     this.canvas.height = this.height * this.dpr;
-    
-    this.offsetY = this.height + this.maxImageSize * 2;
-    this.resetTransform();
+    this.offsetY = this.height;
 
-    return this;
-  }
-
-  resetTransform() {
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    return this;
   }
 
-  setTransform(a, b, c, d, e, f) {
-    this.ctx.transform(a, b, c, d, e, f);
-    return this;
-  }
-
-  start() {
+  play() {
+    this.fireworksTimeline.play();
+    // this.launchSound.play();
     gsap.ticker.add(this.render);
-    return this;
   }
 
-  stop() {
+  kill() {
     gsap.ticker.remove(this.render);
-    return this;
   }
 
   render() {
 
     const { ctx, emitters, width, height, dpr } = this;
 
-    this.resetTransform();
+    let aliveCount = 0;
+
+    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, width, height);
     ctx.globalAlpha = 1;
 
+    // ctx.drawImage(this.shapeTextures.texture, 0, 0);
+
     for (let i = 0; i < emitters.length; i++) {
       emitters[i].update();
+      aliveCount += emitters[i].aliveCount;
     }
+
+    if (!aliveCount) {
+      this.kill();
+    }  
   }
 }
 

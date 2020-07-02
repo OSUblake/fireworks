@@ -10,58 +10,6 @@ class FireworkParticle extends DisplayObject {
     this.size = fireworks.particleSize;
     this.originX = this.size / 2;
     this.originY = this.size / 2;
-
-    this.createTimeline();
-  }
-
-  createTimeline() {
-
-    const {
-      duration,
-      // friction,
-      // gravity,
-      scale,
-      skew,
-      // spread,
-      startAlpha,
-      rotation,
-      // velocity
-    } = this.fireworks.particleVars;
-
-    this.rotation = Math.random() * Math.PI;    
-    this.alpha = startAlpha();
-    this.scaleX = this.scaleY = scale();
-
-    this.timeline = gsap.timeline({
-        paused: true
-      })
-      .to(this, {
-        duration,
-        alpha: 0,
-        onComplete: () => this.kill()
-      }, 0)
-      .to(this, {
-        duration,
-        rotation: "+=" + rotation() * (Math.random() < 0.5 ? 1 : -1)
-      }, 0)
-      .to(this, {
-        duration,
-        scaleX: 0
-      }, 0)  
-      .to(this, {
-        duration,
-        scaleY: 0
-      }, 0)  
-      .to(this, {
-        duration,
-        skewX: skew
-      }, 0)  
-      .to(this, {
-        duration,
-        skewY: skew
-      }, 0);
-
-    return this;
   }
 
   init(cx, cy, currentRotation, rotationSign) {
@@ -72,11 +20,11 @@ class FireworkParticle extends DisplayObject {
       duration,
       friction,
       gravity,
-      // scale,
-      // skew,
+      scale,
+      skew,
       spread,
-      // startAlpha,
-      // rotation,
+      startAlpha,
+      rotation,
       velocity
     } = fireworks.particleVars;
 
@@ -98,53 +46,90 @@ class FireworkParticle extends DisplayObject {
       minAngle = angle - spread;
       maxAngle = angle + spread;
 
-      // this.x = cx;
-      // this.y = cy;
-
     } else {
 
       this.x = cx;
       this.y = cy;
     }
 
-    this.alive = true;
+    this.rotation = Math.random() * Math.PI;    
+    this.alpha = startAlpha();
+    this.scaleX = this.scaleY = scale();
 
     let frictionValue = friction();
-    
-    if (Math.random() < 0.3) {
-      frictionValue = Math.min(frictionValue * 2, 0.8);
-    } 
 
-    this.timeline.to(this, {
-      duration,
-      physics2D: {
-        angle: gsap.utils.random(minAngle, maxAngle),
-        friction: frictionValue,
-        // friction: Math.random() > 0.3 ? friction() : friction() * 2,
-        velocity,
-        gravity
-      }
-    }, 0).play()
+    frictionValue = randomChoice(Math.min(frictionValue * 2, 0.8), frictionValue, 0.3);
+
+    this.timeline = gsap.timeline({
+        paused: true
+      })
+      .to(this, {
+        duration,
+        alpha: 0,
+        onComplete: () => this.kill()
+      }, 0)
+      .to(this, {
+        duration,
+        rotation: "+=" + rotation() * randomChoice(1, -1)
+      }, 0)
+      .to(this, {
+        duration,
+        scaleX: 0
+      }, 0)  
+      .to(this, {
+        duration,
+        scaleY: 0
+      }, 0)  
+      .to(this, {
+        duration,
+        skewX: skew
+      }, 0)  
+      .to(this, {
+        duration,
+        skewY: skew
+      }, 0)
+      .to(this, {
+        duration,
+        physics2D: {
+          angle: gsap.utils.random(minAngle, maxAngle),
+          friction: frictionValue,
+          velocity,
+          gravity
+        }
+      }, 0);
+  }
+
+  play() {
+    this.alive = true;
+    this.timeline.play();
   }
 
   kill() {
     this.timeline.kill();
     this.alive = false;
-
-    return this;
   }
 
   render() {
 
-    const { fireworks, size } = this;
+    const { fireworks, frame, size } = this;
     const ctx = fireworks.ctx;
 
-    ctx.fillStyle = this.color;
     ctx.globalAlpha = this.alpha;
+    // ctx.fillStyle = this.color;
 
     this.setTransform();
-    ctx.fillRect(0, 0, size, size);
+    // ctx.fillRect(0, 0, size, size);
 
-    return this;
+    ctx.drawImage(
+      frame.texture,
+      frame.sx,
+      frame.sy,
+      frame.sSize,
+      frame.sSize,
+      0,
+      0,
+      frame.dSize,
+      frame.dSize
+    );
   }
 }

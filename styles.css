@@ -1,11 +1,15 @@
-html, body {
+html,
+body {
+  width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
+  overflow: hidden;
+  font-family: "Open Sans", sans-serif;
   background: #222;
 }
 
-#container {
+#alertHolder {
   position: relative;
   width: 100%;
   height: 100%;
@@ -17,4 +21,80 @@ html, body {
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+.widget-AlertBox {
+  position: relative;
+}
+
+#wrap {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+}
+
+#content {
+  text-align: center;
+  display: inline-block;
+
+  /* position: relative;
+  top: 100px; */
+}
+
+#amount {
+  text-align: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 138px;
+  padding: 0 20px;
+  border-top: 1px solid #fd534f;
+  border-bottom: 1px solid #fd534f;
+  line-height: 40px;
+  font-size: 24px;
+  color: #fff;
+  z-index: 11;
+  background: #000;
+  white-space: nowrap;
+}
+
+#name {
+  min-width: 200px;
+  text-align: center;
+  color: #fff;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 20px 20px 10px 20px;
+  border-top: 1px solid #fd534f;
+  border-bottom: 1px solid #fd534f;
+  top: 160px;
+  font-size: 62px;
+  font-weight: bold;
+  background: linear-gradient(
+    to top,
+    rgba(20, 30, 48, 0.4),
+    rgba(36, 59, 85, 0.2)
+  );
+  margin: 0 auto;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+#alert-user-message {
+  color: #fff;
+  width: 640px;
+  font-size: 18px;
+  line-height: 120%;
+  position: absolute;
+  top: 300px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  text-shadow: 0px 0px 3px #000, 0px 0px 4px #000, 0px 0px 5px #000;
+}
+
+#alert-user-message img {
+  vertical-align: middle;
+  height: 1em;
 }

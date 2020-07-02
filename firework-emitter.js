@@ -19,22 +19,30 @@ class FireworkEmitter {
 
   explode() {
 
-    const { image, particles, x, y, rotation, rotationSign } = this;
+    const { fireworks, particles } = this;
+
+    for (let i = 0; i < particles.length; i++) {
+      particles[i].play();
+    }
 
     this.exploded = true;
+    fireworks.popSound.play();
+  }
+
+  init() {
+
+    const { particles, x, y, rotation, rotationSign } = this;
 
     for (let i = 0; i < particles.length; i++) {
       particles[i].init(x, y, rotation, rotationSign);
     }
-
-    return this;
   }
 
   createParticles() {
 
     const { fireworks, image } = this;
     const { width, height } = image;
-    const { numParticles, particleSize } = fireworks;
+    const { numParticles, particleSize, shapeTextures } = fireworks;
     const cx = width / 2;
     const cy = height / 2;
 
@@ -52,13 +60,16 @@ class FireworkEmitter {
           }
   
           const rgb = `rgb(${color.r}, ${color.g}, ${color.b})`;
+
+          shapeTextures.addColor(rgb);
   
           const particle = new FireworkParticle(fireworks, {
             color: rgb,
             alpha: color.a,
             dx: x - cx,
             dy: y - cy,
-            centered: !!loops
+            centered: !!loops,
+            frame: shapeTextures.getFrame(rgb)
           });
   
           this.particles.push(particle);        
@@ -69,15 +80,14 @@ class FireworkEmitter {
       
     } while (this.particles.length < numParticles);
 
-    this.particles = gsap.utils.shuffle(this.particles).slice(0, numParticles);
-    // this.particles = this.particles.slice(0, numParticles);
-
-    return this;
+    this.particles = gsap.utils.shuffle(this.particles.slice(0, numParticles));
   }
 
   update() {
 
     const { exploded, image, particles, x, y } = this;
+
+    let alive = 0;
 
     if (!exploded) {
 
@@ -85,15 +95,20 @@ class FireworkEmitter {
       image.y = this.y;
       image.rotation = this.rotation;
       image.render();
+      alive++;
 
     } else {
 
       for (let i = 0; i < particles.length; i++) {
         const particle = particles[i];
-        particle.alive && particle.render();
+
+        if (particle.alive) {
+          particle.render();
+          alive++;
+        }
       }
     }
 
-    return this;
+    this.aliveCount = alive;
   }
 }

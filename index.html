@@ -7,8 +7,16 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div id="container">
+  <div id="alertHolder">
     <canvas id="canvas"></canvas>
+
+    <div id="wrap">
+      <div id="content">
+        <div id="amount"><span>New Follow</span></div>
+        <div id="name"><span>{name}</span></div>
+        <div id="alert-user-message">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus necessitatibus optio facere reiciendis recusandae officiis facilis repudiandae possimus voluptatem minus? Molestias suscipit culpa, placeat rem provident maiores nesciunt quidem repudiandae?</div>
+      </div>
+    </div>    
   </div>
 
   <aside style="display: none;">
@@ -28,6 +36,8 @@
     <img class="image" src="images/img-08.png">
     <img class="image" src="">
   </aside>
+  <script src="globals.js"></script>
+  <script src="shape-textures.js"></script>
   <script src="display-object.js"></script>
   <script src="firework-particle.js"></script>
   <script src="firework-image.js"></script>

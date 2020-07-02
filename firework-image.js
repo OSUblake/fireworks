@@ -4,14 +4,17 @@ class FireworkImage extends DisplayObject {
 
     super(fireworks);
 
+    this.origImage = image;
     this.texture = image;
-    this.resizeImage(fireworks.maxImageSize, image);
+    this.resizeImage();
   }
 
-  resizeImage(maxSize = 100, image) {
+  resizeImage() {
 
     const pixelFactor = 0.3;
 
+    const image = this.origImage;
+    const maxSize = this.fireworks.maxImageSize;
     const baseWidth = image.naturalWidth || image.width;
     const baseHeight = image.naturalHeight || image.height;
 
@@ -77,7 +80,5 @@ class FireworkImage extends DisplayObject {
     ctx.globalAlpha = 1;
     this.setTransform();
     ctx.drawImage(this.texture, 0, 0);
-
-    return this;
   }
 }
