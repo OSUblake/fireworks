@@ -2,8 +2,8 @@
   
   const settings = {
     canvas: document.querySelector("#canvas"),
-    numFireworks: 20,
-    maxImageSize: 100,
+    maxFireworks: 20,
+    maxImageSize: 600,
     particleSize: 20,
     numParticles: 300,
     spawnWidth: 2000, 
@@ -78,10 +78,6 @@
     });    
 
     fireworks.play();
-  }
-
-  function loadSounds(urls) {
-    return Promise.all(urls.map(loadSound));
   }
 
   function loadSound(url) {

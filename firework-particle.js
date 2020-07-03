@@ -28,11 +28,16 @@ class FireworkParticle extends DisplayObject {
       velocity
     } = fireworks.particleVars;
 
-    const DEG = fireworks.DEG;
+    this.rotation = Math.random() * Math.PI;    
+    this.alpha = startAlpha();
+    this.scaleX = this.scaleY = scale();
 
     let angle = 0;
     let minAngle = 0;
     let maxAngle = 360;
+    let frictionValue = friction();
+
+    frictionValue = randomChoice(Math.min(frictionValue * 2, 0.8), frictionValue, 0.3);
 
     if (!this.centered) {
 
@@ -50,15 +55,9 @@ class FireworkParticle extends DisplayObject {
 
       this.x = cx;
       this.y = cy;
+
+      // frictionValue = randomChoice(Math.min(frictionValue * 2, 0.8), frictionValue, 0.3);
     }
-
-    this.rotation = Math.random() * Math.PI;    
-    this.alpha = startAlpha();
-    this.scaleX = this.scaleY = scale();
-
-    let frictionValue = friction();
-
-    frictionValue = randomChoice(Math.min(frictionValue * 2, 0.8), frictionValue, 0.3);
 
     this.timeline = gsap.timeline({
         paused: true

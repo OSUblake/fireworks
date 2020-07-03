@@ -13,7 +13,7 @@ class Fireworks {
     this.shapeTextures = new ShapeTextures(this);
 
     this.emitters = gsap.utils.shuffle(this.images.filter(img => img.naturalWidth))
-      .slice(0, this.numFireworks)
+      .slice(0, this.maxFireworks)
       .map(img => new FireworkEmitter(this, img));
 
     this.onResize();

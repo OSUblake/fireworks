@@ -41,9 +41,7 @@ class ShapeTextures {
     let path = this[shape + "Path"];
     
     if (!path) {
-      // shape = Math.random() < 0.5 ? "rect" : "triangle";
       shape = randomChoice("rect", "triangle", 0.5);
-      // shape = "triangle"
       path = this[shape + "Path"];
     }
     

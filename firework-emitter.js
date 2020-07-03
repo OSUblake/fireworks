@@ -40,47 +40,59 @@ class FireworkEmitter {
 
   createParticles() {
 
+    const numParticles = this.fireworks.numParticles;
+
+    this.addParticles(false);
+
+    let len = this.particles.length;
+
+    if (!len) {
+      return;
+    }
+
+    while (len < numParticles) {
+      this.addParticles(true);
+      len = this.particles.length;
+    }
+
+    this.particles = gsap.utils.shuffle(this.particles).slice(0, numParticles);
+  }
+
+  addParticles(centered) {
+
     const { fireworks, image } = this;
     const { width, height } = image;
-    const { numParticles, particleSize, shapeTextures } = fireworks;
+    const { particleSize, shapeTextures } = fireworks;
     const cx = width / 2;
     const cy = height / 2;
+    const size = particleSize;
+    const offset = size / 2;
 
-    let loops = 0;
-
-    do {
-
-      for (let y = 0; y < height; y += particleSize) {
-        for (let x = 0; x < width; x += particleSize) {
-        
-          const color = image.getColor(x, y);
-          
-          if (color.a < 0.9) {
-            continue;
-          }
-  
-          const rgb = `rgb(${color.r}, ${color.g}, ${color.b})`;
-
-          shapeTextures.addColor(rgb);
-  
-          const particle = new FireworkParticle(fireworks, {
-            color: rgb,
-            alpha: color.a,
-            dx: x - cx,
-            dy: y - cy,
-            centered: !!loops,
-            frame: shapeTextures.getFrame(rgb)
-          });
-  
-          this.particles.push(particle);        
-        }
-      }
-
-      loops++;
+    for (let y = 0; y < height; y += size) {
+      for (let x = 0; x < width; x += size) {
       
-    } while (this.particles.length < numParticles);
+        const color = image.getColor(x, y);
 
-    this.particles = gsap.utils.shuffle(this.particles.slice(0, numParticles));
+        if (color.a < 0.9) {
+          continue;
+        }
+
+        const rgb = `rgb(${color.r}, ${color.g}, ${color.b})`;
+
+        shapeTextures.addColor(rgb);        
+
+        const particle = new FireworkParticle(fireworks, {
+          centered,
+          color: rgb,
+          alpha: color.a,
+          dx: (x + offset) - cx,
+          dy: (y + offset) - cy,
+          frame: shapeTextures.getFrame(rgb)
+        });
+
+        this.particles.push(particle);        
+      }
+    }
   }
 
   update() {
