@@ -1,4 +1,204 @@
-html,
+/* @import url("https://fonts.googleapis.com/css?family={fontFamily}:100,300,400,500,700,900&display=swap");
+
+:root {
+  --fontFamily: {fontFamily}, sans-serif;
+  --fontWeight: {fontWeight};
+  --fromSize: {fromSize}px;
+  --typeSize: {typeSize}px;
+  --fontColor: {fontColor};
+  --topBorderC: {topBorderC};
+  --bottomBorderC: {topBorderC};
+  --textBoxTop: {textBoxTop}px;
+} */
+
+@import url("https://fonts.googleapis.com/css?family=Montserrat:100,300,400,500,700,900&display=swap");
+
+:root {
+  --fontFamily: 'Montserrat', sans-serif;
+  --fontWeight: 400;
+  --fromSize: 24px;
+  --typeSize: 62px;
+  --fontColor: #fff;
+  --topBorderC: #A800FF;
+  --bottomBorderC: orange;
+  --textBoxTop: 0px;
+}
+
+.widget-AlertBox {
+  position: relative;
+}
+
+body,
+html {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: var(--fontFamily);
+
+  background: #222;
+}
+
+#canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#wrap {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+}
+
+#alert-box {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+
+#alert-box.hidden,
+.hidden {
+  opacity: 0;
+}
+
+#alertHolder {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  /* opacity: 0; */
+}
+
+#content {
+  position: absolute;
+  width: 100%;
+  top: var(--textBoxTop);
+  opacity: 0;
+}
+
+#vid {
+  width: 740px;
+  height: 1080px;
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  margin-left: -370px;
+  z-index: 9999;
+  display: none;
+}
+
+#bit {
+  width: auto;
+  max-height: 80px;
+  position: absolute;
+  left: 50%;
+  top: 300px;
+  transform: translateX(-50%);
+  z-index: 999;
+  display: none;
+}
+
+#amount {
+  text-align: center;
+  position: absolute;
+  top: 200px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 20px;
+  border-top: 1px solid var(--topBorderC);
+  border-bottom: 1px solid var(--topBorderC);
+  line-height: 40px;
+  font-size: var(--fromSize);
+  color: var(--fontColor);
+  z-index: 11;
+  background: #000;
+}
+
+#amount span {
+  position: relative;
+}
+
+#name {
+  position: absolute;
+  top: 220px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: var(--fontColor);
+  padding: 20px 20px 10px 20px;
+  border-top: 1px solid var(--bottomBorderC);
+  border-bottom: 1px solid var(--bottomBorderC);
+  font-size: var(--typeSize);
+  font-weight: bold;
+  background: linear-gradient(
+    to top,
+    rgba(20, 30, 48, 0.4),
+    rgba(36, 59, 85, 0.2)
+  );
+  margin: 0 auto;
+  z-index: 1;
+}
+
+#message {
+  text-align: center;
+  width: 600px;
+  left: 50%;
+  margin-left: -300px;
+  color: #fff;
+  position: absolute;
+  top: 380px;
+  text-shadow: 0px 0px 1px #000, 0px 0px 2px #000, 0px 0px 3px #000,
+    0px 0px 4px #000, 0px 0px 5px #000;
+}
+
+#alert-message,
+#alert-user-message {
+  text-align: center;
+}
+
+#alert-user-message img {
+  vertical-align: middle;
+  height: 1em;
+}
+
+#alert-image {
+  position: relative;
+}
+
+#alert-image video {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#alert-message > span > span {
+  display: inline-block;
+}
+
+#alert-image {
+  z-index: 6;
+  position: relative;
+}
+
+#alert-text {
+  z-index: 6;
+  position: relative;
+}
+
+#alert-text-wrap {
+  z-index: 6;
+  position: relative;
+}
+
+/* html,
 body {
   width: 100%;
   height: 100%;
@@ -37,9 +237,6 @@ body {
 #content {
   text-align: center;
   display: inline-block;
-
-  /* position: relative;
-  top: 100px; */
 }
 
 #amount {
@@ -97,4 +294,4 @@ body {
 #alert-user-message img {
   vertical-align: middle;
   height: 1em;
-}
+} */

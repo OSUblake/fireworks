@@ -4,29 +4,33 @@ class FireworkEmitter {
 
     this.fireworks = fireworks;
     this.image = new FireworkImage(fireworks, image);
-
-    this.exploded = false;
-    
+    this.exploded = false;    
     this.x = 0;
     this.y = 0;
     this.rotation = 0;
     this.rotationSign = 1;
     this.particles = [];
     this.aliveCount = 1;
+  }
 
-    this.createParticles(); 
+  async prepare() {
+    await this.image.init();
+    this.createParticles();
+  }
+
+  play() {
+    this.image.play();
   }
 
   explode() {
 
-    const { fireworks, particles } = this;
+    const particles = this.particles;
 
     for (let i = 0; i < particles.length; i++) {
       particles[i].play();
     }
 
     this.exploded = true;
-    fireworks.popSound.play();
   }
 
   init() {
@@ -77,9 +81,8 @@ class FireworkEmitter {
           continue;
         }
 
-        const rgb = `rgb(${color.r}, ${color.g}, ${color.b})`;
-
-        shapeTextures.addColor(rgb);        
+        const rgb = `rgb(${color.r}, ${color.g}, ${color.b})`;      
+        shapeTextures.addColor(rgb); 
 
         const particle = new FireworkParticle(fireworks, {
           centered,
@@ -122,5 +125,9 @@ class FireworkEmitter {
     }
 
     this.aliveCount = alive;
+
+    if (!alive) {
+      image.pause();
+    }
   }
 }

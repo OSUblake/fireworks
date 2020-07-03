@@ -8,35 +8,21 @@
 </head>
 <body>
   <div id="alertHolder">
+
+    <video id="vid" width="740" height="1080">
+      <source src="https://uploads.twitchalerts.com/000/070/135/721/fireworks-purple.webm" muted paused>
+    </video>
+
     <canvas id="canvas"></canvas>
 
-    <div id="wrap">
-      <div id="content">
-        <div id="amount"><span>New Follow</span></div>
-        <div id="name"><span>{name}</span></div>
-        <div id="alert-user-message">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus necessitatibus optio facere reiciendis recusandae officiis facilis repudiandae possimus voluptatem minus? Molestias suscipit culpa, placeat rem provident maiores nesciunt quidem repudiandae?</div>
-      </div>
-    </div>    
+    <div id="content">
+      <img id="bit" src="https://uploads.twitchalerts.com/000/070/135/721/100.gif"/>
+      <div id="amount"><span>{title}</span></div>
+      <div id="name"><span>{from}</span></div>
+      <div id="alert-user-message">{message}</div>
+    </div>
   </div>
-
-  <aside style="display: none;">
-    <!-- <img class="image" src="images/inky.png"> -->
-    <!-- <img class="image" src="images/moby.png"> -->
-    <img class="image" src="images/ryu.jpg">
-    <img class="image" src="images/gsap-hero.svg">
-    <video class="image" src="videos/fire.webm" muted paused></video>
-    <!-- <img class="image" src="images/pug.webp">
-    <img class="image" src="images/tree.gif">
-    <img class="image" src="images/img-01.png">
-    <img class="image" src="images/img-02.png">
-    <img class="image" src="images/img-03.png">
-    <img class="image" src="images/img-04.png">
-    <img class="image" src="images/img-05.png">
-    <img class="image" src="images/img-06.png">
-    <img class="image" src="images/img-07.png">
-    <img class="image" src="images/img-08.png">
-    <img class="image" src=""> -->
-  </aside>
+  
   <script src="globals.js"></script>
   <script src="shape-textures.js"></script>
   <script src="display-object.js"></script>

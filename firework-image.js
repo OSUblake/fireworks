@@ -6,9 +6,47 @@ class FireworkImage extends DisplayObject {
 
     this.origImage = image;
     this.texture = image;
-    this.resizeImage();
 
-    console.log(image)
+    this.isVideo = image instanceof HTMLMediaElement;
+  }
+
+  init() {
+    
+    const texture = this.texture;
+
+    return new Promise(resolve => {
+
+      if (!this.isVideo) {
+
+        this.resizeImage();
+        resolve();
+
+      } else {
+
+        const fulfill = () => {
+          texture.removeEventListener("timeupdate", fulfill);          
+          this.resizeImage();
+          // this.play();
+          resolve();
+        }
+
+        // needed to get the first frame to render
+        texture.addEventListener("timeupdate", fulfill);
+        texture.currentTime = texture.duration * 0.5;
+      }
+    });
+  }
+
+  resizeVideo() {
+
+    const texture = this.texture;
+
+    texture.ontimeupdate = () => {
+      texture.ontimeupdate = null;
+      this.resizeImage();
+    }
+
+    texture.currentTime = texture.duration * 0.5;
   }
 
   resizeImage() {
@@ -17,11 +55,8 @@ class FireworkImage extends DisplayObject {
 
     const image = this.origImage;
     const maxSize = this.fireworks.maxImageSize;
-    // const baseWidth = image.naturalWidth || image.width;
-    // const baseHeight = image.naturalHeight || image.height;
-
-    const baseWidth = image.naturalWidth || image.width || image.videoWidth;
-    const baseHeight = image.naturalHeight || image.height || image.videoHeight;
+    const baseWidth = this.baseWidth = image.naturalWidth || image.width || image.videoWidth;
+    const baseHeight = this.baseHeight = image.naturalHeight || image.height || image.videoHeight;
 
     let ratio = 1;
 
@@ -31,16 +66,12 @@ class FireworkImage extends DisplayObject {
       ratio = maxSize / baseHeight;
     }
 
-    this.baseWidth = baseWidth;
-    this.baseHeight = baseHeight;
-
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
     const canvasCopy = document.createElement("canvas");
     const ctxCopy = canvasCopy.getContext("2d");
 
-    // this.texture = canvas;
     this.width = canvas.width = Math.floor(baseWidth * ratio);
     this.height = canvas.height = Math.floor(baseHeight * ratio);
     this.originX = this.width / 2;
@@ -52,18 +83,20 @@ class FireworkImage extends DisplayObject {
     ctxCopy.drawImage(image, 0, 0, scaledWidth, scaledHeight);
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(canvasCopy, 0, 0, scaledWidth, scaledHeight, 0, 0, this.width, this.height);
-    this.imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    this.imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;    
+  }
 
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.clearRect(0, 0, this.width, this.height);
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+  play() {
+    if (this.isVideo) {
+      this.texture.currentTime = 0;
+      this.texture.play();
+    }    
+  }
 
-    console.log("HAS PLAY", image.play)
-
-    if (image.play) {
-      image.play()
-    }
+  pause() {
+    if (this.isVideo) {
+      this.texture.pause();
+    }    
   }
 
   getColor(x = 0, y = 0) {
@@ -93,7 +126,6 @@ class FireworkImage extends DisplayObject {
 
     ctx.globalAlpha = 1;
     this.setTransform();
-    // ctx.drawImage(this.texture, 0, 0);
 
     ctx.drawImage(
       this.texture,

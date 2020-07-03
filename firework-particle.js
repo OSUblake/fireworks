@@ -30,7 +30,9 @@ class FireworkParticle extends DisplayObject {
 
     this.rotation = Math.random() * Math.PI;    
     this.alpha = startAlpha();
-    this.scaleX = this.scaleY = scale();
+    // this.scaleX = this.scaleY = scale();
+    this.skewX = skew();
+    this.skewY = skew();
 
     let angle = 0;
     let minAngle = 0;
@@ -56,31 +58,22 @@ class FireworkParticle extends DisplayObject {
       this.x = cx;
       this.y = cy;
 
-      // frictionValue = randomChoice(Math.min(frictionValue * 2, 0.8), frictionValue, 0.3);
+      this.scaleX = this.scaleY = scale();
     }
 
-    // const cos = Math.cos(currentRotation);
-    // const sin = Math.sin(currentRotation);
-
-    // this.x = ((cos * dx) - (sin * dy)) + cx;
-    // this.y = ((cos * dy) + (sin * dx)) + cy;
-
-    // angle = Math.atan2(this.y - cy, this.x - cx) * DEG;
-    // minAngle = angle - spread;
-    // maxAngle = angle + spread;
-
     this.timeline = gsap.timeline({
-        paused: true
+        paused: true,
+        // onComplete: () => this.kill()
       })
       .to(this, {
         duration,
         alpha: 0,
         onComplete: () => this.kill()
-      }, 0)
-      .to(this, {
-        duration,
-        rotation: "+=" + rotation() * randomChoice(1, -1)
-      }, 0)
+      }, 0.2)
+      // .to(this, {
+      //   duration,
+      //   rotation: "+=" + rotation() * randomChoice(1, -1)
+      // }, 0)
       .to(this, {
         duration,
         scaleX: 0,
@@ -108,9 +101,15 @@ class FireworkParticle extends DisplayObject {
           gravity
         }
       }, 0);
+
+    this.ready = true;
   }
 
   play() {
+    if (!this.timeline) {
+      console.log("WHAT", this)
+    }
+
     this.alive = true;
     this.timeline.play();
   }
@@ -125,12 +124,9 @@ class FireworkParticle extends DisplayObject {
     const { fireworks, frame, size } = this;
     const ctx = fireworks.ctx;
 
-    ctx.globalAlpha = this.alpha;
-    // ctx.fillStyle = this.color;
-
     this.setTransform();
-    // ctx.fillRect(0, 0, size, size);
-
+    
+    ctx.globalAlpha = this.alpha;
     ctx.drawImage(
       frame.texture,
       frame.sx,

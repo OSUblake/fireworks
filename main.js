@@ -2,23 +2,31 @@
   
   const settings = {
     canvas: document.querySelector("#canvas"),
-    maxFireworks: 20,
-    maxImageSize: 600,
-    particleSize: 20,
+    maxFireworks: Number(3), // {maxFireworks}
+    maxImageSize: Number(100), // {maxImageSize}
+    spawnWidth: Number(2000), // {spawnWidth}
+    delayTime: Number(10), // {alertDelay}
+    volume: Number(100) * 0.01, // {audioVolume}
+    fireworkType: "emotePopper", // {fireworkType} emotePopper, classic, none
+    // fireworkType: "classic", // {fireworkType} emotePopper, classic, none
+    // fireworkType: "none", // {fireworkType} emotePopper, classic, none
+    particleSize: 30,
     numParticles: 300,
-    spawnWidth: 2000, 
-    volume: 1,
     trailColors: [
-      "#f56387", // red
-      "#00bffc", // blue
-      "#ad23fb", // purple
-      "#5ad06f", // teal
-      "#fce500", // yellow
+      "#F05189", // red
+      "#00CCFF", // blue
+      "#A800FF", // purple
+      "#FFE300", // yellow
+      "#51F058", // teal
     ]
   };
+  
+  if (Boolean(true)) { // {displayGif}
+  	document.getElementById("bit").style.display = "block";
+	}
 
-  const imageElements = Array.from(document.querySelectorAll(".image"));
   const nameElement = document.querySelector("#name");
+  const backgroundVideo = document.querySelector("#vid");
 
   const scriptUrls = [
     "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.3.4/gsap.min.js",
@@ -27,48 +35,60 @@
   ];
 
   const soundUrls = [
-    "sounds/build_up.mp3",
-    "sounds/main_and_side_pops.mp3"
+    "sounds/fireworks-build-up.mp3", // {launchSound}
+    "sounds/main_and_side_pops.mp3" // {popSound}
   ];
+
+  let emoteSlots = [
+    "videos/fire.webm", // {emotSlot1},
+    "images/img-09.png", // {emotSlot2},
+    "images/gsap-hero.svg", // {emotSlot3},
+    "images/img-02.png", // {emotSlot4},
+    "images/ryu.jpg", // {emotSlot5},
+  ];
+
+  emoteSlots = [...emoteSlots, ...emoteSlots];  
 
   Promise.all(scriptUrls.map(src => loadScript(src)))
     .then(() => Promise.all([
-      Promise.all(imageElements.filter(validUrl).map(loadImage)),
-      Promise.all(soundUrls.map(loadSound))
+      loadAssets(emoteSlots),
+      Promise.all(soundUrls.map(loadSound)),
+      loadMedia(backgroundVideo)
     ]))
     .then(res => animate(res));
 
   function animate([images, sounds]) {
 
-    console.log("ANIMATE")
-
     gsap.registerPlugin(Physics2DPlugin);
 
-    console.log(sounds[0])
+    Howler.volume(settings.volume);
 
-    const launchSound = sounds[0];
-    const popSound = sounds[1];
+    const launchSound = sounds[0].mute(false);
+    const popSound = sounds[1].mute(false);
 
     const rect = nameElement.getBoundingClientRect();
     const explodePoint = {
       x: rect.left + rect.width / 2,
-      y: rect.top + rect.height
+      // y: rect.top + rect.height
+      y: 330
     };
 
-    const alertTimeline = gsap.timeline({ paused: true })
-      .set("#wrap", { opacity: 1 })
-      .from("#bit", {duration: 0.2, opacity: 0, scale: 0 })
+    console.log(explodePoint)
+
+    const tl = gsap.timeline({ paused: true })
+      .set("#content", {opacity: 1})
+      .from("#bit", {duration: 0.2, opacity: 0, scale: 0, delay: 1.6 })
       .from("#name", {
         duration: 0.6,
-        ease: Back.easeOut.config(1.7),
+        ease: "back.out(1.7)",
         scaleX: 0,
         delay: 0.0
       })
       .from("#name span", { duration: 0.2, opacity: 0 })
       .from("#amount", { duration: 0.4, opacity: 0, y: "+=10" }, "-=.4")
-      .from("#alert-user-message ", { duration: 0.4, opacity: 0, y: "-=10" }, "-=.4")
-      .to("#notification", { duration: 0, delay: 1 })
-      .to("#alert-user-message", { duration: 0.4, opacity: 0, delay: 7, y: "-=10" }, "-=.4")
+      .from("#message", { duration: 0.4, opacity: 0, y: "-=10" }, "-=.4")
+      .to("#notification", { duration: 0, delay: settings.delayTime })
+      .to("#message", { duration: 0.4, opacity: 0, delay: 4, y: "-=10" }, "-=.4")
       .to("#amount", { duration: 0.4, opacity: 0, y: "+=10" }, "-=.4")
       .to("#name span", { duration: 0.2, opacity: 0 })
       .to("#name", {
@@ -80,16 +100,61 @@
       .to("#bit", { duration: 0.2, opacity: 0, scale: 0, delay: 0.5 }, "-=.6")
       .to("#notification-center", { duration: 0, delay: 5, opacity: 0 });
 
-    const fireworks = new Fireworks({
-      ...settings,
-      alertTimeline,
-      explodePoint,
-      images,
-      launchSound,
-      popSound
-    });    
 
-    fireworks.play();
+    if (settings.fireworkType === "classic") {
+
+      tl.add(() => {
+        gsap.set(backgroundVideo, { display: "block" });
+        backgroundVideo.play();
+        launchSound.play();
+      }, 0)
+      .add(() => {
+        popSound.play();
+      }, 1.6)
+      .play();
+
+    } else if (settings.fireworkType === "emotePopper") {
+
+      const fireworks = new Fireworks({
+        ...settings,
+        explodePoint,
+        images,
+        launchSound,
+        popSound,
+        alertTimeline: tl,
+        onReady(fireworks) {
+          fireworks.play();
+
+          // gsap.set(backgroundVideo, { display: "block" });
+          // backgroundVideo.play();
+        }
+      });
+
+    } else {
+      tl.play();
+    }      
+  }
+
+  function loadAssets(assets) {
+
+    const promises = assets.reduce((res, asset) => {
+
+      let promise;
+      
+      if (imageUrl(asset)) {
+        promise = loadImage(asset);   
+      } else if (videoUrl(asset)) {
+        promise = loadMedia(asset);
+      }
+
+      if (promise) {
+        res.push(promise);
+      }
+
+      return res;
+    }, []);    
+
+    return Promise.all(promises);
   }
 
   function loadSound(url) {
@@ -105,41 +170,55 @@
     });
   }
   
-  function loadImage(image) {
+  function loadMedia(media) {
+
+    let mediaElement = media;
+
+    if (typeof media === "string") {
+      mediaElement = document.createElement("video");
+      mediaElement.src = media;
+    }
+
     return new Promise((resolve, reject) => {
 
-      // console.log("load image", {image})
-
-      // console.log(image instanceof HTMLMediaElement)
-
-      if (image instanceof HTMLMediaElement) {
-
-        console.log("LOADING VIDEO", {image})
-
-        if (image.readyState >= 3) {
-          resolve(image);
-
-          console.log("VIDEO ALREADY LOADED")
-        } else {
-          image.oncanplay = () => {
-            console.log("VIDEO LOADED")
-            resolve(image)
-          };
-          image.onerror = () => {
-            console.log("ERROR LOADING VIDOE")
-            resolve(image)
-          };
-        } 
-
+      if (mediaElement.readyState > 3) {
+        resolve(mediaElement);
       } else {
+        mediaElement.oncanplaythrough = fulfill;
+        mediaElement.onerror = fulfill;
+      } 
 
-        if (image.complete) {
-          resolve(image);
-        }
-    
-        image.onload = () => resolve(image);
-        image.onerror = () => resolve(image);
+      function fulfill() {
+        mediaElement.oncanplaythrough = null;
+        mediaElement.onerror = null;
+        resolve(mediaElement);
+      }
+    });    
+  }
+
+  function loadImage(image) {
+
+    let imageElement = image;
+
+    if (typeof image === "string") {
+      imageElement = new Image();
+      imageElement.src = image;
+    }
+
+    return new Promise((resolve, reject) => {   
+
+      if (imageElement.complete) {
+        resolve(imageElement);
+      } else {
+        imageElement.onload = fulfill;
+        imageElement.onerror = fulfill;
       }      
+
+      function fulfill() {
+        imageElement.onload = null;
+        imageElement.onerror = null;
+        resolve(imageElement);
+      }
     });
   }
   
@@ -153,9 +232,12 @@
       script.src = src;
     });
   }
-  
-  function validUrl(image) {
-    // return String(image.src).match(/\.(jpeg|jpg|gif|png|svg|webp)$/);
-    return String(image.src).match(/\.(jpeg|jpg|gif|png|svg|webp|webm)$/);
+
+  function videoUrl(image) {
+    return image.match(/\.(3gp|mpg|mpeg|mp4|m4v|m4p|ogv|ogg|mov|webm)$/);
+  }
+
+  function imageUrl(image) {
+    return image.match(/\.(jpeg|jpg|gif|png|svg|webp)$/);
   }
 })();

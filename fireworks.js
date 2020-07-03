@@ -12,17 +12,26 @@ class Fireworks {
 
     this.shapeTextures = new ShapeTextures(this);
 
-    this.emitters = gsap.utils.shuffle(this.images.filter(img => img.naturalWidth || img.width || img.videoWidth))
-      .slice(0, this.maxFireworks)
-      .map(img => new FireworkEmitter(this, img));
+    // make sure image is valid, keep first image, shuffle remaining, then trim
+    this.images = this.images.filter(img => img.naturalWidth || img.videoWidth || img.width);
+    const firstImage = this.images.shift();
+    this.images = [firstImage, ...gsap.utils.shuffle(this.images)].slice(0, this.maxFireworks);
+
+    this.emitters = this.images.map((img, i) => new FireworkEmitter(this, img));
 
     this.onResize();
     this.createVars();
-    this.init();
-
-    this.shapeTextures.generate();
 
     window.addEventListener("resize", e => this.onResize());
+
+    Promise.all(
+      this.emitters.map(emitter => emitter.prepare())
+    )
+    .then((res) => {
+      this.init();
+      this.shapeTextures.generate();
+      this.fireReady();
+    });
   }
 
   init() {
@@ -49,7 +58,8 @@ class Fireworks {
 
       const isMain = !index;
       const sign = randomChoice(1, -1);
-      const duration = randomDuration();
+      // const duration = randomDuration();
+      const duration = 1;
       const drop = randomDrop();
 
       let peakY, explodeY;
@@ -66,10 +76,14 @@ class Fireworks {
       emitter.x = isMain ? cx : (cx + randomX() * spawnSide);
       emitter.y = 0;
       emitter.y = offset;  
+      emitter.y = this.height;  
       spawnSide *= -1;
 
       const tl = gsap.timeline({       
-          paused: true
+          paused: true,
+          onStart: () => {
+            emitter.play();
+          }
         })
         .to(emitter, {
           duration: duration * 2,
@@ -86,7 +100,6 @@ class Fireworks {
           ease: "sine.in",
           y: 0
         }, ">");
-
 
       tl.time(duration, true);
 
@@ -105,18 +118,26 @@ class Fireworks {
         }
       }
 
-      tl.time(0, true)
-        .add(() => {
+      tl.progress(0, true);
+
+      const progress = explodeTime / tl.duration();
+
+      const tween = gsap.to(tl, {
+        duration: 1.6,
+        progress,
+        ease: "none",
+        onComplete: () => {
           tl.kill();
           emitter.explode();
 
           if (isMain) {
-            this.alertTimeline.play();
+            this.popSound.play();
           }
-          
-        }, explodeTime);
+        }
+      });
 
-      this.fireworksTimeline.add(tl.play(), isMain ? 0 : randomDelay());        
+      // this.fireworksTimeline.add(tween, isMain ? 0 : randomDelay());           
+      this.fireworksTimeline.add(tween, isMain ? 0 : randomDelay());           
     });
   }
 
@@ -131,7 +152,7 @@ class Fireworks {
       rotation: gsap.utils.random(45 * RAD, 90 * RAD, true),
       spread: 60,
       skew: gsap.utils.random(-45 * RAD, 45 * RAD, true),
-      velocity: gsap.utils.random(700, 1000, true),
+      velocity: gsap.utils.random(800, 1100, true),
     };
   }
 
@@ -148,18 +169,19 @@ class Fireworks {
   }
 
   play() {
-    Howler.volume(this.volume);
-    this.popSound.mute(false);
-    this.launchSound.mute(false).play();
-
-    setTimeout(() => {
-      this.fireworksTimeline.play();
-      gsap.ticker.add(this.render);
-    }, 1630);   
+    this.fireworksTimeline.play();
+    this.alertTimeline.play();
+    this.launchSound.play();
+    gsap.ticker.add(this.render);  
   }
 
   kill() {
     gsap.ticker.remove(this.render);
+  }
+
+  fireReady() {
+
+    this.onReady && this.onReady.call(this, this);
   }
 
   render() {
@@ -171,6 +193,10 @@ class Fireworks {
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, width, height);
     ctx.globalAlpha = 1;
+
+    // this.emitters.forEach(emitter => {
+    //   ctx.drawImage(emitter.image.canvas, 0, 0)
+    // })
 
     // ctx.drawImage(this.shapeTextures.texture, 0, 0);
 
