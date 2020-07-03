@@ -12,7 +12,7 @@ class Fireworks {
 
     this.shapeTextures = new ShapeTextures(this);
 
-    this.emitters = gsap.utils.shuffle(this.images.filter(img => img.naturalWidth))
+    this.emitters = gsap.utils.shuffle(this.images.filter(img => img.naturalWidth || img.width || img.videoWidth))
       .slice(0, this.maxFireworks)
       .map(img => new FireworkEmitter(this, img));
 
@@ -148,8 +148,9 @@ class Fireworks {
   }
 
   play() {
-    
-    this.launchSound.play();
+    Howler.volume(this.volume);
+    this.popSound.mute(false);
+    this.launchSound.mute(false).play();
 
     setTimeout(() => {
       this.fireworksTimeline.play();

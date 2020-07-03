@@ -7,10 +7,18 @@
     particleSize: 20,
     numParticles: 300,
     spawnWidth: 2000, 
+    volume: 1,
+    trailColors: [
+      "#f56387", // red
+      "#00bffc", // blue
+      "#ad23fb", // purple
+      "#5ad06f", // teal
+      "#fce500", // yellow
+    ]
   };
 
   const imageElements = Array.from(document.querySelectorAll(".image"));
-  const name = document.querySelector("#name");
+  const nameElement = document.querySelector("#name");
 
   const scriptUrls = [
     "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.3.4/gsap.min.js",
@@ -32,12 +40,16 @@
 
   function animate([images, sounds]) {
 
+    console.log("ANIMATE")
+
     gsap.registerPlugin(Physics2DPlugin);
+
+    console.log(sounds[0])
 
     const launchSound = sounds[0];
     const popSound = sounds[1];
 
-    const rect = name.getBoundingClientRect();
+    const rect = nameElement.getBoundingClientRect();
     const explodePoint = {
       x: rect.left + rect.width / 2,
       y: rect.top + rect.height
@@ -84,8 +96,9 @@
     return new Promise((resolve, reject) => {
 
       const sound = new Howl({
-        src: [url],
+        src: url,
         autoplay: false,
+        mute: true,
         onloaderror: () => resolve(sound),
         onload: () => resolve(sound)
       });
@@ -94,13 +107,39 @@
   
   function loadImage(image) {
     return new Promise((resolve, reject) => {
-  
-      if (image.complete) {
-        resolve(image);
-      }
-  
-      image.onload = () => resolve(image);
-      image.onerror = () => resolve(image);
+
+      // console.log("load image", {image})
+
+      // console.log(image instanceof HTMLMediaElement)
+
+      if (image instanceof HTMLMediaElement) {
+
+        console.log("LOADING VIDEO", {image})
+
+        if (image.readyState >= 3) {
+          resolve(image);
+
+          console.log("VIDEO ALREADY LOADED")
+        } else {
+          image.oncanplay = () => {
+            console.log("VIDEO LOADED")
+            resolve(image)
+          };
+          image.onerror = () => {
+            console.log("ERROR LOADING VIDOE")
+            resolve(image)
+          };
+        } 
+
+      } else {
+
+        if (image.complete) {
+          resolve(image);
+        }
+    
+        image.onload = () => resolve(image);
+        image.onerror = () => resolve(image);
+      }      
     });
   }
   
@@ -116,6 +155,7 @@
   }
   
   function validUrl(image) {
-    return String(image.src).match(/\.(jpeg|jpg|gif|png|svg|webp)$/);
+    // return String(image.src).match(/\.(jpeg|jpg|gif|png|svg|webp)$/);
+    return String(image.src).match(/\.(jpeg|jpg|gif|png|svg|webp|webm)$/);
   }
 })();

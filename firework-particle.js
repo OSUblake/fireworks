@@ -12,7 +12,7 @@ class FireworkParticle extends DisplayObject {
     this.originY = this.size / 2;
   }
 
-  init(cx, cy, currentRotation, rotationSign) {
+  init(cx, cy, currentRotation) {
 
     const { dx, dy, fireworks } = this;
 

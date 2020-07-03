@@ -7,6 +7,8 @@ class FireworkImage extends DisplayObject {
     this.origImage = image;
     this.texture = image;
     this.resizeImage();
+
+    console.log(image)
   }
 
   resizeImage() {
@@ -15,8 +17,11 @@ class FireworkImage extends DisplayObject {
 
     const image = this.origImage;
     const maxSize = this.fireworks.maxImageSize;
-    const baseWidth = image.naturalWidth || image.width;
-    const baseHeight = image.naturalHeight || image.height;
+    // const baseWidth = image.naturalWidth || image.width;
+    // const baseHeight = image.naturalHeight || image.height;
+
+    const baseWidth = image.naturalWidth || image.width || image.videoWidth;
+    const baseHeight = image.naturalHeight || image.height || image.videoHeight;
 
     let ratio = 1;
 
@@ -26,13 +31,16 @@ class FireworkImage extends DisplayObject {
       ratio = maxSize / baseHeight;
     }
 
+    this.baseWidth = baseWidth;
+    this.baseHeight = baseHeight;
+
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
     const canvasCopy = document.createElement("canvas");
     const ctxCopy = canvasCopy.getContext("2d");
 
-    this.texture = canvas;
+    // this.texture = canvas;
     this.width = canvas.width = Math.floor(baseWidth * ratio);
     this.height = canvas.height = Math.floor(baseHeight * ratio);
     this.originX = this.width / 2;
@@ -50,6 +58,12 @@ class FireworkImage extends DisplayObject {
     ctx.imageSmoothingQuality = "high";
     ctx.clearRect(0, 0, this.width, this.height);
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    console.log("HAS PLAY", image.play)
+
+    if (image.play) {
+      image.play()
+    }
   }
 
   getColor(x = 0, y = 0) {
@@ -79,6 +93,18 @@ class FireworkImage extends DisplayObject {
 
     ctx.globalAlpha = 1;
     this.setTransform();
-    ctx.drawImage(this.texture, 0, 0);
+    // ctx.drawImage(this.texture, 0, 0);
+
+    ctx.drawImage(
+      this.texture,
+      0,
+      0,
+      this.baseWidth,
+      this.baseHeight,
+      0,
+      0,
+      this.width,
+      this.height
+    );
   }
 }
