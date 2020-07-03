@@ -39,25 +39,35 @@ class FireworkParticle extends DisplayObject {
 
     frictionValue = randomChoice(Math.min(frictionValue * 2, 0.8), frictionValue, 0.3);
 
-    if (!this.centered) {
+    // if (!this.centered) {
 
-      const cos = Math.cos(currentRotation);
-      const sin = Math.sin(currentRotation);
+    //   const cos = Math.cos(currentRotation);
+    //   const sin = Math.sin(currentRotation);
 
-      this.x = ((cos * dx) - (sin * dy)) + cx;
-      this.y = ((cos * dy) + (sin * dx)) + cy;
+    //   this.x = ((cos * dx) - (sin * dy)) + cx;
+    //   this.y = ((cos * dy) + (sin * dx)) + cy;
 
-      angle = Math.atan2(this.y - cy, this.x - cx) * DEG;
-      minAngle = angle - spread;
-      maxAngle = angle + spread;
+    //   angle = Math.atan2(this.y - cy, this.x - cx) * DEG;
+    //   minAngle = angle - spread;
+    //   maxAngle = angle + spread;
 
-    } else {
+    // } else {
 
-      this.x = cx;
-      this.y = cy;
+    //   this.x = cx;
+    //   this.y = cy;
 
-      // frictionValue = randomChoice(Math.min(frictionValue * 2, 0.8), frictionValue, 0.3);
-    }
+    //   // frictionValue = randomChoice(Math.min(frictionValue * 2, 0.8), frictionValue, 0.3);
+    // }
+
+    const cos = Math.cos(currentRotation);
+    const sin = Math.sin(currentRotation);
+
+    this.x = ((cos * dx) - (sin * dy)) + cx;
+    this.y = ((cos * dy) + (sin * dx)) + cy;
+
+    angle = Math.atan2(this.y - cy, this.x - cx) * DEG;
+    minAngle = angle - spread;
+    maxAngle = angle + spread;
 
     this.timeline = gsap.timeline({
         paused: true
