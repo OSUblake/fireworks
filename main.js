@@ -3,7 +3,7 @@
   const settings = {
     canvas: document.querySelector("#canvas"),
     maxFireworks: 20,
-    maxImageSize: 100,
+    maxImageSize: 600,
     particleSize: 20,
     numParticles: 300,
     spawnWidth: 2000, 
