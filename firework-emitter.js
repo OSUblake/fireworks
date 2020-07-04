@@ -44,9 +44,11 @@ class FireworkEmitter {
 
   createParticles() {
 
-    const numParticles = this.fireworks.numParticles;
+    const fireworks = this.fireworks;
+    const { width, height } = this.image;
+    const { numParticles, particleSize } = this.fireworks;
 
-    this.addParticles(false);
+    const count = this.addParticles(false);
 
     let len = this.particles.length;
 
@@ -54,23 +56,37 @@ class FireworkEmitter {
       return;
     }
 
-    while (len < numParticles) {
+    // const particlesNeeded = Math.ceil((width * height) / (particleSize * particleSize));
+    let particlesNeeded = Math.max(count, numParticles);
+
+    // particlesNeeded = 100;
+
+    // console.log("PARTICLES NEEDED", particlesNeeded, count)
+
+    // while (len < numParticles) {
+    while (len < particlesNeeded) {
       this.addParticles(true);
       len = this.particles.length;
     }
 
-    this.particles = gsap.utils.shuffle(this.particles).slice(0, numParticles);
+    this.particles = gsap.utils.shuffle(this.particles.slice(0, particlesNeeded));
+    // this.particles = gsap.utils.shuffle(this.particles).slice(0, numParticles);
+    // this.particles = gsap.utils.shuffle(this.particles);
   }
 
   addParticles(centered) {
 
     const { fireworks, image } = this;
     const { width, height } = image;
-    const { particleSize, shapeTextures } = fireworks;
+    const { particleSize, shapeTextures, randomShape } = fireworks;
     const cx = width / 2;
     const cy = height / 2;
     const size = particleSize;
     const offset = size / 2;
+
+    let count = 0;
+
+    // console.log("IMAGE SIZE", width, height)
 
     for (let y = 0; y < height; y += size) {
       for (let x = 0; x < width; x += size) {
@@ -83,6 +99,7 @@ class FireworkEmitter {
 
         const rgb = `rgb(${color.r}, ${color.g}, ${color.b})`;      
         shapeTextures.addColor(rgb); 
+        const shape = randomShape();
 
         const particle = new FireworkParticle(fireworks, {
           centered,
@@ -90,19 +107,31 @@ class FireworkEmitter {
           alpha: color.a,
           dx: (x + offset) - cx,
           dy: (y + offset) - cy,
-          frame: shapeTextures.getFrame(rgb)
+          frame: shapeTextures.getFrame(rgb, shape)
         });
 
         this.particles.push(particle);        
+
+        count++;
       }
     }
+
+    return count;
   }
 
   update() {
 
     const { exploded, image, particles, x, y } = this;
 
+    const ctx = this.fireworks.ctx;
+
     let alive = 0;
+
+    // TODO: Temp
+    // image.x = this.x;
+    // image.y = this.y;
+    // image.rotation = this.rotation;
+    // image.render();
 
     if (!exploded) {
 
@@ -114,6 +143,8 @@ class FireworkEmitter {
 
     } else {
 
+      // ctx.imageSmoothingEnabled = false;
+
       for (let i = 0; i < particles.length; i++) {
         const particle = particles[i];
 
@@ -123,6 +154,8 @@ class FireworkEmitter {
         }
       }
     }
+
+    // ctx.imageSmoothingEnabled = true;
 
     this.aliveCount = alive;
 

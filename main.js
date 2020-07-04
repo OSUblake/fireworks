@@ -3,21 +3,26 @@
   const settings = {
     canvas: document.querySelector("#canvas"),
     maxFireworks: Number(3), // {maxFireworks}
-    maxImageSize: Number(100), // {maxImageSize}
+    maxImageSize: Number(1000), // {maxImageSize}
     spawnWidth: Number(2000), // {spawnWidth}
     delayTime: Number(10), // {alertDelay}
     volume: Number(100) * 0.01, // {audioVolume}
     fireworkType: "emotePopper", // {fireworkType} emotePopper, classic, none
-    // fireworkType: "classic", // {fireworkType} emotePopper, classic, none
-    // fireworkType: "none", // {fireworkType} emotePopper, classic, none
     particleSize: 30,
     numParticles: 300,
-    trailColors: [
+    mainExplodeY: 330,
+    explodeTime: 1.6, // time when firework explodes in video 
+    minTrailParticleSize: 10, 
+    maxTrailParticleSize: 30,
+    minImageSizeSlider: 10, // based on maxImageSize slider 
+    maxImageSizeSlider: 1000, // based on maxImageSize slider
+    clusterParticles: true, // group extra particles in the center of image
+    colors: [
       "#F05189", // red
       "#00CCFF", // blue
       "#A800FF", // purple
       "#FFE300", // yellow
-      "#51F058", // teal
+      "#51F058", // green
     ]
   };
   
@@ -72,8 +77,6 @@
       // y: rect.top + rect.height
       y: 330
     };
-
-    console.log(explodePoint)
 
     const tl = gsap.timeline({ paused: true })
       .set("#content", {opacity: 1})

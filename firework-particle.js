@@ -4,9 +4,14 @@ class FireworkParticle extends DisplayObject {
 
     super(fireworks);
 
-    Object.assign(this, settings);
+    Object.assign(this, {
+      alive: false,
+      alpha: 1,
+      centered: false,
+      dx: 0,
+      dy: 0
+    }, settings);
 
-    this.alive = false;
     this.size = fireworks.particleSize;
     this.originX = this.size / 2;
     this.originY = this.size / 2;
@@ -28,9 +33,10 @@ class FireworkParticle extends DisplayObject {
       velocity
     } = fireworks.particleVars;
 
+    // this.rotation = currentRotation;
     this.rotation = Math.random() * Math.PI;    
     this.alpha = startAlpha();
-    // this.scaleX = this.scaleY = scale();
+    this.scaleX = this.scaleY = scale();
     this.skewX = skew();
     this.skewY = skew();
 
@@ -41,25 +47,44 @@ class FireworkParticle extends DisplayObject {
 
     frictionValue = randomChoice(Math.min(frictionValue * 2, 0.8), frictionValue, 0.3);
 
-    if (!this.centered) {
+    // if (!this.centered) {
 
-      const cos = Math.cos(currentRotation);
-      const sin = Math.sin(currentRotation);
+    //   const cos = Math.cos(currentRotation);
+    //   const sin = Math.sin(currentRotation);
 
-      this.x = ((cos * dx) - (sin * dy)) + cx;
-      this.y = ((cos * dy) + (sin * dx)) + cy;
+    //   this.x = ((cos * dx) - (sin * dy)) + cx;
+    //   this.y = ((cos * dy) + (sin * dx)) + cy;
 
-      angle = Math.atan2(this.y - cy, this.x - cx) * DEG;
-      minAngle = angle - spread;
-      maxAngle = angle + spread;
+    //   angle = Math.atan2(this.y - cy, this.x - cx) * DEG;
+    //   minAngle = angle - spread;
+    //   maxAngle = angle + spread;
 
-    } else {
+    // } else {
+
+    //   this.x = cx;
+    //   this.y = cy;
+    // }
+
+    const cos = Math.cos(currentRotation);
+    const sin = Math.sin(currentRotation);
+
+    this.x = ((cos * dx) - (sin * dy)) + cx;
+    this.y = ((cos * dy) + (sin * dx)) + cy;
+
+    angle = Math.atan2(this.y - cy, this.x - cx) * DEG;
+    minAngle = angle - spread;
+    maxAngle = angle + spread;
+
+    if (fireworks.clusterParticles && this.centered) {
 
       this.x = cx;
       this.y = cy;
 
-      this.scaleX = this.scaleY = scale();
+      angle = 0;
+      minAngle = 0;
+      maxAngle = 360;
     }
+
 
     this.timeline = gsap.timeline({
         paused: true,
@@ -102,12 +127,13 @@ class FireworkParticle extends DisplayObject {
         }
       }, 0);
 
-    this.ready = true;
+    // this.ready = true;
   }
 
   play() {
     if (!this.timeline) {
-      console.log("WHAT", this)
+      console.log("*** No particle timeline");
+      return;
     }
 
     this.alive = true;
@@ -121,7 +147,7 @@ class FireworkParticle extends DisplayObject {
 
   render() {
 
-    const { fireworks, frame, size } = this;
+    const { fireworks, frame } = this;
     const ctx = fireworks.ctx;
 
     this.setTransform();
