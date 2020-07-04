@@ -957,6 +957,10 @@
       const texture = this.texture;
   
       return new Promise(resolve => {
+
+        if (!texture) {
+          resolve();
+        }
   
         if (!this.isVideo) {
   
