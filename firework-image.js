@@ -67,8 +67,6 @@ class FireworkImage extends DisplayObject {
 
   resizeImage() {
 
-    // const pixelFactor = 0.3;
-
     const image = this.texture;
 
     const canvas = document.createElement("canvas");
@@ -79,20 +77,6 @@ class FireworkImage extends DisplayObject {
 
     ctx.drawImage(image, 0, 0, this.baseWidth, this.baseHeight, 0, 0, this.width, this.height);
     this.imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data; 
-
-    // const canvasCopy = document.createElement("canvas");
-    // const ctxCopy = canvasCopy.getContext("2d");
-
-
-    // const scaledWidth = this.width * pixelFactor;
-    // const scaledHeight = this.height * pixelFactor;
-
-    // ctxCopy.drawImage(image, 0, 0, scaledWidth, scaledHeight);
-    // ctx.imageSmoothingEnabled = false;
-    // ctx.drawImage(canvasCopy, 0, 0, scaledWidth, scaledHeight, 0, 0, this.width, this.height);
-
-    // ctx.drawImage(image, 0, 0, this.baseWidth, this.baseHeight, 0, 0, this.width, this.height);
-    // this.imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;    
   }
 
   play() {
@@ -135,7 +119,6 @@ class FireworkImage extends DisplayObject {
 
     this.setTransform();
     ctx.globalAlpha = 1;
-    // ctx.globalAlpha = 0;
 
     ctx.drawImage(
       this.texture,

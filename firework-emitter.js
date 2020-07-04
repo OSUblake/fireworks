@@ -56,6 +56,8 @@ class FireworkEmitter {
       return;
     }
 
+    this.addParticles(true);
+
     // const particlesNeeded = Math.ceil((width * height) / (particleSize * particleSize));
     let particlesNeeded = Math.max(count, numParticles);
 
@@ -63,13 +65,13 @@ class FireworkEmitter {
 
     // console.log("PARTICLES NEEDED", particlesNeeded, count)
 
-    // while (len < numParticles) {
-    while (len < particlesNeeded) {
+    while (len < numParticles) {
+    // while (len < particlesNeeded) {
       this.addParticles(true);
       len = this.particles.length;
     }
 
-    this.particles = gsap.utils.shuffle(this.particles.slice(0, particlesNeeded));
+    // this.particles = gsap.utils.shuffle(this.particles.slice(0, particlesNeeded));
     // this.particles = gsap.utils.shuffle(this.particles).slice(0, numParticles);
     // this.particles = gsap.utils.shuffle(this.particles);
   }
@@ -85,8 +87,6 @@ class FireworkEmitter {
     const offset = size / 2;
 
     let count = 0;
-
-    // console.log("IMAGE SIZE", width, height)
 
     for (let y = 0; y < height; y += size) {
       for (let x = 0; x < width; x += size) {

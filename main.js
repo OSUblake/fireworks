@@ -90,7 +90,7 @@
       .from("#name span", { duration: 0.2, opacity: 0 })
       .from("#amount", { duration: 0.4, opacity: 0, y: "+=10" }, "-=.4")
       .from("#message", { duration: 0.4, opacity: 0, y: "-=10" }, "-=.4")
-      .to("#notification", { duration: 0, delay: settings.delayTime })
+      .to("#alertHolder", { duration: 0, delay: settings.delayTime })
       .to("#message", { duration: 0.4, opacity: 0, delay: 4, y: "-=10" }, "-=.4")
       .to("#amount", { duration: 0.4, opacity: 0, y: "+=10" }, "-=.4")
       .to("#name span", { duration: 0.2, opacity: 0 })
@@ -101,7 +101,7 @@
         delay: 0.2
       })
       .to("#bit", { duration: 0.2, opacity: 0, scale: 0, delay: 0.5 }, "-=.6")
-      .to("#notification-center", { duration: 0, delay: 5, opacity: 0 });
+      .to("#alertHolder", { duration: 0, delay: 5, opacity: 0 });
 
 
     if (settings.fireworkType === "classic") {
@@ -122,14 +122,13 @@
         ...settings,
         explodePoint,
         images,
-        launchSound,
         popSound,
-        alertTimeline: tl,
         onReady(fireworks) {
           fireworks.play();
+          launchSound.play();
+          tl.play();
 
           // gsap.set(backgroundVideo, { display: "block" });
-          // backgroundVideo.play();
         }
       });
 

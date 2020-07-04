@@ -264,8 +264,8 @@ class Fireworks {
 
   play() {
     this.fireworksTimeline.play();
-    this.alertTimeline.play();
-    this.launchSound.play();
+    // this.alertTimeline.play();
+    // this.launchSound.play();
     gsap.ticker.add(this.render);  
   }
 
