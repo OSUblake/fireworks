@@ -38,6 +38,9 @@
   let emoteSlots = [
     "https://uploads.twitchalerts.com/000/070/135/721/100-bit.png", // "{emotSlot1}",
     "https://uploads.twitchalerts.com/000/070/135/721/fire-HZa.webm", // "{emotSlot2}",
+    "https://uploads.twitchalerts.com/000/070/135/721/fire-HZa.webm", // "{emotSlot2}",
+    "https://uploads.twitchalerts.com/000/070/135/721/fire-HZa.webm", // "{emotSlot2}",
+    "https://uploads.twitchalerts.com/000/070/135/721/fire-HZa.webm", // "{emotSlot2}",
     "images/gsap-hero.svg", // "{emotSlot3}",
     "images/img-02.png", // "{emotSlot4}",
     "images/ryu.jpg", // "{emotSlot5}",
@@ -82,7 +85,7 @@
     };
 
     const tl = gsap.timeline({ paused: true })
-      .set("#content", {opacity: 1})
+      .set("#alertHolder", {opacity: 1})
       .from("#bit", {duration: 0.2, opacity: 0, scale: 0, delay: 1.6 })
       .from("#name", {
         duration: 0.6,
@@ -104,8 +107,7 @@
         delay: 0.2
       })
       .to("#bit", { duration: 0.2, opacity: 0, scale: 0, delay: 0.5 }, "-=.6")
-      .to("#alertHolder", { duration: 0, delay: 5, opacity: 0 });
-
+      .to("#alertHolder", { duration: 0, opacity: 0 });
 
     if (settings.fireworkType === "classic") {
 

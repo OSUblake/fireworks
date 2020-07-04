@@ -72,14 +72,13 @@ html {
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
-  /* opacity: 0; */
+  opacity: 0;
 }
 
 #content {
   position: absolute;
   width: 100%;
   top: var(--textBoxTop);
-  opacity: 0;
 }
 
 #vid {
