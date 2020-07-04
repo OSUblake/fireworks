@@ -164,10 +164,10 @@ class Fireworks {
     const imageSize = Math.min(emitter.image.width, emitter.image.height);
     const maxOffsetX = Math.min(10, imageSize / 2);
     
-    const randomDelay = gsap.utils.random(0.1, 0.5, true);
-    const randomDrop = gsap.utils.random(80, 100, true);
+    const randomDelay = gsap.utils.random(0, 0.5, true);
+    const randomDrop = gsap.utils.random(100, 150, true);
     const randomOffsetX = gsap.utils.random(50, maxOffsetX, true);
-    const randomOffsetY = gsap.utils.random(endY * 0, endY * 0.3, true);
+    const randomOffsetY = gsap.utils.random(endY * 0.2, endY * 0.5, true);
     const randomRotation = gsap.utils.random(minRotation * RAD, maxRotation * RAD, true);
 
     const size = gsap.utils.mapRange(
@@ -250,7 +250,9 @@ class Fireworks {
 
       tl.progress(0, true);
       const progress = endTime / tl.duration();
-      const tweenerDuration = gsap.utils.random(this.explodeTime, this.explodeTime + 0.2);
+      const minDuration = this.explodeTime + 0.1;
+      const maxDuration = minDuration + 0.3;
+      const tweenerDuration = gsap.utils.random(minDuration, maxDuration);
       // const tweenerDuration = 1.65;
 
       const tweener = gsap.timeline({
@@ -330,7 +332,8 @@ class Fireworks {
     ctx.clearRect(0, 0, width, height);
     ctx.globalAlpha = 1;
 
-    ctx.imageSmoothingEnabled = false;
+    // ctx.imageSmoothingEnabled = false;
+    // ctx.imageSmoothingQuality = "high";
 
     for (i = 0; i < trailParticles.length; i++) {
       const particle = trailParticles[i];
