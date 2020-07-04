@@ -172,6 +172,7 @@
 
     if (typeof media === "string") {
       mediaElement = document.createElement("video");
+      mediaElement.muted = true;
       mediaElement.crossOrigin = "Anonymous";
       mediaElement.src = media + `?v=${Date.now() + Math.floor(Math.random() * 10000000000)}`;
     }
