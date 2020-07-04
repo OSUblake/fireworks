@@ -210,8 +210,6 @@
       imageElement.crossOrigin = "anonymous";
     }
 
-    imageElement.src = String(imageElement.src) + `?=${Date.now()}`;
-
     return new Promise((resolve, reject) => {   
 
       if (imageElement.complete) {
