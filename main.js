@@ -978,18 +978,6 @@
       });
     }
   
-    resizeVideo() {
-  
-      const texture = this.texture;
-  
-      texture.ontimeupdate = () => {
-        texture.ontimeupdate = null;
-        this.resizeImage();
-      }
-  
-      texture.currentTime = texture.duration * 0.5;
-    }
-  
     resizeImage() {
   
       const image = this.texture;
