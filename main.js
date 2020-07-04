@@ -7,7 +7,7 @@
     spawnWidth: Number(2000), // {spawnWidth}
     delayTime: Number(10), // {alertDelay}
     volume: Number(100) * 0.01, // {audioVolume}
-    fireworkType: "emotePopper", // {fireworkType} emotePopper, classic, none
+    fireworkType: "emotePopper", // "{fireworkType}" emotePopper, classic, none
     particleSize: 30,
     numParticles: 300,
     mainExplodeY: 330,
@@ -292,7 +292,7 @@
       );
     }
   }
-  
+
   class Fireworks {
 
     constructor(settings) {
