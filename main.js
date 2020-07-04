@@ -11,7 +11,7 @@
     particleSize: 30,
     numParticles: 300,
     mainExplodeY: 330,
-    explodeTime: 1.6, // time when firework explodes in video 
+    explodeTime: 1.55, // time when firework explodes in video 
     minTrailParticleSize: 10, 
     maxTrailParticleSize: 30,
     minImageSizeSlider: 10, // based on maxImageSize slider 
@@ -108,9 +108,9 @@
         backgroundVideo.play();
         launchSound.play();
       }, 0)
-      .add(() => {
-        popSound.play();
-      }, 1.6)
+      .add(() => popSound.play(), 1.55)
+      .add(() => popSound.play(), 1.75)
+      .add(() => popSound.play(), 1.83)
       .play();
 
     } else if (settings.fireworkType === "emotePopper") {
@@ -417,10 +417,7 @@
           onComplete: () => {
             tl.kill();
             emitter.explode();
-  
-            if (isMain) {
-              this.popSound.play();
-            }
+            this.popSound.play();
           }
         });
   
