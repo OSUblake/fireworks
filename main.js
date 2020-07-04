@@ -3,7 +3,7 @@
   const settings = {
     canvas: document.querySelector("#canvas"),
     maxFireworks: Number(3), // {maxFireworks}
-    maxImageSize: Number(1000), // {maxImageSize}
+    maxImageSize: Number(100), // {maxImageSize}
     spawnWidth: Number(2000), // {spawnWidth}
     delayTime: Number(10), // {alertDelay}
     volume: Number(100) * 0.01, // {audioVolume}

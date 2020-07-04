@@ -47,24 +47,6 @@ class FireworkParticle extends DisplayObject {
 
     frictionValue = randomChoice(Math.min(frictionValue * 2, 0.8), frictionValue, 0.3);
 
-    // if (!this.centered) {
-
-    //   const cos = Math.cos(currentRotation);
-    //   const sin = Math.sin(currentRotation);
-
-    //   this.x = ((cos * dx) - (sin * dy)) + cx;
-    //   this.y = ((cos * dy) + (sin * dx)) + cy;
-
-    //   angle = Math.atan2(this.y - cy, this.x - cx) * DEG;
-    //   minAngle = angle - spread;
-    //   maxAngle = angle + spread;
-
-    // } else {
-
-    //   this.x = cx;
-    //   this.y = cy;
-    // }
-
     const cos = Math.cos(currentRotation);
     const sin = Math.sin(currentRotation);
 
@@ -85,38 +67,19 @@ class FireworkParticle extends DisplayObject {
       maxAngle = 360;
     }
 
-
     this.timeline = gsap.timeline({
-        paused: true,
-        // onComplete: () => this.kill()
+        paused: true
       })
       .to(this, {
         duration,
         alpha: 0,
         onComplete: () => this.kill()
       }, 0.2)
-      // .to(this, {
-      //   duration,
-      //   rotation: "+=" + rotation() * randomChoice(1, -1)
-      // }, 0)
       .to(this, {
         duration,
         scaleX: 0,
-
         scaleY: 0
-      }, 0)  
-      // .to(this, {
-      //   duration,
-      //   scaleY: 0
-      // }, 0)  
-      // .to(this, {
-      //   duration,
-      //   skewX: skew
-      // }, 0)  
-      // .to(this, {
-      //   duration,
-      //   skewY: skew
-      // }, 0)
+      }, 0)   
       .to(this, {
         duration,
         physics2D: {
@@ -126,8 +89,6 @@ class FireworkParticle extends DisplayObject {
           gravity
         }
       }, 0);
-
-    // this.ready = true;
   }
 
   play() {
@@ -146,6 +107,10 @@ class FireworkParticle extends DisplayObject {
   }
 
   render() {
+
+    if (!this.alpha || (!this.scaleX && !this.scaleY)) {
+      return;
+    }
 
     const { fireworks, frame } = this;
     const ctx = fireworks.ctx;
