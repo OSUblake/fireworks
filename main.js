@@ -36,8 +36,8 @@
   ];
 
   let emoteSlots = [
-    "videos/fire.webm", // "{emotSlot1}",
-    "images/img-09.png", // "{emotSlot2}",
+    "https://uploads.twitchalerts.com/000/070/135/721/100-bit.png", // "{emotSlot1}",
+    "https://uploads.twitchalerts.com/000/070/135/721/fire-HZa.webm", // "{emotSlot2}",
     "images/gsap-hero.svg", // "{emotSlot3}",
     "images/img-02.png", // "{emotSlot4}",
     "images/ryu.jpg", // "{emotSlot5}",
@@ -130,8 +130,6 @@
           fireworks.play();
           launchSound.play();
           tl.play();
-
-          // gsap.set(backgroundVideo, { display: "block" });
         }
       });
 
@@ -182,6 +180,7 @@
     if (typeof media === "string") {
       mediaElement = document.createElement("video");
       mediaElement.src = media;
+      mediaElement.crossOrigin = "anonymous";
     }
 
     return new Promise((resolve, reject) => {
@@ -208,7 +207,10 @@
     if (typeof image === "string") {
       imageElement = new Image();
       imageElement.src = image;
+      imageElement.crossOrigin = "anonymous";
     }
+
+    imageElement.src = String(imageElement.src) + `?=${Date.now()}`;
 
     return new Promise((resolve, reject) => {   
 
