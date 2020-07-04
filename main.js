@@ -55,7 +55,6 @@
   const RAD = Math.PI / 180;
   const DEG = 180 / Math.PI;
 
-  const nameElement = document.querySelector("#name");
   const backgroundVideo = document.querySelector("#vid");
 
   emoteSlots = [...emoteSlots, ...emoteSlots];  
@@ -64,7 +63,7 @@
     .then(() => Promise.all([
       loadAssets(emoteSlots),
       Promise.all(soundUrls.map(loadSound)),
-      loadMedia(backgroundVideo)
+      loadMedia(backgroundVideo, true)
     ]))
     .then(res => animate(res));
 
@@ -76,13 +75,6 @@
 
     const launchSound = sounds[0].mute(false);
     const popSound = sounds[1].mute(false);
-
-    const rect = nameElement.getBoundingClientRect();
-    const explodePoint = {
-      x: rect.left + rect.width / 2,
-      // y: rect.top + rect.height
-      y: 330
-    };
 
     const tl = gsap.timeline({ paused: true })
       .set("#alertHolder", {opacity: 1})
@@ -125,7 +117,6 @@
 
       const fireworks = new Fireworks({
         ...settings,
-        explodePoint,
         images,
         popSound,
         onReady(fireworks) {
@@ -181,8 +172,8 @@
 
     if (typeof media === "string") {
       mediaElement = document.createElement("video");
-      mediaElement.src = media;
-      mediaElement.crossOrigin = "anonymous";
+      mediaElement.crossOrigin = "Anonymous";
+      mediaElement.src = media + `?v=${Date.now() + Math.floor(Math.random() * 10000000000)}`;
     }
 
     return new Promise((resolve, reject) => {
@@ -208,8 +199,8 @@
 
     if (typeof image === "string") {
       imageElement = new Image();
-      imageElement.src = image;
-      imageElement.crossOrigin = "anonymous";
+      imageElement.crossOrigin = "Anonymous";
+      imageElement.src = image + `?v=${Date.now() + Math.floor(Math.random() * 10000000000)}`;
     }
 
     return new Promise((resolve, reject) => {   
@@ -312,7 +303,7 @@
       this.randomColor = gsap.utils.random(this.colors, true);
       this.randomShape = gsap.utils.random(["triangle", "rect"], true);
       
-      this.images = this.images.filter(img => img.naturalWidth || img.videoWidth || img.width);
+      this.images = this.images.filter(img => img && (img.naturalWidth || img.videoWidth || img.width));
       const firstImage = this.images.shift();
       this.images = [firstImage, ...gsap.utils.shuffle(this.images)].slice(0, this.maxFireworks);
       this.emitters = this.images.map((img, i) => new FireworkEmitter(this, img));
@@ -610,7 +601,6 @@
   
     kill() {
       gsap.ticker.remove(this.render);
-      console.log("*** FIREWORKS COMPLETE ***");
     }
   
     fireReady() {
