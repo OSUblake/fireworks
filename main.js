@@ -87,9 +87,9 @@
       })
       .from("#name span", { duration: 0.2, opacity: 0 })
       .from("#amount", { duration: 0.4, opacity: 0, y: "+=10" }, "-=.4")
-      .from("#message", { duration: 0.4, opacity: 0, y: "-=10" }, "-=.4")
+      .from("#alert-user-message", { duration: 0.4, opacity: 0, y: "-=10" }, "-=.4")
       .to("#alertHolder", { duration: 0, delay: settings.delayTime })
-      .to("#message", { duration: 0.4, opacity: 0, delay: 4, y: "-=10" }, "-=.4")
+      .to("#alert-user-message", { duration: 0.4, opacity: 0, delay: 4, y: "-=10" }, "-=.4")
       .to("#amount", { duration: 0.4, opacity: 0, y: "+=10" }, "-=.4")
       .to("#name span", { duration: 0.2, opacity: 0 })
       .to("#name", {

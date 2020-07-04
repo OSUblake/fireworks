@@ -141,7 +141,7 @@ html {
   text-shadow: 3px 3px 1px #000;
 }
 
-#message {
+#alert-user-message {
   text-align: center;
   width: 600px;
   left: 50%;
