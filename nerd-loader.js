@@ -151,7 +151,7 @@ class NerdLoader {
           if (url.indexOf("nocache") !== -1) {
             return reject("Nocache failed");
           }
-          resolve(checkCache(`${url}?_nocache=${this.uniqueID()}`));
+          resolve(this.checkCache(`${url}?_nocache=${this.uniqueID()}`));
         });
     });
   }
