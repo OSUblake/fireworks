@@ -14,12 +14,12 @@
 @import url("https://fonts.googleapis.com/css?family=Montserrat:100,300,400,500,700,900&display=swap");
 
 :root {
-  --fontFamily: 'Montserrat', sans-serif;
+  --fontFamily: "Montserrat", sans-serif;
   --fontWeight: 400;
   --fromSize: 24px;
   --typeSize: 62px;
   --fontColor: #fff;
-  --topBorderC: #A800FF;
+  --topBorderC: #a800ff;
   --bottomBorderC: orange;
   --textBoxTop: 0px;
 }
