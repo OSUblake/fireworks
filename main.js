@@ -55,7 +55,6 @@
     ]
   });
 
-  console.log("RESOURCES", resources)
   animate();
 
   function animate() {
