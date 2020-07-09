@@ -4,6 +4,7 @@ class Fireworks {
 
     Object.assign(this, settings);
 
+    this.canPlay = false;
     this.render = this.render.bind(this);    
     this.ctx = this.canvas.getContext("2d");
     this.dpr = window.devicePixelRatio;
@@ -15,9 +16,20 @@ class Fireworks {
     this.randomColor = gsap.utils.random(this.colors, true);
     this.randomShape = gsap.utils.random(["triangle", "rect"], true);
     
-    this.images = this.images.filter(img => img && (img.naturalWidth || img.videoWidth || img.width));
+    this.images = this.images.filter(img => img instanceof HTMLElement && (img.naturalWidth || img.videoWidth || img.width));
+
+    if (this.images.length) {
+      this.prepare();
+    } else {
+      this.fireReady();
+    }
+  }
+
+  prepare() {
+
     const firstImage = this.images.shift();
     this.images = [firstImage, ...gsap.utils.shuffle(this.images)].slice(0, this.maxFireworks);
+
     this.emitters = this.images.map((img, i) => new FireworkEmitter(this, img));
 
     this.onResize();
@@ -38,6 +50,8 @@ class Fireworks {
   }
 
   init() {
+
+    this.canPlay = true;
 
     const { cx, mainExplodeY } = this;
 
@@ -304,6 +318,12 @@ class Fireworks {
   }
 
   play() {
+
+    if (!this.canPlay) {
+      console.log("*** Fireworks can't play");
+      return;
+    }
+
     this.fireworksTimeline.play();
     gsap.ticker.add(this.render);  
   }

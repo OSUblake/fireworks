@@ -12,8 +12,10 @@ class NerdLoader {
     // kill any previous running animations
     gsap.globalTimeline.getChildren().forEach(animation => animation.kill());    
 
+    const emoteUrls = resources.emotes.filter(url => !!url);
+
     const [emotes, sounds] = await Promise.all([
-      this.loadAssets([...resources.emotes, ...resources.emotes]),
+      this.loadAssets([...emoteUrls, ...emoteUrls]),
       Promise.all(resources.sounds.map(url => this.loadSound(url))),
       Promise.all(this.mediaElements.map(element => this.loadMedia(element.currentSrc, element)))
     ]);
@@ -144,6 +146,8 @@ class NerdLoader {
 
   checkCache(url) {
     return new Promise((resolve, reject) => {
+
+      console.log("*** Checking cache url", url);
 
       fetch(url)
         .then(() => resolve(url))
