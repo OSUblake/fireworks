@@ -17,7 +17,7 @@ class NerdLoader {
     const [emotes, sounds] = await Promise.all([
       this.loadAssets([...emoteUrls, ...emoteUrls]),
       Promise.all(resources.sounds.map(url => this.loadSound(url))),
-      Promise.all(this.mediaElements.map(element => this.loadMedia(element.currentSrc, element)))
+      Promise.all(this.mediaElements.map(element => this.loadMedia(String(element.currentSrc), element)))
     ]);
 
     return { emotes, sounds };
