@@ -45,9 +45,9 @@
     emotes: [
       "https://uploads.twitchalerts.com/000/070/135/721/fire-HZa.webm", // "{emotSlot1}",
       "https://uploads.twitchalerts.com/000/070/135/721/100-bit.png", // "{emotSlot2}",
-      "https://uploads.twitchalerts.com/000/070/135/721/fire-HZa.webm", // "{emotSlot3}",
-      "https://uploads.twitchalerts.com/000/070/135/721/fire-HZa.webm", // "{emotSlot4}",
-      "https://uploads.twitchalerts.com/000/070/135/721/fire-HZa.webm", // "{emotSlot5}",
+      "images/gsap-hero.svg", // "{emotSlot3}",
+      "images/ryu.jpg", // "{emotSlot4}",
+      "images/img-02.png", // "{emotSlot5}",
     ],
     sounds: [
       "sounds/fireworks-build-up.mp3", // {launchSound}
