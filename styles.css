@@ -87,6 +87,17 @@ html {
   display: none;
 }
 
+#vid2 {
+  width: 740px;
+  height: 1080px;
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  margin-left: -370px;
+  z-index: 9999;
+  /* display: none; */
+}
+
 #bit {
   width: auto;
   max-height: 80px;
