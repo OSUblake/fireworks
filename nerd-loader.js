@@ -72,9 +72,13 @@ class NerdLoader {
   loadMedia(url, element) {
     return new Promise(async (resolve, reject) => {
 
-      const cachedUrl = await this.checkCache(url);
-
       const mediaElement = element || document.createElement("video");
+
+      if (!this.videoUrl(url)) {
+        return resolve(mediaElement);
+      }
+
+      const cachedUrl = await this.checkCache(url);
 
       mediaElement.muted = true;
       mediaElement.crossOrigin = "Anonymous";
