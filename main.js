@@ -4,7 +4,7 @@
   const DEG = 180 / Math.PI;
    
   // NerdLoader
-  class NerdLoader{constructor(){this.scriptElements=Array.from(document.querySelectorAll("script")),this.mediaElements=Array.from(document.querySelectorAll("video, audio"))}async load(resources){await Promise.all(resources.scripts.map(url=>this.loadScript(url))),gsap.globalTimeline.getChildren().forEach(animation=>animation.kill());const emoteUrls=resources.emotes.filter(url=>!!url),[emotes,sounds]=await Promise.all([this.loadAssets([...emoteUrls,...emoteUrls]),Promise.all(resources.sounds.map(url=>this.loadSound(url))),Promise.all(this.mediaElements.map(element=>this.loadMedia(String(element.currentSrc),element)))]);return{emotes:emotes,sounds:sounds}}loadAssets(assets){const promises=assets.reduce((res,asset)=>{let promise;return this.imageUrl(asset)?promise=this.loadImage(asset):this.videoUrl(asset)&&(promise=this.loadMedia(asset)),promise&&res.push(promise),res},[]);return Promise.all(promises)}loadImage(url){return new Promise(async(resolve,reject)=>{const cachedUrl=await this.checkCache(url),imageElement=new Image;function fulfill(){imageElement.onload=null,imageElement.onerror=null,resolve(imageElement)}imageElement.crossOrigin="Anonymous",imageElement.src=cachedUrl,imageElement.complete?resolve(imageElement):(imageElement.onload=fulfill,imageElement.onerror=fulfill)})}loadMedia(url,element){return new Promise(async(resolve,reject)=>{const mediaElement=element||document.createElement("video");if(!this.videoUrl(url))return resolve(mediaElement);const cachedUrl=await this.checkCache(url);function fulfill(){return mediaElement.oncanplaythrough=null,mediaElement.onerror=null,resolve(mediaElement)}mediaElement.muted=!0,mediaElement.crossOrigin="Anonymous",mediaElement.src=cachedUrl,mediaElement.readyState>3?resolve(mediaElement):(mediaElement.oncanplaythrough=fulfill,mediaElement.onerror=fulfill)})}loadScript(url){return new Promise(async(resolve,reject)=>{const cachedUrl=await this.checkCache(url),exists=scriptElements.some(scriptElement=>scriptElement.src===cachedUrl);if(exists)return resolve();const script=document.createElement("script");function fulfill(){script.onload=null,script.onerror=null,resolve(script)}document.head.appendChild(script),script.onerror=fulfill,script.onload=fulfill,script.src=cachedUrl})}loadSound(url){return new Promise(async(resolve,reject)=>{const cachedUrl=await this.checkCache(url),sound=new Howl({src:cachedUrl,autoplay:!1,mute:!0,onloaderror:()=>resolve(sound),onload:()=>resolve(sound)})})}videoUrl(image){return image.match(/\.(3gp|mpg|mpeg|mp4|m4v|m4p|ogv|ogg|mov|webm)$/)}imageUrl(image){return image.match(/\.(jpeg|jpg|gif|png|svg|webp)$/)}checkCache(url){return new Promise((resolve,reject)=>{console.log("*** Checking cache url",url),fetch(url).then(()=>resolve(url)).catch(()=>{if(-1!==url.indexOf("nocache"))return reject("Nocache failed");resolve(this.checkCache(`${url}?_nocache=${this.uniqueID()}`))})})}uniqueID(){return Date.now()+Math.random().toString(16).slice(2)}loadScript(url){return new Promise(async(resolve,reject)=>{const exists=this.scriptElements.some(scriptElement=>scriptElement.src===url);if(exists)return resolve();const script=document.createElement("script");document.head.appendChild(script),script.onerror=reject,script.onload=resolve,script.src=url})}static async load(resources){const loader=new NerdLoader;return loader.load(resources)}}
+  class NerdLoader{constructor(){this.resources={}}async load(assets=[]){const scripts=[],images=[],sounds=[],videos=[];return assets.forEach(asset=>{"string"==typeof asset&&(asset={name:asset,url:asset});const ext=((asset.url||"").match(/\.([^.]*?)(?=\?|#|$)/)||[])[1];/(js)$/.test(ext)?scripts.push(asset):/(jpe?g|gif|png|svg|webp)$/.test(ext)?images.push(asset):/(3gp|mpg|mpeg|mp4|m4v|m4p|ogv|ogg|mov|webm)$/.test(ext)?videos.push(asset):/(mp3)$/.test(ext)&&sounds.push(asset)}),await Promise.all(scripts.map(asset=>this.loadScript(asset))),gsap.globalTimeline.getChildren().forEach(animation=>animation.kill()),await Promise.all([...sounds.map(asset=>this.loadSound(asset)),...videos.map(asset=>this.loadVideo(asset)),...images.map(asset=>this.loadImage(asset))]),this.resources}loadImage({name:name,url:url}){return new Promise(async(resolve,reject)=>{const cachedUrl=await this.checkCache(url),imageElement=new Image;function fulfill(){imageElement.onload=null,imageElement.onerror=null,resolve(imageElement)}imageElement.crossOrigin="Anonymous",imageElement.src=cachedUrl,this.resources[name]=imageElement,imageElement.complete?resolve(imageElement):(imageElement.onload=fulfill,imageElement.onerror=fulfill)})}loadVideo({name:name,url:url,target:target}){return new Promise(async(resolve,reject)=>{const cachedUrl=await this.checkCache(url),mediaElement=document.querySelector(target)||document.createElement("video");function fulfill(){return mediaElement.oncanplaythrough=null,mediaElement.onerror=null,resolve(mediaElement)}mediaElement.muted=!0,mediaElement.crossOrigin="Anonymous",mediaElement.src=cachedUrl,this.resources[name]=mediaElement,mediaElement.readyState>3?resolve(mediaElement):(mediaElement.oncanplaythrough=fulfill,mediaElement.onerror=fulfill)})}loadScript({name:name,url:url}){return new Promise(async(resolve,reject)=>{const cachedUrl=await this.checkCache(url),scriptElements=Array.from(document.querySelectorAll("script"));let script=scriptElements.filter(scriptElement=>scriptElement.src===cachedUrl)[0];if(script)return fulfill();function fulfill(){return script.onload=null,script.onerror=null,resolve(script)}script=document.createElement("script"),document.head.appendChild(script),this.resources[name]=script,script.onerror=fulfill,script.onload=fulfill,script.src=cachedUrl})}loadSound({name:name,url:url}){return new Promise(async(resolve,reject)=>{const cachedUrl=await this.checkCache(url),sound=new Howl({src:cachedUrl,autoplay:!1,mute:!0,onloaderror:()=>resolve(sound),onload:()=>resolve(sound)});this.resources[name]=sound})}checkCache(url){return new Promise((resolve,reject)=>{console.log("*** Checking cache",url),fetch(url).then(()=>resolve(url)).catch(()=>{if(-1!==url.indexOf("nocache"))return reject(`Cache failed: ${String(url)}`);resolve(this.checkCache(`${url}?_nocache=${this.uniqueID()}`))})})}uniqueID(){return Date.now()+Math.random().toString(16).slice(2)}static async load(assets){return(new NerdLoader).load(assets)}}
 
   const settings = {
     canvas: document.querySelector("#canvas"),
@@ -13,6 +13,7 @@
     spawnWidth: Number(2000), // {spawnWidth}
     delayTime: Number(10), // {alertDelay}
     volume: Number(100) * 0.01, // {audioVolume}
+    popVolume: Number(100) * 0.01, // {popVolume}
     fireworkType: "emotePopper", // "{fireworkType}" emotePopper, classic, none
     particleSize: 30,
     numParticles: 300,
@@ -36,38 +37,33 @@
   	document.getElementById("bit").style.display = "block";
   }
 
-  const backgroundVideo = document.querySelector("#vid")
+  const resources = await NerdLoader.load([
+    "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.3.4/gsap.min.js",
+    "https://ext-assets.streamlabs.com/users/140067/Physics2DPlugin.min.3.3.4.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.0/howler.min.js",
 
-  const resources = await NerdLoader.load({
-    scripts: [
-      "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.3.4/gsap.min.js",
-      "https://ext-assets.streamlabs.com/users/140067/Physics2DPlugin.min.3.3.4.js",
-      "https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.0/howler.min.js"
-    ],
-    emotes: [
-      "",
-      // "https://uploads.twitchalerts.com/000/070/135/721/fire-HZa.webm", // "{emoteSlot1}",
-      // "https://uploads.twitchalerts.com/000/070/135/721/100-bit.png", // "{emoteSlot2}",
-      // "images/gsap-hero.svg", // "{emoteSlot3}",
-      "", // "{emoteSlot4}",
-      // "images/img-02.png", // "{emoteSlot5}",
-    ],
-    sounds: [
-      "sounds/fireworks-build-up.mp3", // {launchSound}
-      "sounds/main_and_side_pops.mp3" // {popSound}
-    ]
-  });
+    { name: "emoteSlot1", url: "https://uploads.twitchalerts.com/000/070/135/721/fire-HZa.webm" },
+    { name: "emoteSlot2", url: "https://uploads.twitchalerts.com/000/070/135/721/100-bit.png" },
+    { name: "emoteSlot3", url: "" },
+    { name: "emoteSlot4", url: "" },
+    { name: "emoteSlot5", url: "" },
 
+    { name: "launchSound", url: "https://uploads.twitchalerts.com/000/070/135/721/fireworks-build-up.mp3" },
+    { name: "popSound", url: "https://uploads.twitchalerts.com/000/070/135/721/main_and_side_pops.mp3" },
+
+    { name: "backgroundVideo", target: "#vid", url: "https://uploads.twitchalerts.com/000/070/135/721/fireworks-red.webm" }
+  ]);
+  
   animate();
 
   function animate() {
 
     gsap.registerPlugin(Physics2DPlugin);
 
-    Howler.volume(settings.volume);
-
-    const launchSound = resources.sounds[0].mute(false);
-    const popSound = resources.sounds[1].mute(false);
+    const launchSound = resources.launchSound.mute(false).volume(settings.volume);
+    const popSound = resources.popSound.mute(false).volume(settings.popVolume);
+    const backgroundVideo = resources.backgroundVideo;
+    backgroundVideo.volume = settings.volume;
 
     const tl = gsap.timeline({ paused: true })
       .set("#alertHolder", {opacity: 1})
@@ -107,10 +103,18 @@
 
     } else if (settings.fireworkType === "emotePopper") {
 
+      let images = [];
+
+      for (const [key, img] of Object.entries(resources)) {
+        if (key.startsWith("emoteSlot") && (img.naturalWidth || img.videoWidth || img.width)) {
+          images.push(img, img);
+        }
+      }
+
       const fireworks = createFireworks({
         ...settings,
         popSound,
-        images: resources.emotes,
+        images,
         onReady(fireworks) {
           fireworks.play();
           launchSound.play();
@@ -143,7 +147,7 @@
 
     // ShapeTextures
     class ShapeTextures{constructor(fireworks){this.fireworks=fireworks,this.particleSize=fireworks.particleSize,this.shapes={},this.numShapes=0,this.texture=document.createElement("canvas"),this.pad=0;const particleSize=this.particleSize,size=this.size=particleSize+this.pad;this.width=1e3,this.cols=Math.floor(this.width/size),this.rows=1;const p1=new Path2D;p1.rect(this.pad,this.pad,particleSize,particleSize);const p2=new Path2D;p2.moveTo(this.pad+particleSize/2,this.pad),p2.lineTo(size,size),p2.lineTo(this.pad,size),p2.closePath(),this.rectPath=p1,this.trianglePath=p2}addColor(color){const key1=color+"-rect",key2=color+"-triangle";if(this.shapes[key1])return this;this.shapes[key1]=this.addFrame(color,this.rectPath),this.shapes[key2]=this.addFrame(color,this.trianglePath)}addFrame(color,path){const dpr=this.fireworks.dpr,size=this.size,rows=Math.floor(this.numShapes/this.cols);let x=this.numShapes*size%(this.cols*size),y=rows*size;this.rows=rows+1;const frame={color:color,x:x,y:y,path:path,sSize:this.particleSize*dpr,dSize:this.particleSize,sx:x*dpr,sy:y*dpr,texture:this.texture};return this.numShapes++,frame}getFrame(color,shape="rect"){return this.shapes[`${color}-${shape}`]}generate(){const dpr=this.fireworks.dpr;this.height=this.rows*this.size,this.texture.width=this.width*dpr,this.texture.height=this.rows*this.size*dpr;const ctx=this.texture.getContext("2d");for(const[key,frame]of Object.entries(this.shapes))ctx.setTransform(dpr,0,0,dpr,frame.x*dpr,frame.y*dpr),ctx.fillStyle=frame.color,ctx.fill(frame.path),ctx.fillStyle="rgba(0,0,0,0)",ctx.fillRect(0,0,this.width,this.height)}}
-
+    
     // FireworkImage
     class FireworkImage extends DisplayObject{constructor(fireworks,image){super(fireworks),this.origImage=image,this.texture=image,this.imageData=[0,0,0,0],this.isValid=!1,this.isVideo=image instanceof HTMLMediaElement,this.baseWidth=image.naturalWidth||image.videoWidth||image.width,this.baseHeight=image.naturalHeight||image.videoHeight||image.height;const maxSize=this.fireworks.maxImageSize;let ratio=1;this.baseWidth>maxSize?ratio=maxSize/this.baseWidth:this.baseHeight>maxSize&&(ratio=maxSize/this.baseHeight),this.width=Math.floor(this.baseWidth*ratio),this.height=Math.floor(this.baseHeight*ratio),this.originX=this.width/2,this.originY=this.height/2}init(){const texture=this.texture;return new Promise(resolve=>{if(!texture)return console.log("*** FIREWORKS: Invalid Texture"),resolve();if(this.isVideo){const fulfill=()=>{texture.removeEventListener("timeupdate",fulfill),this.resizeImage(),resolve()};texture.addEventListener("timeupdate",fulfill),texture.currentTime=.5*texture.duration}else this.resizeImage(),resolve()})}resizeImage(){const image=this.texture,canvas=document.createElement("canvas"),ctx=canvas.getContext("2d");canvas.width=this.width,canvas.height=this.height,ctx.drawImage(image,0,0,this.baseWidth,this.baseHeight,0,0,this.width,this.height),this.imageData=ctx.getImageData(0,0,canvas.width,canvas.height).data}play(){this.isVideo&&(this.texture.currentTime=0,this.texture.play())}pause(){this.isVideo&&this.texture.pause()}getColor(x=0,y=0){const i=4*(y*this.width+x);return this.imageData[i]?{r:this.imageData[i],g:this.imageData[i+1],b:this.imageData[i+2],a:this.imageData[i+3]/255}:{r:0,g:0,b:0,a:0}}render(){const ctx=this.fireworks.ctx;this.setTransform(),ctx.globalAlpha=1,ctx.drawImage(this.texture,0,0,this.baseWidth,this.baseHeight,0,0,this.width,this.height)}}
 

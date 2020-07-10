@@ -1,51 +1,51 @@
 class NerdLoader {
 
   constructor() {
-    this.scriptElements = Array.from(document.querySelectorAll("script"));
-    this.mediaElements = Array.from(document.querySelectorAll("video, audio"));
+    this.resources = {};
   }
 
-  async load(resources) {
+  async load(assets = []) {
 
-    await Promise.all(resources.scripts.map(url => this.loadScript(url)));
+    const scripts = [];
+    const images = [];
+    const sounds = [];
+    const videos = [];
+
+    assets.forEach(asset => {
+
+      if (typeof asset === "string") {
+        asset = { name: asset, url: asset };
+      }
+
+      const ext = ((asset.url || "").match(/\.([^.]*?)(?=\?|#|$)/) || [])[1];
+
+      if (/(js)$/.test(ext)) {
+        scripts.push(asset);
+      }  else if (/(jpe?g|gif|png|svg|webp)$/.test(ext)) {
+        images.push(asset)
+      } else if (/(3gp|mpg|mpeg|mp4|m4v|m4p|ogv|ogg|mov|webm)$/.test(ext)) {
+        videos.push(asset);
+      } else if (/(mp3)$/.test(ext)) {
+        sounds.push(asset);
+      }
+    });
+
+    // load scripts first for howler
+    await Promise.all(scripts.map(asset => this.loadScript(asset)));
 
     // kill any previous running animations
-    gsap.globalTimeline.getChildren().forEach(animation => animation.kill());    
+    gsap.globalTimeline.getChildren().forEach(animation => animation.kill());   
 
-    const emoteUrls = resources.emotes.filter(url => !!url);
-
-    const [emotes, sounds] = await Promise.all([
-      this.loadAssets([...emoteUrls, ...emoteUrls]),
-      Promise.all(resources.sounds.map(url => this.loadSound(url))),
-      Promise.all(this.mediaElements.map(element => this.loadMedia(String(element.currentSrc), element)))
+    await Promise.all([
+      ...sounds.map(asset => this.loadSound(asset)),
+      ...videos.map(asset => this.loadVideo(asset)),
+      ...images.map(asset => this.loadImage(asset)),
     ]);
 
-    return { emotes, sounds };
+    return this.resources;
   }
 
-  loadAssets(assets) {
-
-    const promises = assets.reduce((res, asset) => {
-
-      let promise;
-      
-      if (this.imageUrl(asset)) {
-        promise = this.loadImage(asset);   
-      } else if (this.videoUrl(asset)) {
-        promise = this.loadMedia(asset);
-      }
-
-      if (promise) {
-        res.push(promise);
-      }
-
-      return res;
-    }, []);    
-
-    return Promise.all(promises);
-  }
-
-  loadImage(url) {
+  loadImage({ name, url}) {
     return new Promise(async (resolve, reject) => {   
 
       const cachedUrl = await this.checkCache(url);
@@ -53,6 +53,7 @@ class NerdLoader {
       const imageElement = new Image();
       imageElement.crossOrigin = "Anonymous";
       imageElement.src = cachedUrl;
+      this.resources[name] = imageElement;
 
       if (imageElement.complete) {
         resolve(imageElement);
@@ -69,20 +70,16 @@ class NerdLoader {
     });
   }
 
-  loadMedia(url, element) {
+  loadVideo({ name, url, target }) {
     return new Promise(async (resolve, reject) => {
 
-      const mediaElement = element || document.createElement("video");
-
-      if (!this.videoUrl(url)) {
-        return resolve(mediaElement);
-      }
-
       const cachedUrl = await this.checkCache(url);
+      const mediaElement = document.querySelector(target) || document.createElement("video");
 
       mediaElement.muted = true;
       mediaElement.crossOrigin = "Anonymous";
       mediaElement.src = cachedUrl;
+      this.resources[name] = mediaElement;
 
       if (mediaElement.readyState > 3) {
         resolve(mediaElement);
@@ -99,33 +96,34 @@ class NerdLoader {
     });    
   }
 
-  loadScript(url) {
+  loadScript({ name, url }) {
     return new Promise(async (resolve, reject) => {
 
       const cachedUrl = await this.checkCache(url);
+      const scriptElements = Array.from(document.querySelectorAll("script"));
+      let script = scriptElements.filter(scriptElement => scriptElement.src === cachedUrl)[0];
 
-      const exists = scriptElements.some((scriptElement) => scriptElement.src === cachedUrl);
-
-      if (exists) {
-        return resolve();
+      if (script) {
+        return fulfill();
       }
-
-      const script = document.createElement("script");
+      
+      script = document.createElement("script");
       document.head.appendChild(script);
+      this.resources[name] = script;
   
       script.onerror = fulfill;
       script.onload = fulfill;
-      script.src = cachedUrl;
+      script.src = cachedUrl;     
 
       function fulfill() {
         script.onload = null;
         script.onerror = null;
-        resolve(script);
+        return resolve(script);
       }
     });
   }
 
-  loadSound(url) {
+  loadSound({ name, url }) {
     return new Promise(async (resolve, reject) => {
 
       const cachedUrl = await this.checkCache(url);
@@ -137,27 +135,25 @@ class NerdLoader {
         onloaderror: () => resolve(sound),
         onload: () => resolve(sound)
       });
+
+      this.resources[name] = sound;
     });
-  }
-
-  videoUrl(image) {
-    return image.match(/\.(3gp|mpg|mpeg|mp4|m4v|m4p|ogv|ogg|mov|webm)$/);
-  }
-
-  imageUrl(image) {
-    return image.match(/\.(jpeg|jpg|gif|png|svg|webp)$/);
   }
 
   checkCache(url) {
     return new Promise((resolve, reject) => {
 
-      console.log("*** Checking cache url", url);
+      // if (!url) {
+      //   return resolve();
+      // }
+
+      console.log("*** Checking cache", url);
 
       fetch(url)
         .then(() => resolve(url))
         .catch(() => {
           if (url.indexOf("nocache") !== -1) {
-            return reject("Nocache failed");
+            return reject(`Cache failed: ${String(url)}`);
           }
           resolve(this.checkCache(`${url}?_nocache=${this.uniqueID()}`));
         });
@@ -168,25 +164,7 @@ class NerdLoader {
     return Date.now() + Math.random().toString(16).slice(2);
   }
 
-  loadScript(url) {
-    return new Promise(async (resolve, reject) => {
-      const exists = this.scriptElements.some((scriptElement) => scriptElement.src === url);
-
-      if (exists) {
-        return resolve();
-      }
-
-      const script = document.createElement("script");
-      document.head.appendChild(script);
-  
-      script.onerror = reject;
-      script.onload = resolve;
-      script.src = url;
-    });
-  }
-
-  static async load(resources) {
-    const loader = new NerdLoader();  
-    return loader.load(resources);    
+  static async load(assets) {
+    return new NerdLoader().load(assets);
   }
 }
