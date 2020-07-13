@@ -103,13 +103,15 @@
 
     } else if (settings.fireworkType === "emotePopper") {
 
-      let images = [];
+      let images = [
+        resources.emoteSlot1,
+        resources.emoteSlot2,
+        resources.emoteSlot3,
+        resources.emoteSlot4,
+        resources.emoteSlot5
+      ].filter(img => !!img && (img.naturalWidth || img.videoWidth || img.width));
 
-      for (const [key, img] of Object.entries(resources)) {
-        if (key.startsWith("emoteSlot") && (img.naturalWidth || img.videoWidth || img.width)) {
-          images.push(img, img);
-        }
-      }
+      images = [...images, ...images];
 
       const fireworks = createFireworks({
         ...settings,
