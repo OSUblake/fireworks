@@ -42,16 +42,16 @@
     "https://ext-assets.streamlabs.com/users/140067/Physics2DPlugin.min.3.3.4.js",
     "https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.0/howler.min.js",
 
-    { name: "emoteSlot1", url: "https://uploads.twitchalerts.com/000/070/135/721/fire-HZa.webm" },
-    { name: "emoteSlot2", url: "https://uploads.twitchalerts.com/000/070/135/721/100-bit.png" },
-    { name: "emoteSlot3", url: "" },
-    { name: "emoteSlot4", url: "" },
-    { name: "emoteSlot5", url: "" },
+    { name: "emoteSlot1", url: "https://uploads.twitchalerts.com/000/070/135/721/fire-HZa.webm" }, // {emoteSlot1}
+    { name: "emoteSlot2", url: "https://uploads.twitchalerts.com/000/070/135/721/100-bit.png" }, // {emoteSlot2}
+    { name: "emoteSlot3", url: "" }, // {emoteSlot3}
+    { name: "emoteSlot4", url: "" }, // {emoteSlot4}
+    { name: "emoteSlot5", url: "" }, // {emoteSlot5}
 
-    { name: "launchSound", url: "https://uploads.twitchalerts.com/000/070/135/721/fireworks-build-up.mp3" },
-    { name: "popSound", url: "https://uploads.twitchalerts.com/000/070/135/721/main_and_side_pops.mp3" },
+    { name: "launchSound", url: "https://uploads.twitchalerts.com/000/070/135/721/fireworks-build-up.mp3" },// {launchSound}
+    { name: "popSound", url: "https://uploads.twitchalerts.com/000/070/135/721/main_and_side_pops.mp3" }, // {popSound}
 
-    { name: "backgroundVideo", target: "#vid", url: "https://uploads.twitchalerts.com/000/070/135/721/fireworks-red.webm" }
+    { name: "backgroundVideo", target: "#vid", url: "https://uploads.twitchalerts.com/000/070/135/721/fireworks-red.webm" } // https://uploads.twitchalerts.com/000/070/135/721/fireworks-{backgroundVideo}.webm
   ]);
   
   animate();
