@@ -8,7 +8,7 @@
 
   const settings = {
     canvas: document.querySelector("#canvas"),
-    maxFireworks: Number(3), // {maxFireworks}
+    maxFireworks: Number(20), // {maxFireworks}
     maxImageSize: Number(100), // {maxImageSize}
     spawnWidth: Number(2000), // {spawnWidth}
     delayTime: Number(10), // {alertDelay}
@@ -103,7 +103,7 @@
 
     } else if (settings.fireworkType === "emotePopper") {
 
-      let images = [
+      const allImages = [
         resources.emoteSlot1,
         resources.emoteSlot2,
         resources.emoteSlot3,
@@ -111,7 +111,14 @@
         resources.emoteSlot5
       ].filter(img => !!img && (img.naturalWidth || img.videoWidth || img.width));
 
-      images = [...images, ...images];
+      const images = [allImages[0]];
+      let i = 1;
+
+      const randomImage = gsap.utils.random(allImages, true);
+
+      while (i++ < settings.maxFireworks) {
+        images.push(randomImage());
+      }
 
       const fireworks = createFireworks({
         ...settings,
