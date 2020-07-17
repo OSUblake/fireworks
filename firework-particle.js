@@ -33,6 +33,8 @@ class FireworkParticle extends DisplayObject {
       velocity
     } = fireworks.particleVars;
 
+    // this.rotation = currentRotation;
+    
     this.rotation = Math.random() * Math.PI;    
     this.alpha = startAlpha();
     this.scaleX = this.scaleY = scale();

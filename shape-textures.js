@@ -9,7 +9,7 @@ class ShapeTextures {
     this.numShapes = 0;
 
     this.texture = document.createElement("canvas");
-    this.pad = 0;
+    this.pad = 4;
 
     const particleSize = this.particleSize;
     const size = this.size = particleSize + this.pad;
@@ -19,12 +19,12 @@ class ShapeTextures {
     this.rows = 1;
 
     const p1 = new Path2D();
-    p1.rect(this.pad, this.pad, particleSize, particleSize);
+    p1.rect(0, 0, particleSize, particleSize);
     
     const p2 = new Path2D();
-    p2.moveTo(this.pad + particleSize / 2, this.pad);
-    p2.lineTo(size, size);
-    p2.lineTo(this.pad, size);
+    p2.moveTo(particleSize / 2, 0);
+    p2.lineTo(particleSize, particleSize);
+    p2.lineTo(0, particleSize);
     p2.closePath();
     
     this.rectPath = p1;

@@ -348,8 +348,7 @@ class Fireworks {
     ctx.clearRect(0, 0, width, height);
     ctx.globalAlpha = 1;
 
-    ctx.imageSmoothingEnabled = false;
-    // ctx.imageSmoothingQuality = "high";
+    // ctx.drawImage(this.shapeTextures.texture, 0, 0);
 
     for (i = 0; i < trailParticles.length; i++) {
       const particle = trailParticles[i];
@@ -359,8 +358,6 @@ class Fireworks {
         aliveCount++;
       }
     }
-
-    ctx.imageSmoothingEnabled = true;
 
     for (i = 0; i < emitters.length; i++) {
       emitters[i].update();
