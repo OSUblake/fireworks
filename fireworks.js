@@ -27,8 +27,8 @@ class Fireworks {
 
   prepare() {
 
-    const firstImage = this.images.shift();
-    this.images = [firstImage, ...gsap.utils.shuffle(this.images)].slice(0, this.maxFireworks);
+    // const firstImage = this.images.shift();
+    // this.images = [firstImage, ...gsap.utils.shuffle(this.images)].slice(0, this.maxFireworks);
 
     this.emitters = this.images.map((img, i) => new FireworkEmitter(this, img));
 
