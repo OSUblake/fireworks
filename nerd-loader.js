@@ -150,6 +150,7 @@ class NerdLoader {
       console.log("*** Checking cache", url);
 
       fetch(url)
+      // fetch(url, {cache: "force-cache"})
         .then(() => resolve(url))
         .catch(() => {
           if (url.indexOf("nocache") !== -1) {

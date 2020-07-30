@@ -16,7 +16,7 @@
     popVolume: Number(100) * 0.01, // {popVolume}
     fireworkType: "emotePopper", // "{fireworkType}" emotePopper, classic, none
     fireworkOrder: "ordered", // "{fireworkOrder}" random, ordered
-    fireworkDelay: Number(0.05), // {fireworkDelay} a value of 0 is normal
+    fireworkDelay: Number(0.9), // {fireworkDelay} a value of 0 is normal
     particleSize: 30,
     numParticles: 300,
     mainExplodeY: 330,

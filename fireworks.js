@@ -2,6 +2,8 @@ class Fireworks {
 
   constructor(settings) {
 
+    gsap.ticker.lagSmoothing(0);
+
     Object.assign(this, settings);
 
     this.canPlay = false;
@@ -94,7 +96,9 @@ class Fireworks {
         
 
         if (this.fireworkDelay) {
-          delay = `>${this.fireworkDelay}`;
+          // delay = `>${this.fireworkDelay}`;
+          const delayOffset = this.fireworkDelay * 0.2;
+          delay = this.fireworkDelay * index + gsap.utils.random(-delayOffset, delayOffset);
         } else {
           delay = randomDelay();
         }
@@ -265,6 +269,8 @@ class Fireworks {
 
     const count = isMain ? gsap.utils.random(6, 9, 1) : gsap.utils.random(2, 3, 1);
 
+    const trailTimeline = gsap.timeline();
+
     for (let i = 0; i < count; i++) {
 
       const color = randomColor();      
@@ -354,11 +360,14 @@ class Fireworks {
         });
 
       // this.fireworksTimeline.add(tweener, delay);
+      trailTimeline.add(tweener, 0);
 
       this.trailParticles.push(particle);
 
-      return tweener;
+      // return tweener;
     }
+
+    return trailTimeline;
   }  
 
   createVars() {
@@ -404,6 +413,10 @@ class Fireworks {
 
   kill() {
     gsap.ticker.remove(this.render);
+
+    if (this.debug) {
+      console.log("*** Fireworks complete");
+    }
   }
 
   fireReady() {
