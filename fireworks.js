@@ -16,9 +16,15 @@ class Fireworks {
     this.randomColor = gsap.utils.random(this.colors, true);
     this.randomShape = gsap.utils.random(["triangle", "rect"], true);
     
-    this.images = this.images.filter(img => img instanceof HTMLElement && (img.naturalWidth || img.videoWidth || img.width));
+    // this.images = this.images.filter(img => img instanceof HTMLElement && (img.naturalWidth || img.videoWidth || img.width));
 
-    if (this.images.length) {
+    // if (this.images.length) {
+    //   this.prepare();
+    // } else {
+    //   this.fireReady();
+    // }
+
+    if (this.emotes.length) {
       this.prepare();
     } else {
       this.fireReady();
@@ -30,7 +36,8 @@ class Fireworks {
     // const firstImage = this.images.shift();
     // this.images = [firstImage, ...gsap.utils.shuffle(this.images)].slice(0, this.maxFireworks);
 
-    this.emitters = this.images.map((img, i) => new FireworkEmitter(this, img));
+    // this.emitters = this.images.map((img, i) => new FireworkEmitter(this, img));
+    this.emitters = this.emotes.map(emote => new FireworkEmitter(this, emote));
 
     this.onResize();
     this.createVars();
@@ -84,7 +91,13 @@ class Fireworks {
       } else {
         peakY = randomY();
         explodeY = peakY + drop;
-        delay = randomDelay();
+        
+
+        if (this.fireworkDelay) {
+          delay = `>${this.fireworkDelay}`;
+        } else {
+          delay = randomDelay();
+        }
       }
 
       emitter.rotationSign = sign;
@@ -111,6 +124,33 @@ class Fireworks {
           y: 0
         }, ">");
 
+      // let launchTime = 0;
+      // let lastTime = 0;
+
+      // for (let i = 0; i <= 1; i += 0.01) {
+
+      //   const currentTime = duration * i;
+
+      //   // tl.time(currentTime, true);
+      //   tl.time(currentTime, true);
+
+      //   // console.log("EMITTER Y", emitter.y)
+
+      //   if (emitter.y < explodeY) {
+      //     // emitter.init();
+      //     launchTime = lastTime;
+      //     // break;
+      //   }
+
+      //   lastTime = currentTime;
+      // }
+
+      // tl.add(() => emitter.launch(), launchTime);
+
+      // console.log("**** LAUNCH TIME", launchTime)
+
+      // tl.progress(0, true);
+
       tl.time(duration, true);
 
       let explodeTime = 0;
@@ -132,29 +172,61 @@ class Fireworks {
 
       const progress = explodeTime / tl.duration();
 
-      const tweener = gsap.to(tl, {
-        duration: this.explodeTime,
-        progress,
-        ease: "none",
+      // const tweener = gsap.to(tl, {
+      //   duration: this.explodeTime,
+      //   progress,
+      //   ease: "none",
+      //   onStart: () => {
+      //     emitter.play();
+      //   },
+      //   onComplete: () => {
+      //     tl.kill();
+      //     emitter.explode();
+      //     // this.popSound.play();
+      //   }
+      // });
+
+      const tweener = gsap.timeline({
         onStart: () => {
           emitter.play();
         },
+        // onComplete: () => {
+        //   tl.kill();
+        //   emitter.explode();
+        //   // this.popSound.play();
+        // }
+      })
+      .to(tl, {
+        duration: this.explodeTime,
+        progress,
+        ease: "none",
+        // onStart: () => {
+        //   emitter.play();
+        // },
         onComplete: () => {
           tl.kill();
           emitter.explode();
-          this.popSound.play();
+          // this.popSound.play();
         }
-      });
+      }, 0);
 
-      this.createTrailParticles({
+      const trailAnimation = this.createTrailParticles({
         emitter,
         startY: emitter.y,
         endY: explodeY,
         isMain,
-        delay
+        // delay
       });
+
+      tweener.add(trailAnimation, 0);
          
-      this.fireworksTimeline.add(tweener, delay);           
+      this.fireworksTimeline.add(tweener, delay);        
+      
+      // if (this.fireworkDelay) {
+
+      // } else {
+
+      // }
     });
   }
 
@@ -281,9 +353,11 @@ class Fireworks {
           ease: "none"            
         });
 
-      this.fireworksTimeline.add(tweener, delay);
+      // this.fireworksTimeline.add(tweener, delay);
 
       this.trailParticles.push(particle);
+
+      return tweener;
     }
   }  
 
@@ -348,7 +422,9 @@ class Fireworks {
     ctx.clearRect(0, 0, width, height);
     ctx.globalAlpha = 1;
 
-    // ctx.drawImage(this.shapeTextures.texture, 0, 0);
+    if (this.debug) {
+      ctx.drawImage(this.shapeTextures.texture, 0, 0);
+    }
 
     for (i = 0; i < trailParticles.length; i++) {
       const particle = trailParticles[i];

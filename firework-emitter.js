@@ -1,10 +1,12 @@
 class FireworkEmitter {
 
-  constructor(fireworks, image) {
+  constructor(fireworks, emote) {
 
+    this.emote = emote;
     this.fireworks = fireworks;
-    this.image = new FireworkImage(fireworks, image);
+    this.image = new FireworkImage(fireworks, emote.image);
     this.exploded = false;    
+    this.launched = false;
     this.x = 0;
     this.y = 0;
     this.rotation = 0;
@@ -22,6 +24,11 @@ class FireworkEmitter {
     this.image.play();
   }
 
+  launch() {
+    this.emote.launchSound.play();
+    this.launched = true;
+  }
+
   explode() {
 
     const particles = this.particles;
@@ -29,6 +36,8 @@ class FireworkEmitter {
     for (let i = 0; i < particles.length; i++) {
       particles[i].play();
     }
+
+    this.emote.popSound.play();
 
     this.exploded = true;
   }
@@ -112,6 +121,10 @@ class FireworkEmitter {
     const { exploded, image, particles, x, y } = this;
 
     let alive = 0;
+
+    if (!this.launched && y < 0) {
+      this.launch();
+    }
 
     if (!exploded) {
 
