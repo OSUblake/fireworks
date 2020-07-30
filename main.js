@@ -25,6 +25,7 @@
     minImageSizeSlider: 10, // based on maxImageSize slider 
     maxImageSizeSlider: 1000, // based on maxImageSize slider
     clusterParticles: true, // group extra particles in the center of image
+    debug: true, // dev info
     colors: [
       "#F05189", // red
       "#00CCFF", // blue
