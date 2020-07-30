@@ -63,8 +63,8 @@
     { name: "popSound4", url: "sounds/firework_explode_06.wav" }, // {popSound4}
     { name: "popSound5", url: "sounds/firework_explode_07.wav" }, // {popSound5}
 
-    { name: "launchSound", url: "sounds/firework_launch_01.wav" },// {launchSound}
-    { name: "popSound", url: "sounds/firework_explode_07.wav" }, // {popSound}
+    { name: "launchSound", url: "sounds/firework_launch_01.wav" },// {launchSound} for classic video?
+    { name: "popSound", url: "sounds/firework_explode_07.wav" }, // {popSound} for classic video?
 
     { name: "backgroundVideo", target: "#vid", url: "https://uploads.twitchalerts.com/000/070/135/721/fireworks-red.webm" } // https://uploads.twitchalerts.com/000/070/135/721/fireworks-{backgroundVideo}.webm
   ]);
