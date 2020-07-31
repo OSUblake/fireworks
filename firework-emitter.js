@@ -29,21 +29,26 @@ class FireworkEmitter {
     this.container2 = new PIXI.Container();
     this.container2.addChild(this.container);
 
-    var filter = new PIXI.filters.GlowFilter({ 
+    var filter2 = new PIXI.filters.GlowFilter({ 
       // distance: 15, 
-      outerStrength: 2,
+      outerStrength: 0,
       // knockout: true
     });
 
-    filter = new PIXI.filters.AdvancedBloomFilter({
-      
+    this.filter2 = filter2;
+
+    var filter = new PIXI.filters.AdvancedBloomFilter({
+
     })
 
     // filter = new PIXI.filters.OutlineFilter(10, 0xff0000)
 
     // console.log("FILTER", filter)
 
-    this.container2.filters = [filter];
+    this.container2.filters = [
+      filter2,
+      filter, 
+    ];
 
     this.timeline = gsap.timeline({
       paused: true,
@@ -72,6 +77,11 @@ class FireworkEmitter {
   }
 
   explode() {
+
+    gsap.to(this.filter2, {
+      outerStrength: 2,
+      duration: this.timeline.duration()
+    })
 
     const particles = this.particles;
 
