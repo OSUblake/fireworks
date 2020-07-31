@@ -164,7 +164,7 @@ class FireworkParticle extends PIXI.Sprite {
     // this.timeline.kill();
     this.alpha = 0;
     this.alive = false;
-    // this.parent.removeChild(this);
+    this.parent.removeChild(this);
     
   }
 

@@ -57,11 +57,18 @@ class FireworkEmitter {
 
     // console.log("FILTER", filter)
 
-    this.container2.filters = [
-      // filter, 
-      // filter3,
-      filter2,
-    ];
+    
+
+    if (fireworks.useFilters) {
+
+      this.container2.filters = [
+        // filter, 
+        // filter3,
+  
+        filter2,
+      ];
+
+    }
 
     this.timeline = gsap.timeline({
       paused: true,
