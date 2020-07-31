@@ -41,7 +41,8 @@
   }
 
   const resources = await NerdLoader.load([
-    "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.3.4/gsap.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.3.4/gsap.js",
+    // "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.3.4/gsap.min.js",
     "https://ext-assets.streamlabs.com/users/140067/Physics2DPlugin.min.3.3.4.js",
     "https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.0/howler.min.js",
 
@@ -166,9 +167,9 @@
         popSound,
         emotes,
         onReady(fireworks) {
-          fireworks.play();
+          fireworks.play(tl);
           // launchSound.play();
-          tl.play();
+          // tl.play();
         }
       });
 

@@ -17,7 +17,7 @@ class FireworkParticle extends DisplayObject {
     this.originY = this.size / 2;
   }
 
-  init(cx, cy, currentRotation) {
+  init(cx, cy, currentRotation, timeline) {
 
     const { dx, dy, fireworks } = this;
 
@@ -68,13 +68,17 @@ class FireworkParticle extends DisplayObject {
       maxAngle = 360;
     }
 
-    this.timeline = gsap.timeline({
-        paused: true
-      })
+    // this.timeline = gsap.timeline({
+    //     paused: true
+    //   })
+    timeline
+      .add(() => this.alive = true, 0)
       .to(this, {
         duration,
         alpha: 0,
-        onComplete: () => this.kill()
+        // onStart: () => this.alive = true,
+        // onComplete: () => this.kill()
+        onComplete: () => this.alive = false
       }, 0.2)
       .to(this, {
         duration,
@@ -93,23 +97,23 @@ class FireworkParticle extends DisplayObject {
   }
 
   play() {
-    if (!this.timeline) {
-      console.log("*** No particle timeline");
-      return;
-    }
+    // if (!this.timeline) {
+    //   console.log("*** No particle timeline");
+    //   return;
+    // }
 
-    this.alive = true;
-    this.timeline.play();
+    // this.alive = true;
+    // this.timeline.play();
   }
 
   kill() {
-    this.timeline.kill();
-    this.alive = false;
+    // this.timeline.kill();
+    // this.alive = false;
   }
 
   render() {
 
-    if (!this.alpha || (!this.scaleX && !this.scaleY)) {
+    if (!this.alpha || !this.scaleX || !this.scaleY) {
       return;
     }
 

@@ -17,6 +17,10 @@ class Fireworks {
     this.colors.forEach(color => this.shapeTextures.addColor(color));
     this.randomColor = gsap.utils.random(this.colors, true);
     this.randomShape = gsap.utils.random(["triangle", "rect"], true);
+
+    this.getFPS = this.smoothedAverage(0.9);
+    // this.getFPS = this.movingAverage();
+    // this.ct = 0;
     
     // this.images = this.images.filter(img => img instanceof HTMLElement && (img.naturalWidth || img.videoWidth || img.width));
 
@@ -398,17 +402,31 @@ class Fireworks {
     this.offsetY = this.height;
 
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+
+    this.ctx.font = "700 18px monospace";
   }
 
-  play() {
+  play(tl) {
 
     if (!this.canPlay) {
       console.log("*** Fireworks can't play");
       return;
     }
 
-    this.fireworksTimeline.play();
+    this.fireworksTimeline.play(0);
+    // this.fireworksTimeline.pause(0.5);
+    // this.render(0, 1);
+    tl.play(0);
     gsap.ticker.add(this.render);  
+
+    // gsap.ticker.remove(gsap.updateRoot);
+    // this.fireworksTimeline.play();
+
+    // this.startTime = this.lastTime = Date.now();
+    // this.update();
+
+    
+    // requestAnimationFrame(() => this.update());
   }
 
   kill() {
@@ -424,7 +442,54 @@ class Fireworks {
     this.onReady && this.onReady.call(this, this);
   }
 
-  render() {
+  smoothedAverage(smoothing = 0.9) {
+    
+    let smoothingInv = 1 - smoothing;
+    let measurement = 0;
+    
+    return current => {
+      measurement = (measurement * smoothing) + (current * smoothingInv);
+      return measurement;
+    }
+  }
+
+  // movingAverage(numSamples = 100) {
+  
+  //   let index = 0;
+  //   let sum = 0;
+  //   let samples = Array(numSamples).fill(0);
+            
+  //   return (newValue, valid) => {
+      
+  //     sum -= samples[index];
+  //     sum += newValue;
+  //     samples[index] = newValue;    
+  //     index = (index + 1) % numSamples;
+      
+  //     return sum / numSamples;
+  //   }
+  // }
+
+  // update() {
+
+  //   const currentTime = Date.now();
+  //   const elapsed = currentTime - this.lastTime;
+  //   gsap.updateRoot((currentTime - this.startTime) / 1000);
+  //   this.render(0, elapsed);
+  //   this.lastTime = currentTime;
+
+  //   if (this.fireworksTimeline.progress() < 1) {
+  //     requestAnimationFrame(() => this.update());
+      
+  //   }
+
+  // }
+
+  render(time, deltaTime) {
+
+    // if (this.ct++ < 100) {
+    //   console.log("ELAPSED", deltaTime)
+    // }
 
     const { ctx, emitters, width, height, trailParticles } = this;
 
@@ -437,6 +502,18 @@ class Fireworks {
 
     if (this.debug) {
       ctx.drawImage(this.shapeTextures.texture, 0, 0);
+      // ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+      // ctx.fillRect(0, 0, 200, 100);
+      const fps = `FPS: ${this.getFPS(1000 / deltaTime).toFixed(0)}`;
+      ctx.fillStyle = "#ffffff";      
+      // ctx.strokeStyle = "#000000";
+      ctx.shadowColor = "#000000";
+      // ctx.shadowBlur = 5;
+      ctx.shadowOffsetX = 1;
+      ctx.shadowOffsetY = 1;
+      ctx.fillText(fps, 10, 20);
+      ctx.shadowColor = "transparent";
+      // ctx.strokeText(fps, 10, 20);
     }
 
     for (i = 0; i < trailParticles.length; i++) {

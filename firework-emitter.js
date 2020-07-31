@@ -13,6 +13,10 @@ class FireworkEmitter {
     this.rotationSign = 1;
     this.particles = [];
     this.aliveCount = 1;
+
+    this.timeline = gsap.timeline({
+      paused: true
+    });
   }
 
   async prepare() {
@@ -25,6 +29,9 @@ class FireworkEmitter {
   }
 
   launch() {
+
+    
+
     this.emote.launchSound.play();
     this.launched = true;
   }
@@ -34,8 +41,11 @@ class FireworkEmitter {
     const particles = this.particles;
 
     for (let i = 0; i < particles.length; i++) {
-      particles[i].play();
+      // particles[i].play();
+      // particles[i].alive = true;
     }
+
+    this.timeline.play();
 
     this.emote.popSound.play();
 
@@ -47,7 +57,7 @@ class FireworkEmitter {
     const { particles, x, y, rotation, rotationSign } = this;
 
     for (let i = 0; i < particles.length; i++) {
-      particles[i].init(x, y, rotation, rotationSign);
+      particles[i].init(x, y, rotation, this.timeline);
     }
   }
 
