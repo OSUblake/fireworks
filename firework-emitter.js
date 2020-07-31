@@ -24,10 +24,28 @@ class FireworkEmitter {
       tint: true
     });
 
+    this.container = new PIXI.Container();
+
+    this.container2 = new PIXI.Container();
+    this.container2.addChild(this.container);
+
+    var filter = new PIXI.filters.GlowFilter({ 
+      // distance: 15, 
+      outerStrength: 2,
+      // knockout: true
+    });
+
+    // filter = new PIXI.filters.OutlineFilter(10, 0xff0000)
+
+    console.log("FILTER", filter)
+
+    this.container2.filters = [filter];
+
     this.timeline = gsap.timeline({
       paused: true,
       onComplete: () => {
-        this.fireworks.particleContainer.removeChild(this.container);
+        this.fireworks.particleContainer.removeChild(this.container2);
+        // this.fireworks.particleContainer.removeChild(this.container);
       }
     });
   }
@@ -58,7 +76,8 @@ class FireworkEmitter {
       // particles[i].alive = true;
     // }
 
-    this.fireworks.particleContainer.addChild(this.container);
+    // this.fireworks.particleContainer.addChild(this.container);
+    this.fireworks.particleContainer.addChild(this.container2);
 
     this.timeline.play();
     this.emote.popSound.play();
@@ -137,7 +156,8 @@ class FireworkEmitter {
           // frame: shapeTextures.getFrame(rgb, shape)
         });
 
-        fireworks.particleContainer.addChild(particle);
+        // fireworks.particleContainer.addChild(particle);
+        this.container.addChild(particle);
         particle.alpha = 1;
 
         this.particles.push(particle);        
