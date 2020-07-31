@@ -41,7 +41,7 @@
   };
   
   if (Boolean(true)) { // {displayGif}
-  	// document.getElementById("bit").style.display = "block";
+  	document.getElementById("bit").style.display = "block";
   }
 
   const resources = await NerdLoader.load([

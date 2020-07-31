@@ -50,6 +50,7 @@ class FireworkEmitter {
     this.timeline.play();
     this.emote.popSound.play();
     this.image.alpha = 0;
+    this.fireworks.emitterContainer.removeChild(this.image);
 
     this.exploded = true;
   }
