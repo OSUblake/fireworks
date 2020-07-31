@@ -35,9 +35,13 @@ class FireworkEmitter {
       // knockout: true
     });
 
+    filter = new PIXI.filters.AdvancedBloomFilter({
+      
+    })
+
     // filter = new PIXI.filters.OutlineFilter(10, 0xff0000)
 
-    console.log("FILTER", filter)
+    // console.log("FILTER", filter)
 
     this.container2.filters = [filter];
 
