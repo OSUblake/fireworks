@@ -51,7 +51,7 @@
     "https://ext-assets.streamlabs.com/users/140067/Physics2DPlugin.min.3.3.4.js",
     "https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.0/howler.min.js",
 
-    { name: "emoteSlot1", url: "images/pink.png" }, // {emoteSlot1}
+    { name: "emoteSlot1", url: "videos/fire.webm" }, // {emoteSlot1}
     { name: "emoteSlot2", url: "images/orange.png" }, // {emoteSlot2}
     { name: "emoteSlot3", url: "images/purple.png" }, // {emoteSlot3}
     { name: "emoteSlot4", url: "images/teal.png" }, // {emoteSlot4}
