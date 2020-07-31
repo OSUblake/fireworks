@@ -24,14 +24,14 @@ class Fireworks extends PIXI.Application {
     //   tint: true
     // });
 
-    // this.particleContainer = new PIXI.Container();
-    this.particleContainer = new PIXI.ParticleContainer(10000, {
-      vertices: true,
-      position: true,
-      rotation: true,
-      // uvs: true,
-      tint: true
-    });
+    this.particleContainer = new PIXI.Container();
+    // this.particleContainer = new PIXI.ParticleContainer(10000, {
+    //   vertices: true,
+    //   position: true,
+    //   rotation: true,
+    //   // uvs: true,
+    //   tint: true
+    // });
 
 
     this.mainContainer = new PIXI.Container();
@@ -314,8 +314,8 @@ class Fireworks extends PIXI.Application {
 
       particle.scale.set(scale);
       particle.texture = new PIXI.Texture(this.shapesBaseTexture, rect);
-      this.particleContainer.addChild(particle);
-      // this.emitterContainer.addChild(particle);
+      // this.particleContainer.addChild(particle);
+      this.emitterContainer.addChild(particle);
 
       // console.log("PARTICLE", particle)
 

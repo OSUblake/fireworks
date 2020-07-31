@@ -16,8 +16,19 @@ class FireworkEmitter {
 
     fireworks.emitterContainer.addChild(this.image);
 
+    this.container = new PIXI.ParticleContainer(1500, {
+      vertices: true,
+      position: true,
+      rotation: true,
+      // uvs: true,
+      tint: true
+    });
+
     this.timeline = gsap.timeline({
-      paused: true
+      paused: true,
+      onComplete: () => {
+        this.fireworks.particleContainer.removeChild(this.container);
+      }
     });
   }
 
@@ -42,10 +53,12 @@ class FireworkEmitter {
 
     const particles = this.particles;
 
-    for (let i = 0; i < particles.length; i++) {
+    // for (let i = 0; i < particles.length; i++) {
       // particles[i].play();
       // particles[i].alive = true;
-    }
+    // }
+
+    this.fireworks.particleContainer.addChild(this.container);
 
     this.timeline.play();
     this.emote.popSound.play();

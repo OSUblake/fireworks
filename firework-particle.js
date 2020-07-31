@@ -81,6 +81,8 @@ class FireworkParticle extends PIXI.Sprite {
 
     this.alpha = 0;
 
+    // this.renderable = false;
+
     // this.timeline = gsap.timeline({
     //     paused: true
     //   })
@@ -141,7 +143,7 @@ class FireworkParticle extends PIXI.Sprite {
     // this.timeline.kill();
     this.alpha = 0;
     this.alive = false;
-    this.fireworks.particleContainer.removeChild(this);
+    this.parent.removeChild(this);
     
   }
 
