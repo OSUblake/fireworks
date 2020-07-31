@@ -1,12 +1,19 @@
-class FireworkParticle extends DisplayObject {
+// class FireworkParticle extends DisplayObject {
+class FireworkParticle extends PIXI.Sprite {
 
   constructor(fireworks, settings) {
 
-    super(fireworks);
+    // const texture = new PIXI.Texture(fireworks.shapesBaseTexture, settings.frame);
+
+    // super(fireworks);
+    super(PIXI.Texture.EMPTY);
+    // super(texture);
+    this.fireworks = fireworks;
 
     Object.assign(this, {
       alive: false,
-      alpha: 1,
+      // alpha: 1,
+      alpha: 0,
       centered: false,
       dx: 0,
       dy: 0
@@ -15,6 +22,10 @@ class FireworkParticle extends DisplayObject {
     this.size = fireworks.particleSize;
     this.originX = this.size / 2;
     this.originY = this.size / 2;
+
+    this.anchor.set(0.5);
+
+    // this.visible = false;
   }
 
   init(cx, cy, currentRotation, timeline) {
@@ -36,10 +47,10 @@ class FireworkParticle extends DisplayObject {
     // this.rotation = currentRotation;
     
     this.rotation = Math.random() * Math.PI;    
-    this.alpha = startAlpha();
-    this.scaleX = this.scaleY = scale();
-    this.skewX = skew();
-    this.skewY = skew();
+    this.startAlpha = startAlpha();
+    this.scale.x = this.scale.y = scale();
+    this.skew.x = skew();
+    this.skew.y = skew();
 
     let angle = 0;
     let minAngle = 0;
@@ -68,22 +79,39 @@ class FireworkParticle extends DisplayObject {
       maxAngle = 360;
     }
 
+    this.alpha = 0;
+
     // this.timeline = gsap.timeline({
     //     paused: true
     //   })
     timeline
       .add(() => this.alive = true, 0)
+      // .add(() => this.play(), 0)
+      .set(this, { 
+        alpha: this.startAlpha,
+        immediateRender: false, 
+      }, 0)
       .to(this, {
         duration,
-        alpha: 0,
+        // alpha: 0,
         // onStart: () => this.alive = true,
         // onComplete: () => this.kill()
-        onComplete: () => this.alive = false
+        // onComplete: () => this.alive = false
+        onComplete: () => this.kill()
       }, 0.2)
-      .to(this, {
+      // .from(this, {
+      //   duration,
+      //   alpha: this.startAlpha,
+      //   immediateRender: false,
+      //   // onStart: () => this.alive = true,
+      //   // onComplete: () => this.kill()
+      //   // onComplete: () => this.alive = false
+      //   onComplete: () => this.kill()
+      // }, 0.2)
+      .to(this.scale, {
         duration,
-        scaleX: 0,
-        scaleY: 0
+        x: 0,
+        y: 0
       }, 0)   
       .to(this, {
         duration,
@@ -94,6 +122,8 @@ class FireworkParticle extends DisplayObject {
           gravity
         }
       }, 0);
+
+      this.texture = new PIXI.Texture(this.fireworks.shapesBaseTexture, this.frame);
   }
 
   play() {
@@ -102,16 +132,19 @@ class FireworkParticle extends DisplayObject {
     //   return;
     // }
 
-    // this.alive = true;
+    this.alive = true;
+    // this.alpha = this.startAlpha;
     // this.timeline.play();
   }
 
   kill() {
     // this.timeline.kill();
-    // this.alive = false;
+    this.alpha = 0;
+    this.alive = false;
+    
   }
 
-  render() {
+  ___render() {
 
     if (!this.alpha || !this.scaleX || !this.scaleY) {
       return;

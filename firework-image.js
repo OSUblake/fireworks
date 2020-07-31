@@ -1,11 +1,21 @@
-class FireworkImage extends DisplayObject {
+class FireworkImage extends PIXI.Sprite {
 
   constructor(fireworks, image) {
 
-    super(fireworks);
+    // super(fireworks);
+
+    // super(new PIXI.BaseTexture(image));
+
+    // var baseTexture = new PIXI.BaseTexture(image);
+    // console.log("BASE TEXTURE", baseTexture)
+
+    // console.log("IMAGE", image)
+    // console.log(PIXI.Texture.from(image))
+    super(PIXI.Texture.from(image));
+    this.fireworks = fireworks;
 
     this.origImage = image;
-    this.texture = image;
+    // this.texture = image;
     this.imageData = [0,0,0,0];
     this.isValid = false;
 
@@ -27,15 +37,19 @@ class FireworkImage extends DisplayObject {
     this.height = Math.floor(this.baseHeight * ratio);
     this.originX = this.width / 2;
     this.originY = this.height / 2;
+
+    this.anchor.set(0.5);
   }
 
   init() {
     
-    const texture = this.texture;
+    // console.log("FIREWORK IMAGE", this)
+
+    const origImage = this.origImage;
 
     return new Promise(resolve => {
 
-      if (!texture) {
+      if (!origImage) {
         console.log("*** FIREWORKS: Invalid Texture");
         return resolve();
       }
@@ -48,21 +62,21 @@ class FireworkImage extends DisplayObject {
       } else {
 
         const fulfill = () => {
-          texture.removeEventListener("timeupdate", fulfill);          
+          origImage.removeEventListener("timeupdate", fulfill);          
           this.resizeImage();
           resolve();
         }
 
         // needed to get the first frame to render
-        texture.addEventListener("timeupdate", fulfill);
-        texture.currentTime = texture.duration * 0.5;
+        origImage.addEventListener("timeupdate", fulfill);
+        origImage.currentTime = origImage.duration * 0.5;
       }
     });
   }
 
   resizeImage() {
 
-    const image = this.texture;
+    const image = this.origImage;
 
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -76,14 +90,14 @@ class FireworkImage extends DisplayObject {
 
   play() {
     if (this.isVideo) {
-      this.texture.currentTime = 0;
-      this.texture.play();
+      this.origImage.currentTime = 0;
+      this.origImage.play();
     }    
   }
 
   pause() {
     if (this.isVideo) {
-      this.texture.pause();
+      this.origImage.pause();
     }    
   }
 
@@ -108,7 +122,7 @@ class FireworkImage extends DisplayObject {
     };
   }
 
-  render() {
+  ____render() {
 
     const ctx = this.fireworks.ctx;
 

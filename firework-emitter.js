@@ -14,6 +14,8 @@ class FireworkEmitter {
     this.particles = [];
     this.aliveCount = 1;
 
+    fireworks.emitterContainer.addChild(this.image);
+
     this.timeline = gsap.timeline({
       paused: true
     });
@@ -46,8 +48,8 @@ class FireworkEmitter {
     }
 
     this.timeline.play();
-
     this.emote.popSound.play();
+    this.image.alpha = 0;
 
     this.exploded = true;
   }
@@ -108,14 +110,21 @@ class FireworkEmitter {
         shapeTextures.addColor(rgb); 
         const shape = randomShape();
 
+        const frame = shapeTextures.getFrame(rgb, shape);
+        const rect = new PIXI.Rectangle(frame.sx, frame.sy, frame.sSize, frame.sSize);
+
         const particle = new FireworkParticle(fireworks, {
           centered,
           color: rgb,
           alpha: color.a,
           dx: (x + offset) - cx,
           dy: (y + offset) - cy,
-          frame: shapeTextures.getFrame(rgb, shape)
+          frame: rect
+          // frame: shapeTextures.getFrame(rgb, shape)
         });
+
+        fireworks.particleContainer.addChild(particle);
+        particle.alpha = 1;
 
         this.particles.push(particle);        
 
@@ -141,7 +150,7 @@ class FireworkEmitter {
       image.x = x;
       image.y = y;
       image.rotation = this.rotation;
-      image.render();
+      // image.render();
       alive++;
 
     } else {
@@ -150,7 +159,7 @@ class FireworkEmitter {
         const particle = particles[i];
 
         if (particle.alive) {
-          particle.render();
+          // particle.render();
           alive++;
         }
       }
