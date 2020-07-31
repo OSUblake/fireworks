@@ -1,16 +1,62 @@
 class FireworkEmitter {
 
-  constructor(fireworks, image) {
+  constructor(fireworks, emote) {
 
+    this.emote = emote;
     this.fireworks = fireworks;
-    this.image = new FireworkImage(fireworks, image);
+    this.image = new FireworkImage(fireworks, emote.image);
     this.exploded = false;    
+    this.launched = false;
     this.x = 0;
     this.y = 0;
     this.rotation = 0;
     this.rotationSign = 1;
     this.particles = [];
     this.aliveCount = 1;
+
+    fireworks.emitterContainer.addChild(this.image);
+
+    this.container = new PIXI.ParticleContainer(1500, {
+      vertices: true,
+      position: true,
+      rotation: true,
+      // uvs: true,
+      tint: true
+    });
+
+    this.container = new PIXI.Container();
+
+    this.container2 = new PIXI.Container();
+    this.container2.addChild(this.container);
+
+    var filter2 = new PIXI.filters.GlowFilter({ 
+      // distance: 15, 
+      outerStrength: 0,
+      // knockout: true
+    });
+
+    this.filter2 = filter2;
+
+    var filter = new PIXI.filters.AdvancedBloomFilter({
+
+    })
+
+    // filter = new PIXI.filters.OutlineFilter(10, 0xff0000)
+
+    // console.log("FILTER", filter)
+
+    this.container2.filters = [
+      filter2,
+      filter, 
+    ];
+
+    this.timeline = gsap.timeline({
+      paused: true,
+      onComplete: () => {
+        this.fireworks.particleContainer.removeChild(this.container2);
+        // this.fireworks.particleContainer.removeChild(this.container);
+      }
+    });
   }
 
   async prepare() {
@@ -22,13 +68,35 @@ class FireworkEmitter {
     this.image.play();
   }
 
+  launch() {
+
+    
+
+    this.emote.launchSound.play();
+    this.launched = true;
+  }
+
   explode() {
+
+    gsap.to(this.filter2, {
+      outerStrength: 2,
+      duration: this.timeline.duration()
+    })
 
     const particles = this.particles;
 
-    for (let i = 0; i < particles.length; i++) {
-      particles[i].play();
-    }
+    // for (let i = 0; i < particles.length; i++) {
+      // particles[i].play();
+      // particles[i].alive = true;
+    // }
+
+    // this.fireworks.particleContainer.addChild(this.container);
+    this.fireworks.particleContainer.addChild(this.container2);
+
+    this.timeline.play();
+    this.emote.popSound.play();
+    this.image.alpha = 0;
+    this.fireworks.emitterContainer.removeChild(this.image);
 
     this.exploded = true;
   }
@@ -38,7 +106,7 @@ class FireworkEmitter {
     const { particles, x, y, rotation, rotationSign } = this;
 
     for (let i = 0; i < particles.length; i++) {
-      particles[i].init(x, y, rotation, rotationSign);
+      particles[i].init(x, y, rotation, this.timeline);
     }
   }
 
@@ -89,14 +157,22 @@ class FireworkEmitter {
         shapeTextures.addColor(rgb); 
         const shape = randomShape();
 
+        const frame = shapeTextures.getFrame(rgb, shape);
+        const rect = new PIXI.Rectangle(frame.sx, frame.sy, frame.sSize, frame.sSize);
+
         const particle = new FireworkParticle(fireworks, {
           centered,
           color: rgb,
           alpha: color.a,
           dx: (x + offset) - cx,
           dy: (y + offset) - cy,
-          frame: shapeTextures.getFrame(rgb, shape)
+          frame: rect
+          // frame: shapeTextures.getFrame(rgb, shape)
         });
+
+        // fireworks.particleContainer.addChild(particle);
+        this.container.addChild(particle);
+        particle.alpha = 1;
 
         this.particles.push(particle);        
 
@@ -113,12 +189,16 @@ class FireworkEmitter {
 
     let alive = 0;
 
+    if (!this.launched && y < 0) {
+      this.launch();
+    }
+
     if (!exploded) {
 
       image.x = x;
       image.y = y;
       image.rotation = this.rotation;
-      image.render();
+      // image.render();
       alive++;
 
     } else {
@@ -127,7 +207,7 @@ class FireworkEmitter {
         const particle = particles[i];
 
         if (particle.alive) {
-          particle.render();
+          // particle.render();
           alive++;
         }
       }

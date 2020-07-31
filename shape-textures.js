@@ -14,7 +14,7 @@ class ShapeTextures {
     const particleSize = this.particleSize;
     const size = this.size = particleSize + this.pad;
 
-    this.width = 1000;
+    this.width = 1024;
     this.cols = Math.floor(this.width / size);
     this.rows = 1;
 
@@ -75,14 +75,21 @@ class ShapeTextures {
     return this.shapes[`${color}-${shape}`];
   }
 
+  nearestPow2(value){
+    return Math.pow(2, Math.ceil(Math.log(value) / Math.log(2))); 
+  }
+
   generate() {
 
     const dpr = this.fireworks.dpr;
 
-    this.height = this.rows * this.size;
+    // this.height = this.rows * this.size;
     
     this.texture.width = this.width * dpr;
-    this.texture.height = this.rows * this.size * dpr;
+    // this.texture.height = this.rows * this.size * dpr;
+
+    this.height = this.rows * this.size;
+    this.texture.height = this.nearestPow2(this.height * dpr);
     
     const ctx = this.texture.getContext("2d");
     
@@ -102,6 +109,19 @@ class ShapeTextures {
 
       ctx.fillStyle = "rgba(0,0,0,0)";
       ctx.fillRect(0, 0, this.width, this.height);
+
+      
     }
-  }
+
+    // console.log("SHAPE TEXTURE", this.texture)
+
+    this.baseTexture = new PIXI.BaseTexture(this.texture, {
+      resolution: dpr
+    })
+
+    // this.baseTexture = PIXI.BaseTexture.from(this.texture, {
+    // // this.baseTexture = new PIXI.BaseTexture(this.texture, {
+    //   resolution: dpr
+    // });
+}
 }

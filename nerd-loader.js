@@ -23,9 +23,9 @@ class NerdLoader {
         scripts.push(asset);
       }  else if (/(jpe?g|gif|png|svg|webp)$/.test(ext)) {
         images.push(asset)
-      } else if (/(3gp|mpg|mpeg|mp4|m4v|m4p|ogv|ogg|mov|webm)$/.test(ext)) {
+      } else if (/(3gp|mpe?g|mp4|m4v|m4p|ogv|mov|webm)$/.test(ext)) {
         videos.push(asset);
-      } else if (/(mp3)$/.test(ext)) {
+      } else if (/(mp3|wav|ogg)$/.test(ext)) {
         sounds.push(asset);
       }
     });
@@ -142,10 +142,6 @@ class NerdLoader {
 
   checkCache(url) {
     return new Promise((resolve, reject) => {
-
-      // if (!url) {
-      //   return resolve();
-      // }
 
       console.log("*** Checking cache", url);
 

@@ -1,13 +1,61 @@
-class Fireworks {
+class Fireworks extends PIXI.Application {
 
   constructor(settings) {
 
-    Object.assign(this, settings);
+    const dpr = window.devicePixelRatio || 1;
 
-    this.canPlay = false;
-    this.render = this.render.bind(this);    
-    this.ctx = this.canvas.getContext("2d");
+    super({
+      resolution: dpr,
+      view: settings.canvas,
+      autoStart: false,
+      resizeTo: window,
+      antialias: true,
+      transparent: true
+    });
+
     this.dpr = window.devicePixelRatio;
+
+    this.emitterContainer = new PIXI.Container();
+    // this.emitterContainer = new PIXI.ParticleContainer(10000, {
+    //   vertices: true,
+    //   position: true,
+    //   rotation: true,
+    //   uvs: true,
+    //   tint: true
+    // });
+
+    this.particleContainer = new PIXI.Container();
+    // this.particleContainer = new PIXI.ParticleContainer(10000, {
+    //   vertices: true,
+    //   position: true,
+    //   rotation: true,
+    //   // uvs: true,
+    //   tint: true
+    // });
+
+
+    this.mainContainer = new PIXI.Container();
+    this.mainContainer.addChild(this.emitterContainer, this.particleContainer);
+    
+
+    // const graphics = new PIXI.Graphics();
+    // // Rectangle
+    // graphics.beginFill(0xDE3249);
+    // graphics.drawRect(50, 50, 100, 100);
+    // graphics.endFill();
+    // this.stage.addChild(graphics);
+
+    // this.renderer.render(this.stage);
+
+    // gsap.ticker.lagSmoothing(0);
+
+    Object.assign(this, settings);
+    this.canPlay = false;
+
+    this.update = this.update.bind(this);    
+    // this.ctx = this.canvas.getContext("2d");
+    
+
     this.fireworksTimeline = gsap.timeline({ paused: true });    
     this.trailParticles = [];
     
@@ -15,22 +63,37 @@ class Fireworks {
     this.colors.forEach(color => this.shapeTextures.addColor(color));
     this.randomColor = gsap.utils.random(this.colors, true);
     this.randomShape = gsap.utils.random(["triangle", "rect"], true);
-    
-    this.images = this.images.filter(img => img instanceof HTMLElement && (img.naturalWidth || img.videoWidth || img.width));
 
-    if (this.images.length) {
+    this.getFPS = this.smoothedAverage();
+
+    console.log("FIREWORKS", this)
+
+    if (this.emotes.length) {
       this.prepare();
     } else {
       this.fireReady();
     }
   }
 
+  // get width() {
+  //   return this.screen.width;
+  // }
+
+  // get height() {
+  //   return this.screen.height;
+  // }
+
   prepare() {
 
     // const firstImage = this.images.shift();
     // this.images = [firstImage, ...gsap.utils.shuffle(this.images)].slice(0, this.maxFireworks);
 
-    this.emitters = this.images.map((img, i) => new FireworkEmitter(this, img));
+    // this.emitters = this.images.map((img, i) => new FireworkEmitter(this, img));
+
+
+    
+
+    this.emitters = this.emotes.map(emote => new FireworkEmitter(this, emote));
 
     this.onResize();
     this.createVars();
@@ -42,14 +105,33 @@ class Fireworks {
     Promise.all(
       this.emitters.map(emitter => emitter.prepare())
     )
-    .then((res) => {
+    .then((res) => {      
       this.init();
-      this.shapeTextures.generate();
       this.fireReady();
     });
   }
 
   init() {
+
+    // console.log("INIT", this.shapeTextures.baseTexture)
+
+    this.shapeTextures.generate();
+    this.shapesBaseTexture = this.shapeTextures.baseTexture; 
+    this.shapesSprite = new PIXI.Sprite(new PIXI.Texture(this.shapesBaseTexture));
+
+    if (this.debug) {
+      this.text = new PIXI.Text("",{
+        fontFamily: "monospace", 
+        fontSize: 18, 
+        fill : 0xffffff, 
+        dropShadow: true,
+        dropShadowDistance: 1
+        // align : 'center'
+      });
+      this.stage.addChild(this.shapesSprite, this.text);
+    }
+
+    this.stage.addChild(this.mainContainer);
 
     this.canPlay = true;
 
@@ -84,7 +166,15 @@ class Fireworks {
       } else {
         peakY = randomY();
         explodeY = peakY + drop;
-        delay = randomDelay();
+        
+
+        if (this.fireworkDelay) {
+          // delay = `>${this.fireworkDelay}`;
+          const delayOffset = this.fireworkDelay * 0.2;
+          delay = this.fireworkDelay * index + gsap.utils.random(-delayOffset, delayOffset);
+        } else {
+          delay = randomDelay();
+        }
       }
 
       emitter.rotationSign = sign;
@@ -132,29 +222,31 @@ class Fireworks {
 
       const progress = explodeTime / tl.duration();
 
-      const tweener = gsap.to(tl, {
+      const tweener = gsap.timeline({
+        onStart: () => {
+          emitter.play();
+        }
+      })
+      .to(tl, {
         duration: this.explodeTime,
         progress,
         ease: "none",
-        onStart: () => {
-          emitter.play();
-        },
         onComplete: () => {
           tl.kill();
           emitter.explode();
-          this.popSound.play();
         }
-      });
+      }, 0);
 
-      this.createTrailParticles({
+      const trailAnimation = this.createTrailParticles({
         emitter,
         startY: emitter.y,
         endY: explodeY,
         isMain,
         delay
       });
-         
-      this.fireworksTimeline.add(tweener, delay);           
+
+      tweener.add(trailAnimation, 0);         
+      this.fireworksTimeline.add(tweener, delay);        
     });
   }
 
@@ -193,6 +285,8 @@ class Fireworks {
 
     const count = isMain ? gsap.utils.random(6, 9, 1) : gsap.utils.random(2, 3, 1);
 
+    const trailTimeline = gsap.timeline();
+
     for (let i = 0; i < count; i++) {
 
       const color = randomColor();      
@@ -204,15 +298,26 @@ class Fireworks {
       const peakY = endY - offsetY;
       const fadeY = peakY + randomDrop();
 
+      const frame = shapeTextures.getFrame(color, shape);
+      const rect = new PIXI.Rectangle(frame.sx, frame.sy, frame.sSize, frame.sSize);
+
       const particle = new FireworkParticle(this, {
         color,
-        scaleX: scale,
-        scaleY: scale,
-        frame: shapeTextures.getFrame(color, shape),
+        // scaleX: scale,
+        // scaleY: scale,
+        frame: rect,
+        // frame: shapeTextures.getFrame(color, shape),
         x,
         y: startY,
         rotation: Math.random() * Math.PI,
       });     
+
+      particle.scale.set(scale);
+      particle.texture = new PIXI.Texture(this.shapesBaseTexture, rect);
+      // this.particleContainer.addChild(particle);
+      this.emitterContainer.addChild(particle);
+
+      // console.log("PARTICLE", particle)
 
       const duration = 1;
 
@@ -251,11 +356,11 @@ class Fireworks {
 
       const timeDifference = endTime - duration;
 
-      tl.to(particle, {
+      tl.to(particle.scale, {
           ease: "power3.in",
           duration: timeDifference * 2,
-          scaleX: 0,
-          scaleY: 0
+          x: 0,
+          y: 0
         }, duration - timeDifference);
 
 
@@ -269,6 +374,7 @@ class Fireworks {
       const tweener = gsap.timeline({
           onStart: () => {
             particle.alive = true;
+            particle.alpha = 1;
           },
           onComplete: () => {
             particle.alive = false;
@@ -281,10 +387,22 @@ class Fireworks {
           ease: "none"            
         });
 
-      this.fireworksTimeline.add(tweener, delay);
+      // this.fireworksTimeline.add(tweener, delay);
+
+        // particle.y = -1000;
+        // particle.x = 1000;
+        // particle.alpha = 1;
+
+      trailTimeline.add(tweener, 0);
+
+      // trailTimeline.play()
 
       this.trailParticles.push(particle);
+
+      // return tweener;
     }
+
+    return trailTimeline;
   }  
 
   createVars() {
@@ -304,6 +422,17 @@ class Fireworks {
 
   onResize() {
 
+    this.width = this.screen.width;
+    this.height = this.screen.height;
+    this.cx = this.width / 2;
+    this.cy = this.height / 2;
+    this.offsetY = this.height;
+    this.mainContainer.y = this.offsetY;
+    this.renderer.resize(this.width, this.height);
+  }
+
+  ___onResize() {
+
     this.width = this.canvas.clientWidth;
     this.height = this.canvas.clientHeight;
 
@@ -315,21 +444,57 @@ class Fireworks {
     this.offsetY = this.height;
 
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+
+    this.ctx.font = "700 18px monospace";
   }
 
-  play() {
+  // get cx() {
+  //   return this.width / 2;
+  // }
+
+  // get cy() {
+  //   return this.height / 2;
+  // }
+
+  play(tl) {
 
     if (!this.canPlay) {
       console.log("*** Fireworks can't play");
       return;
     }
 
-    this.fireworksTimeline.play();
-    gsap.ticker.add(this.render);  
+    // this.fireworksTimeline.pause(0.5);
+    // this.render(0, 1);
+
+
+    this.fireworksTimeline.play(0);
+    tl.play(0);
+    gsap.ticker.add(this.update);  
+
+    // this.start()
+
+    // this.emitters[0].x = 200;
+    // this.emitters[0].y = 200;
+
+
+    // gsap.ticker.remove(gsap.updateRoot);
+    // this.fireworksTimeline.play();
+
+    // this.startTime = this.lastTime = Date.now();
+    // this.update();
+
+    
+    // requestAnimationFrame(() => this.update());
   }
 
   kill() {
-    gsap.ticker.remove(this.render);
+    gsap.ticker.remove(this.update);
+
+    if (this.debug) {
+      console.log("*** Fireworks complete");
+    }
+
+    // this.stop();
   }
 
   fireReady() {
@@ -337,7 +502,89 @@ class Fireworks {
     this.onReady && this.onReady.call(this, this);
   }
 
-  render() {
+  smoothedAverage(smoothing = 0.9) {
+    
+    let smoothingInv = 1 - smoothing;
+    let measurement = 0;
+    
+    return current => {
+      measurement = (measurement * smoothing) + (current * smoothingInv);
+      return measurement;
+    }
+  }
+
+  // movingAverage(numSamples = 100) {
+  
+  //   let index = 0;
+  //   let sum = 0;
+  //   let samples = Array(numSamples).fill(0);
+            
+  //   return (newValue, valid) => {
+      
+  //     sum -= samples[index];
+  //     sum += newValue;
+  //     samples[index] = newValue;    
+  //     index = (index + 1) % numSamples;
+      
+  //     return sum / numSamples;
+  //   }
+  // }
+
+  // update() {
+
+  //   const currentTime = Date.now();
+  //   const elapsed = currentTime - this.lastTime;
+  //   gsap.updateRoot((currentTime - this.startTime) / 1000);
+  //   this.render(0, elapsed);
+  //   this.lastTime = currentTime;
+
+  //   if (this.fireworksTimeline.progress() < 1) {
+  //     requestAnimationFrame(() => this.update());
+      
+  //   }
+
+  // }
+
+  update(time, deltaTime) {
+
+    const { emitters, trailParticles } = this;
+
+    let aliveCount = 0;
+    let i = 0;
+
+    for (i = 0; i < trailParticles.length; i++) {
+      const particle = trailParticles[i];
+
+      if (particle.alive) {
+        // particle.render();
+        aliveCount++;
+      }
+    }
+
+    for (i = 0; i < emitters.length; i++) {
+      emitters[i].update();
+      aliveCount += emitters[i].aliveCount;
+    }
+
+    if (!aliveCount) {
+      this.kill();
+    }  
+
+    if (this.debug) {
+      this.text.text = `FPS: ${this.getFPS(1000 / deltaTime).toFixed(0)}`;
+    }
+
+    this.renderer.render(this.stage);
+
+    // super.render();
+    // console.log(this.emitters[0].x, this.emitters[0].y)
+  }
+
+  ___render(time, deltaTime) {
+
+    // if (this.ct++ < 100) {
+    //   console.log("ELAPSED", deltaTime)
+    // }
 
     const { ctx, emitters, width, height, trailParticles } = this;
 
@@ -348,13 +595,27 @@ class Fireworks {
     ctx.clearRect(0, 0, width, height);
     ctx.globalAlpha = 1;
 
-    // ctx.drawImage(this.shapeTextures.texture, 0, 0);
+    if (this.debug) {
+      ctx.drawImage(this.shapeTextures.texture, 0, 0);
+      // ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+      // ctx.fillRect(0, 0, 200, 100);
+      const fps = `FPS: ${this.getFPS(1000 / deltaTime).toFixed(0)}`;
+      ctx.fillStyle = "#ffffff";      
+      // ctx.strokeStyle = "#000000";
+      ctx.shadowColor = "#000000";
+      // ctx.shadowBlur = 5;
+      ctx.shadowOffsetX = 1;
+      ctx.shadowOffsetY = 1;
+      ctx.fillText(fps, 10, 20);
+      ctx.shadowColor = "transparent";
+      // ctx.strokeText(fps, 10, 20);
+    }
 
     for (i = 0; i < trailParticles.length; i++) {
       const particle = trailParticles[i];
 
       if (particle.alive) {
-        particle.render();
+        // particle.render();
         aliveCount++;
       }
     }
