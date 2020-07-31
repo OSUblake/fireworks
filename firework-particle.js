@@ -126,6 +126,27 @@ class FireworkParticle extends PIXI.Sprite {
       }, 0);
 
       this.texture = new PIXI.Texture(this.fireworks.shapesBaseTexture, this.frame);
+
+      var filter2 = new PIXI.filters.GlowFilter({ 
+        color: this.color,
+        // distance: 15, 
+        outerStrength: 0,
+        // knockout: true
+      });
+
+      var filter = new PIXI.filters.AdvancedBloomFilter({
+
+      })
+
+      this.filters = [
+        // filter2,
+        // filter
+      ]
+
+      timeline.to(filter2, {
+        duration,
+        outerStrength: 2
+      }, 0)
   }
 
   play() {

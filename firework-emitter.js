@@ -4,7 +4,8 @@ class FireworkEmitter {
 
     this.emote = emote;
     this.fireworks = fireworks;
-    this.image = new FireworkImage(fireworks, emote.image);
+    // this.image = new FireworkImage(fireworks, emote.image);
+    this.image = new FireworkImage(fireworks, emote);
     this.exploded = false;    
     this.launched = false;
     this.x = 0;
@@ -24,10 +25,19 @@ class FireworkEmitter {
       tint: true
     });
 
-    this.container = new PIXI.Container();
+    // this.container = new PIXI.Container();
 
     this.container2 = new PIXI.Container();
     this.container2.addChild(this.container);
+
+    const screen = fireworks.screen;
+    // this.container.filterArea = new PIXI.Rectangle(0, -screen.height, screen.width, screen.height);
+    this.container.filterArea = new PIXI.Rectangle(0, -screen.height, screen.width, screen.height);
+    this.container.filterArea = screen;
+    this.container2.filterArea = this.container.filterArea;
+    
+
+    
 
     var filter2 = new PIXI.filters.GlowFilter({ 
       // distance: 15, 
@@ -41,13 +51,16 @@ class FireworkEmitter {
 
     })
 
+    var filter3 = new PIXI.filters.BlurFilter ()
+
     // filter = new PIXI.filters.OutlineFilter(10, 0xff0000)
 
     // console.log("FILTER", filter)
 
     this.container2.filters = [
+      // filter, 
+      // filter3,
       filter2,
-      filter, 
     ];
 
     this.timeline = gsap.timeline({
@@ -59,8 +72,13 @@ class FireworkEmitter {
     });
   }
 
-  async prepare() {
+  async _prepare() {
     await this.image.init();
+    this.createParticles();
+  }
+
+  prepare() {
+    // await this.image.init();
     this.createParticles();
   }
 
@@ -162,7 +180,8 @@ class FireworkEmitter {
 
         const particle = new FireworkParticle(fireworks, {
           centered,
-          color: rgb,
+          // color: rgb,
+          color: PIXI.utils.rgb2hex([color.r / 255, color.g / 255, color.b / 255]),
           alpha: color.a,
           dx: (x + offset) - cx,
           dy: (y + offset) - cy,

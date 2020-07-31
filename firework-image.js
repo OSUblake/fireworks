@@ -1,47 +1,51 @@
 class FireworkImage extends PIXI.Sprite {
 
-  constructor(fireworks, image) {
+  constructor(fireworks, emote) {
 
-    // super(fireworks);
-
-    // super(new PIXI.BaseTexture(image));
-
-    // var baseTexture = new PIXI.BaseTexture(image);
-    // console.log("BASE TEXTURE", baseTexture)
-
-    // console.log("IMAGE", image)
-    // console.log(PIXI.Texture.from(image))
-    super(PIXI.Texture.from(image));
+    super(PIXI.Texture.from(emote.image));
     this.fireworks = fireworks;
 
-    this.origImage = image;
-    // this.texture = image;
-    this.imageData = [0,0,0,0];
-    this.isValid = false;
+    this.emote = emote;
 
-    this.isVideo = image instanceof HTMLMediaElement;
+    this.origImage = emote.image;
 
-    this.baseWidth = image.naturalWidth || image.videoWidth || image.width;
-    this.baseHeight = image.naturalHeight || image.videoHeight || image.height;
+    const data = emote.data;
 
-    const maxSize = this.fireworks.maxImageSize;
-    let ratio = 1;
+    this.imageData = data.imageData;
+    this.isValid = data.isValid;
 
-    if (this.baseWidth > maxSize) {
-      ratio = maxSize / this.baseWidth;
-    } else if (this.baseHeight > maxSize) {
-      ratio = maxSize / this.baseHeight;
-    }
+    this.isVideo = data.isVideo;
 
-    this.width = Math.floor(this.baseWidth * ratio);
-    this.height = Math.floor(this.baseHeight * ratio);
-    this.originX = this.width / 2;
-    this.originY = this.height / 2;
+    this.baseWidth = data.baseWidth;
+    this.baseHeight = data.baseHeight;
+    this.width = data.width;
+    this.height = data.height;
+
+    // this.origImage = image;
+    // this.imageData = [0,0,0,0];
+    // this.isValid = false;
+
+    // this.isVideo = image instanceof HTMLMediaElement;
+
+    // this.baseWidth = image.naturalWidth || image.videoWidth || image.width;
+    // this.baseHeight = image.naturalHeight || image.videoHeight || image.height;
+
+    // const maxSize = this.fireworks.maxImageSize;
+    // let ratio = 1;
+
+    // if (this.baseWidth > maxSize) {
+    //   ratio = maxSize / this.baseWidth;
+    // } else if (this.baseHeight > maxSize) {
+    //   ratio = maxSize / this.baseHeight;
+    // }
+
+    // this.width = Math.floor(this.baseWidth * ratio);
+    // this.height = Math.floor(this.baseHeight * ratio);
 
     this.anchor.set(0.5);
   }
 
-  init() {
+  ___init() {
     
     // console.log("FIREWORK IMAGE", this)
 
@@ -74,7 +78,7 @@ class FireworkImage extends PIXI.Sprite {
     });
   }
 
-  resizeImage() {
+  ___resizeImage() {
 
     const image = this.origImage;
 
@@ -97,7 +101,7 @@ class FireworkImage extends PIXI.Sprite {
 
   pause() {
     if (this.isVideo) {
-      this.origImage.pause();
+      // this.origImage.pause();
     }    
   }
 

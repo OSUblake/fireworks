@@ -16,45 +16,15 @@ class Fireworks extends PIXI.Application {
     this.dpr = window.devicePixelRatio;
 
     this.emitterContainer = new PIXI.Container();
-    // this.emitterContainer = new PIXI.ParticleContainer(10000, {
-    //   vertices: true,
-    //   position: true,
-    //   rotation: true,
-    //   uvs: true,
-    //   tint: true
-    // });
-
     this.particleContainer = new PIXI.Container();
-    // this.particleContainer = new PIXI.ParticleContainer(10000, {
-    //   vertices: true,
-    //   position: true,
-    //   rotation: true,
-    //   // uvs: true,
-    //   tint: true
-    // });
-
-
+    this.trailContainer = new PIXI.Container();
     this.mainContainer = new PIXI.Container();
-    this.mainContainer.addChild(this.emitterContainer, this.particleContainer);
+    this.mainContainer.addChild(this.trailContainer, this.emitterContainer, this.particleContainer);
     
-
-    // const graphics = new PIXI.Graphics();
-    // // Rectangle
-    // graphics.beginFill(0xDE3249);
-    // graphics.drawRect(50, 50, 100, 100);
-    // graphics.endFill();
-    // this.stage.addChild(graphics);
-
-    // this.renderer.render(this.stage);
-
-    // gsap.ticker.lagSmoothing(0);
-
     Object.assign(this, settings);
     this.canPlay = false;
 
     this.update = this.update.bind(this);    
-    // this.ctx = this.canvas.getContext("2d");
-    
 
     this.fireworksTimeline = gsap.timeline({ paused: true });    
     this.trailParticles = [];
@@ -68,6 +38,8 @@ class Fireworks extends PIXI.Application {
 
     console.log("FIREWORKS", this)
 
+    this.stage.filterArea = this.screen;
+
     if (this.emotes.length) {
       this.prepare();
     } else {
@@ -75,24 +47,23 @@ class Fireworks extends PIXI.Application {
     }
   }
 
-  // get width() {
-  //   return this.screen.width;
-  // }
+  async prepare() {
 
-  // get height() {
-  //   return this.screen.height;
-  // }
+    this.emoteData = new Map();
 
-  prepare() {
+    const promises = this.emotes.map(emote => {
 
-    // const firstImage = this.images.shift();
-    // this.images = [firstImage, ...gsap.utils.shuffle(this.images)].slice(0, this.maxFireworks);
+      if (this.emoteData.has(emote)) {
+        return emote;
+      }
 
-    // this.emitters = this.images.map((img, i) => new FireworkEmitter(this, img));
+      this.emoteData.set(emote);
+      emote.data = new EmoteData(this, emote.image);
+      return emote.data.init();
+    });
 
-
-    
-
+    await Promise.all(promises);
+  
     this.emitters = this.emotes.map(emote => new FireworkEmitter(this, emote));
 
     this.onResize();
@@ -102,13 +73,17 @@ class Fireworks extends PIXI.Application {
 
     window.addEventListener("resize", e => this.onResize());
 
-    Promise.all(
-      this.emitters.map(emitter => emitter.prepare())
-    )
-    .then((res) => {      
-      this.init();
-      this.fireReady();
-    });
+    this.emitters.forEach(emitter => emitter.prepare());
+    this.init();
+    this.fireReady();
+
+    // Promise.all(
+    //   this.emitters.map(emitter => emitter.prepare())
+    // )
+    // .then((res) => {      
+    //   this.init();
+    //   this.fireReady();
+    // });
   }
 
   init() {
@@ -315,7 +290,8 @@ class Fireworks extends PIXI.Application {
       particle.scale.set(scale);
       particle.texture = new PIXI.Texture(this.shapesBaseTexture, rect);
       // this.particleContainer.addChild(particle);
-      this.emitterContainer.addChild(particle);
+      // this.emitterContainer.addChild(particle);
+      this.trailContainer.addChild(particle);
 
       // console.log("PARTICLE", particle)
 

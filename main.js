@@ -12,7 +12,7 @@
 
   const settings = {
     canvas: document.querySelector("#canvas"),
-    maxFireworks: Number(30), // {maxFireworks}
+    maxFireworks: Number(10), // {maxFireworks}
     maxImageSize: Number(100), // {maxImageSize}
     spawnWidth: Number(2000), // {spawnWidth}
     delayTime: Number(10), // {alertDelay}
