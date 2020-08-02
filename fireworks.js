@@ -13,6 +13,12 @@ class Fireworks extends PIXI.Application {
       transparent: true
     });
 
+    var f = (foo => {
+      if (foo <= 0) {
+        return 1 ** 1;
+      }
+    });
+
     this.dpr = window.devicePixelRatio;
 
     this.emitterContainer = new PIXI.Container();
@@ -35,6 +41,7 @@ class Fireworks extends PIXI.Application {
     this.randomShape = gsap.utils.random(["triangle", "rect"], true);
 
     this.getFPS = this.smoothedAverage();
+    this.getElapsed = this.smoothedAverage();
 
     console.log("FIREWORKS", this)
 
@@ -76,6 +83,9 @@ class Fireworks extends PIXI.Application {
     this.emitters.forEach(emitter => emitter.prepare());
     this.init();
     this.fireReady();
+
+    // this.render();
+    // this.start();
 
     // Promise.all(
     //   this.emitters.map(emitter => emitter.prepare())
@@ -442,12 +452,13 @@ class Fireworks extends PIXI.Application {
     // this.fireworksTimeline.pause(0.5);
     // this.render(0, 1);
 
+    this.lastTime = performance.now();
 
     this.fireworksTimeline.play(0);
     tl.play(0);
     gsap.ticker.add(this.update);  
 
-    // this.start()
+    // this.start();
 
     // this.emitters[0].x = 200;
     // this.emitters[0].y = 200;
@@ -521,7 +532,11 @@ class Fireworks extends PIXI.Application {
 
   // }
 
-  update(time, deltaTime) {
+  update() {
+    this.render();
+  }
+
+  render(time, deltaTime) {
 
     const { emitters, trailParticles } = this;
 
@@ -547,7 +562,15 @@ class Fireworks extends PIXI.Application {
     }  
 
     if (this.debug) {
-      this.text.text = `FPS: ${this.getFPS(1000 / deltaTime).toFixed(0)}`;
+      // const fps = this.getFPS(1000 / deltaTime).toFixed(0);
+      // const elapsed = this.getElapsed(deltaTime).toFixed(0);
+
+      const currentTime = performance.now();
+      const elapsed = currentTime - this.lastTime;
+      this.lastTime = currentTime;
+      const fps = this.getFPS(1000 / elapsed).toFixed(0);
+      const elapsedAvg = this.getElapsed(elapsed).toFixed(0);
+      this.text.text = `FPS: ${fps}\nELAPSED: ${elapsedAvg}`;
     }
 
     this.renderer.render(this.stage);

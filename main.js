@@ -84,6 +84,9 @@
 
     gsap.registerPlugin(Physics2DPlugin, PixiPlugin);
 
+    gsap.ticker.lagSmoothing(0);
+    gsap.ticker.fps(60);
+
     const launchSound = resources.launchSound.mute(false).volume(settings.volume);
     const popSound = resources.popSound.mute(false).volume(settings.popVolume);
 
