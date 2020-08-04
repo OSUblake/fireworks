@@ -5,9 +5,12 @@ precision mediump float;
 uniform vec2 u_resolution;
 uniform float u_time;
 
+uniform float u_strength;
+
 void main(){
 
-  vec2 coord = 6.0 * gl_FragCoord.xy / u_resolution;
+  // vec2 coord = 6.0 * gl_FragCoord.xy / u_resolution;
+  vec2 coord = u_strength * 10.0 * gl_FragCoord.xy / u_resolution;
 
   for (int n = 1; n < 18; n++) {
     float i = float(n);
