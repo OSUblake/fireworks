@@ -34,12 +34,12 @@ class Fireworks extends PIXI.Application {
     this.dpr = window.devicePixelRatio;
 
     this.emitterContainer = new PIXI.Container();
-    this.lightContainer = new PIXI.Container();
+    // this.lightContainer = new PIXI.Container();
     this.particleContainer = new PIXI.Container();
     this.trailContainer = new PIXI.Container();
     this.mainContainer = new PIXI.Container();
-    // this.mainContainer.addChild(this.trailContainer, this.emitterContainer, this.particleContainer);
-    this.mainContainer.addChild(this.lightContainer, this.trailContainer, this.emitterContainer, this.particleContainer);
+    this.mainContainer.addChild(this.trailContainer, this.emitterContainer, this.particleContainer);
+    // this.mainContainer.addChild(this.lightContainer, this.trailContainer, this.emitterContainer, this.particleContainer);
     
     
     this.canPlay = false;
@@ -481,7 +481,7 @@ class Fireworks extends PIXI.Application {
     this.lastTime = performance.now();
 
     this.fireworksTimeline.play(0);
-    // tl.play(0);
+    tl.play(0);
     gsap.ticker.add(this.update);  
     this.update();
 

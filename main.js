@@ -23,7 +23,10 @@
     fireworkDelay: Number(0.6), // {fireworkDelay} a value of 0 is normal
     explosionType: "particle", // {explosionType} particle, image  
     shellSize: Number(25), // {shellSize}
-    particleSize: 30,
+    cropParticles: "circle", // {cropParticles} none, circle
+    // particleSize: 30,
+    // imageTypeSize: 30,
+    // particleTypeSize: 5,
     numParticles: 300,
     mainExplodeY: 330,
     explodeTime: 1.55, // time when firework explodes in video 
@@ -188,6 +191,18 @@
         emotes.push(image);
       }
 
+      if (settings.cropParticles === "circle") {
+        settings.cropParticles = true;
+      }
+
+      if (settings.explosionType === "particle") {
+        // settings.particleSize = 5;
+      }
+
+      settings.baseParticleSize = 32;
+      settings.particleSize = 32;
+      // settings.
+
       console.time("FIREWORKS")
       
 
@@ -196,8 +211,8 @@
         popSound,
         emotes,
         onReady(fireworks) {
-          tl.play();
-          fireworks.play();
+          // tl.play();
+          fireworks.play(tl);
 
           console.timeEnd("FIREWORKS")
 

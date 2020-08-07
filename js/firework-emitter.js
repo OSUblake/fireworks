@@ -161,6 +161,13 @@ class FireworkEmitter {
     // const { width, height } = this.image;
     const { numParticles, particleSize } = this.fireworks;
 
+    
+
+    if (fireworks.explosionType === "particle") {
+      // return;
+      return this.addParticles(true);
+    }
+
     this.addParticles(false);
 
     // console.log("NUM PARTICLES 1", this.particles.length)
@@ -191,9 +198,13 @@ class FireworkEmitter {
     // console.log("W/H", width, height)
 
     const { particleSize, shapeTextures, randomShape, explosionType } = fireworks;
+    
+    
+    const isParticleType = (explosionType === "particle");
+    // const size = particleSize;
+    const size = isParticleType ? 5 : particleSize;
     const cx = width / 2;
     const cy = height / 2;
-    const size = particleSize;
     const offset = size / 2;
 
     let count = 0;
@@ -227,7 +238,7 @@ class FireworkEmitter {
         // const rgb = `rgb(${255}, ${255}, ${255})`;      
         // shapeTextures.addColor(rgb); 
         // const shape = randomShape();
-        const shape = explosionType === "particle" ? "circle" : randomShape();
+        const shape = isParticleType ? "circle" : randomShape();
 
         // const frame = shapeTextures.getFrame(rgb, shape);
         // const rect = new PIXI.Rectangle(frame.sx, frame.sy, frame.sSize, frame.sSize);
