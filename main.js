@@ -21,6 +21,8 @@
     fireworkType: "emotePopper", // "{fireworkType}" emotePopper, classic, none
     fireworkOrder: "ordered", // "{fireworkOrder}" random, ordered
     fireworkDelay: Number(0.6), // {fireworkDelay} a value of 0 is normal
+    explosionType: "particle", // {explosionType} particle, image  
+    shellSize: Number(25), // {shellSize}
     particleSize: 30,
     numParticles: 300,
     mainExplodeY: 330,
@@ -32,19 +34,29 @@
     clusterParticles: true, // group extra particles in the center of image
     debug: true, // dev mode
 
-    useFilters: false,
+    // useFilters: false,
+    // fps: Number(60),
+    minPixelAlpha: 0.9,
 
     colors: [
-      "#F05189", // red
-      "#00CCFF", // blue
-      "#A800FF", // purple
-      "#FFE300", // yellow
-      "#51F058", // green
+      0xF05189, // red
+      0x00CCFF, // blue
+      0xA800FF, // purple
+      0xFFE300, // yellow
+      0x51F058, // green
     ]
+
+    // colors: [
+    //   "#F05189", // red
+    //   "#00CCFF", // blue
+    //   "#A800FF", // purple
+    //   "#FFE300", // yellow
+    //   "#51F058", // green
+    // ]
   };
   
   if (Boolean(true)) { // {displayGif}
-  	document.getElementById("bit").style.display = "block";
+  	// document.getElementById("bit").style.display = "block";
   }
 
   const resources = await NerdLoader.load([
@@ -54,7 +66,7 @@
     "https://ext-assets.streamlabs.com/users/140067/Physics2DPlugin.min.3.3.4.js",
     "https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.0/howler.min.js",
 
-    { name: "emoteSlot1", url: "videos/fire.webm" }, // {emoteSlot1}
+    { name: "emoteSlot1", url: "images/img-08.png" }, // {emoteSlot1}
     { name: "emoteSlot2", url: "images/orange.png" }, // {emoteSlot2}
     { name: "emoteSlot3", url: "images/purple.png" }, // {emoteSlot3}
     { name: "emoteSlot4", url: "images/teal.png" }, // {emoteSlot4}
@@ -84,8 +96,8 @@
 
     gsap.registerPlugin(Physics2DPlugin, PixiPlugin);
 
-    gsap.ticker.lagSmoothing(0);
-    gsap.ticker.fps(60);
+    // gsap.ticker.lagSmoothing(0);
+    // gsap.ticker.fps(settings.fps);
 
     const launchSound = resources.launchSound.mute(false).volume(settings.volume);
     const popSound = resources.popSound.mute(false).volume(settings.popVolume);
@@ -143,6 +155,9 @@
 
     } else if (settings.fireworkType === "emotePopper") {
 
+      // gsap.ticker.fps(settings.fps);
+      // gsap.ticker.fps(90);
+
       // const allImages = [
       //   resources.emoteSlot1,
       //   resources.emoteSlot2,
@@ -173,12 +188,18 @@
         emotes.push(image);
       }
 
+      console.time("FIREWORKS")
+      
+
       const fireworks = createFireworks({
         ...settings,
         popSound,
         emotes,
         onReady(fireworks) {
-          fireworks.play(tl);
+          tl.play();
+          fireworks.play();
+
+          console.timeEnd("FIREWORKS")
 
 
           // launchSound.play();

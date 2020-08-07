@@ -13,21 +13,35 @@ class Fireworks extends PIXI.Application {
       transparent: true
     });
 
-    var f = (foo => {
-      if (foo <= 0) {
-        return 1 ** 1;
-      }
-    });
+    Object.assign(this, settings);
+
+    if (settings.debug) {
+      this.stats = new Stats();
+      this.stats.showPanel(0);
+      document.body.appendChild(this.stats.dom);
+      this.stats.dom.style.left = "unset";
+      this.stats.dom.style.right = "0px";
+    }
+
+    // this.spriteCache = [];
+
+    // this.stage.filters = [
+    //   // new PIXI.filters.AlphaFilter(1)
+    // ];
+
+    this.stage.filterArea = this.screen;
 
     this.dpr = window.devicePixelRatio;
 
     this.emitterContainer = new PIXI.Container();
+    this.lightContainer = new PIXI.Container();
     this.particleContainer = new PIXI.Container();
     this.trailContainer = new PIXI.Container();
     this.mainContainer = new PIXI.Container();
-    this.mainContainer.addChild(this.trailContainer, this.emitterContainer, this.particleContainer);
+    // this.mainContainer.addChild(this.trailContainer, this.emitterContainer, this.particleContainer);
+    this.mainContainer.addChild(this.lightContainer, this.trailContainer, this.emitterContainer, this.particleContainer);
     
-    Object.assign(this, settings);
+    
     this.canPlay = false;
 
     this.update = this.update.bind(this);    
@@ -36,7 +50,7 @@ class Fireworks extends PIXI.Application {
     this.trailParticles = [];
     
     this.shapeTextures = new ShapeTextures(this);
-    this.colors.forEach(color => this.shapeTextures.addColor(color));
+    // this.colors.forEach(color => this.shapeTextures.addColor(color));
     this.randomColor = gsap.utils.random(this.colors, true);
     this.randomShape = gsap.utils.random(["triangle", "rect"], true);
 
@@ -69,9 +83,15 @@ class Fireworks extends PIXI.Application {
       return emote.data.init();
     });
 
+    
     await Promise.all(promises);
-  
-    this.emitters = this.emotes.map(emote => new FireworkEmitter(this, emote));
+
+    // console.log("EMOTES", this.emotes)
+    
+    // this.emotes = this.emotes.filter
+    this.emitters = this.emotes
+      .filter(emote => emote.data.isValid)
+      .map(emote => new FireworkEmitter(this, emote));
 
     this.onResize();
     this.createVars();
@@ -81,7 +101,10 @@ class Fireworks extends PIXI.Application {
     window.addEventListener("resize", e => this.onResize());
 
     this.emitters.forEach(emitter => emitter.prepare());
+
+    console.time("INIT");
     this.init();
+    console.timeEnd("INIT")
     this.fireReady();
 
     // this.render();
@@ -100,7 +123,7 @@ class Fireworks extends PIXI.Application {
 
     // console.log("INIT", this.shapeTextures.baseTexture)
 
-    this.shapeTextures.generate();
+    // this.shapeTextures.generate();
     this.shapesBaseTexture = this.shapeTextures.baseTexture; 
     this.shapesSprite = new PIXI.Sprite(new PIXI.Texture(this.shapesBaseTexture));
 
@@ -197,7 +220,9 @@ class Fireworks extends PIXI.Application {
         tl.time(currentTime, true);
 
         if (emitter.y > explodeY) {
+          console.time(`EMITTER ${index}`)
           emitter.init();
+          console.timeEnd(`EMITTER ${index}`)
           explodeTime = currentTime;
           break;
         }
@@ -232,6 +257,8 @@ class Fireworks extends PIXI.Application {
 
       tweener.add(trailAnimation, 0);         
       this.fireworksTimeline.add(tweener, delay);        
+
+      // console.log("DELAY", delay)
     });
   }
 
@@ -274,7 +301,7 @@ class Fireworks extends PIXI.Application {
 
     for (let i = 0; i < count; i++) {
 
-      const color = randomColor();      
+      const tint = randomColor();      
       const x = emitter.x + randomOffsetX() * randomChoice(1, -1);
       const shape = this.randomShape();      
       const sign = randomChoice(1, -1);      
@@ -283,14 +310,16 @@ class Fireworks extends PIXI.Application {
       const peakY = endY - offsetY;
       const fadeY = peakY + randomDrop();
 
-      const frame = shapeTextures.getFrame(color, shape);
-      const rect = new PIXI.Rectangle(frame.sx, frame.sy, frame.sSize, frame.sSize);
+      // const frame = shapeTextures.getFrame(color, shape);
+      // const rect = new PIXI.Rectangle(frame.sx, frame.sy, frame.sSize, frame.sSize);
 
-      const particle = new FireworkParticle(this, {
-        color,
+      const texture = shapeTextures[shape + "Texture"];
+
+      const particle = new FireworkParticle(texture, this, {
+        tint,
         // scaleX: scale,
         // scaleY: scale,
-        frame: rect,
+        // frame: rect,
         // frame: shapeTextures.getFrame(color, shape),
         x,
         y: startY,
@@ -298,12 +327,9 @@ class Fireworks extends PIXI.Application {
       });     
 
       particle.scale.set(scale);
-      particle.texture = new PIXI.Texture(this.shapesBaseTexture, rect);
-      // this.particleContainer.addChild(particle);
-      // this.emitterContainer.addChild(particle);
-      this.trailContainer.addChild(particle);
+      // particle.texture = new PIXI.Texture(this.shapesBaseTexture, rect);
 
-      // console.log("PARTICLE", particle)
+      this.trailContainer.addChild(particle);
 
       const duration = 1;
 
@@ -455,8 +481,9 @@ class Fireworks extends PIXI.Application {
     this.lastTime = performance.now();
 
     this.fireworksTimeline.play(0);
-    tl.play(0);
+    // tl.play(0);
     gsap.ticker.add(this.update);  
+    this.update();
 
     // this.start();
 
@@ -500,38 +527,6 @@ class Fireworks extends PIXI.Application {
     }
   }
 
-  // movingAverage(numSamples = 100) {
-  
-  //   let index = 0;
-  //   let sum = 0;
-  //   let samples = Array(numSamples).fill(0);
-            
-  //   return (newValue, valid) => {
-      
-  //     sum -= samples[index];
-  //     sum += newValue;
-  //     samples[index] = newValue;    
-  //     index = (index + 1) % numSamples;
-      
-  //     return sum / numSamples;
-  //   }
-  // }
-
-  // update() {
-
-  //   const currentTime = Date.now();
-  //   const elapsed = currentTime - this.lastTime;
-  //   gsap.updateRoot((currentTime - this.startTime) / 1000);
-  //   this.render(0, elapsed);
-  //   this.lastTime = currentTime;
-
-  //   if (this.fireworksTimeline.progress() < 1) {
-  //     requestAnimationFrame(() => this.update());
-      
-  //   }
-
-  // }
-
   update() {
     this.render();
   }
@@ -562,70 +557,15 @@ class Fireworks extends PIXI.Application {
     }  
 
     if (this.debug) {
-      // const fps = this.getFPS(1000 / deltaTime).toFixed(0);
-      // const elapsed = this.getElapsed(deltaTime).toFixed(0);
-
-      const currentTime = performance.now();
-      const elapsed = currentTime - this.lastTime;
-      this.lastTime = currentTime;
-      const fps = this.getFPS(1000 / elapsed).toFixed(0);
-      const elapsedAvg = this.getElapsed(elapsed).toFixed(0);
-      this.text.text = `FPS: ${fps}\nELAPSED: ${elapsedAvg}`;
+      this.stats.update();
+      // const currentTime = performance.now();
+      // const elapsed = currentTime - this.lastTime;
+      // this.lastTime = currentTime;
+      // const fps = this.getFPS(1000 / elapsed).toFixed(0);
+      // const elapsedAvg = this.getElapsed(elapsed).toFixed(0);
+      // this.text.text = `FPS: ${fps}\nELAPSED: ${elapsedAvg}`;
     }
 
     this.renderer.render(this.stage);
-
-    // super.render();
-    // console.log(this.emitters[0].x, this.emitters[0].y)
-  }
-
-  ___render(time, deltaTime) {
-
-    // if (this.ct++ < 100) {
-    //   console.log("ELAPSED", deltaTime)
-    // }
-
-    const { ctx, emitters, width, height, trailParticles } = this;
-
-    let aliveCount = 0;
-    let i = 0;
-
-    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    ctx.clearRect(0, 0, width, height);
-    ctx.globalAlpha = 1;
-
-    if (this.debug) {
-      ctx.drawImage(this.shapeTextures.texture, 0, 0);
-      // ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
-      // ctx.fillRect(0, 0, 200, 100);
-      const fps = `FPS: ${this.getFPS(1000 / deltaTime).toFixed(0)}`;
-      ctx.fillStyle = "#ffffff";      
-      // ctx.strokeStyle = "#000000";
-      ctx.shadowColor = "#000000";
-      // ctx.shadowBlur = 5;
-      ctx.shadowOffsetX = 1;
-      ctx.shadowOffsetY = 1;
-      ctx.fillText(fps, 10, 20);
-      ctx.shadowColor = "transparent";
-      // ctx.strokeText(fps, 10, 20);
-    }
-
-    for (i = 0; i < trailParticles.length; i++) {
-      const particle = trailParticles[i];
-
-      if (particle.alive) {
-        // particle.render();
-        aliveCount++;
-      }
-    }
-
-    for (i = 0; i < emitters.length; i++) {
-      emitters[i].update();
-      aliveCount += emitters[i].aliveCount;
-    }
-
-    if (!aliveCount) {
-      this.kill();
-    }  
   }
 }

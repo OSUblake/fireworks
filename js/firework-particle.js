@@ -1,13 +1,16 @@
 // class FireworkParticle extends DisplayObject {
+// class FireworkParticle extends PIXI.Sprite {
+
+// const texture = new PIXI.Sprite(PIXI.Texture.EMPTY);
+
+// class FireworkParticle {
 class FireworkParticle extends PIXI.Sprite {
 
-  constructor(fireworks, settings) {
+  constructor(texture, fireworks, settings) {
 
-    // const texture = new PIXI.Texture(fireworks.shapesBaseTexture, settings.frame);
+    // super(PIXI.Texture.EMPTY);
+    super(texture);
 
-    // super(fireworks);
-    super(PIXI.Texture.EMPTY);
-    // super(texture);
     this.fireworks = fireworks;
 
     Object.assign(this, {
@@ -19,13 +22,38 @@ class FireworkParticle extends PIXI.Sprite {
       dy: 0
     }, settings);
 
+    // this.tint = 0xff0000;
+    // this.tint = 16711680;
+
     this.size = fireworks.particleSize;
-    this.originX = this.size / 2;
-    this.originY = this.size / 2;
+    // this.originX = this.size / 2;
+    // this.originY = this.size / 2;
+
+    // this.anchor = {
+    //   x: 0,
+    //   y: 0,
+    //   set() {
+
+    //   }
+    // }
+
+    // this.scale = {
+    //   x: 0,
+    //   y: 0,
+    //   set() {
+
+    //   }
+    // }
+
+    // this.skew = {
+    //   x: 0,
+    //   y: 0,
+    //   set() {
+        
+    //   }
+    // }
 
     this.anchor.set(0.5);
-
-    // this.visible = false;
   }
 
   init(cx, cy, currentRotation, timeline) {
@@ -125,28 +153,28 @@ class FireworkParticle extends PIXI.Sprite {
         }
       }, 0);
 
-      this.texture = new PIXI.Texture(this.fireworks.shapesBaseTexture, this.frame);
+      // this.texture = new PIXI.Texture(this.fireworks.shapesBaseTexture, this.frame);
 
-      var filter2 = new PIXI.filters.GlowFilter({ 
-        color: this.color,
-        // distance: 15, 
-        outerStrength: 0,
-        // knockout: true
-      });
+      // var filter2 = new PIXI.filters.GlowFilter({ 
+      //   color: this.color,
+      //   // distance: 15, 
+      //   outerStrength: 0,
+      //   // knockout: true
+      // });
 
-      var filter = new PIXI.filters.AdvancedBloomFilter({
+      // var filter = new PIXI.filters.AdvancedBloomFilter({
 
-      })
+      // })
 
-      this.filters = [
-        // filter2,
-        // filter
-      ]
+      // this.filters = [
+      //   // filter2,
+      //   // filter
+      // ]
 
-      timeline.to(filter2, {
-        duration,
-        outerStrength: 2
-      }, 0)
+      // timeline.to(filter2, {
+      //   duration,
+      //   outerStrength: 2
+      // }, 0)
   }
 
   play() {
@@ -164,8 +192,12 @@ class FireworkParticle extends PIXI.Sprite {
     // this.timeline.kill();
     this.alpha = 0;
     this.alive = false;
-    this.parent.removeChild(this);
+    // this.parent.removeChild(this);
     
+  }
+
+  update() {
+
   }
 
   ___render() {

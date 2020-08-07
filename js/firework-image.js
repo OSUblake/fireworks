@@ -18,8 +18,18 @@ class FireworkImage extends PIXI.Sprite {
 
     this.baseWidth = data.baseWidth;
     this.baseHeight = data.baseHeight;
-    this.width = data.width;
-    this.height = data.height;
+
+    // this.width = data.width;
+    // this.height = data.height;
+
+    this.width = data.startWidth;
+    this.height = data.startHeight;
+
+    this.startWidth = data.startWidth;
+    this.startHeight = data.startHeight;
+    this.endWidth = data.endWidth;
+    this.endHeight = data.endHeight;
+
 
     // this.origImage = image;
     // this.imageData = [0,0,0,0];
@@ -105,25 +115,31 @@ class FireworkImage extends PIXI.Sprite {
     }    
   }
 
+  randomColor() {
+    return this.emote.data.randomColor();
+  }
+
   getColor(x = 0, y = 0) {
 
-    const i = (y * this.width + x) * 4;
+    return this.emote.data.getColor(x, y);
 
-    if (!this.imageData[i]) {
-      return {
-        r: 0,
-        g: 0,
-        b: 0,
-        a: 0
-      };
-    }
+    // const i = (y * this.width + x) * 4;
 
-    return {
-      r: this.imageData[i],
-      g: this.imageData[i+1],
-      b: this.imageData[i+2],
-      a: this.imageData[i+3] / 255,
-    };
+    // if (!this.imageData[i]) {
+    //   return {
+    //     r: 0,
+    //     g: 0,
+    //     b: 0,
+    //     a: 0
+    //   };
+    // }
+
+    // return {
+    //   r: this.imageData[i],
+    //   g: this.imageData[i+1],
+    //   b: this.imageData[i+2],
+    //   a: this.imageData[i+3] / 255,
+    // };
   }
 
   ____render() {
