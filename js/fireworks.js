@@ -16,11 +16,12 @@ class Fireworks extends PIXI.Application {
     Object.assign(this, settings);
 
     if (settings.debug.stats) {
-      this.stats = new Stats();
-      this.stats.showPanel(0);
-      document.body.appendChild(this.stats.dom);
-      this.stats.dom.style.left = "unset";
-      this.stats.dom.style.right = "0px";
+      this.stats = utils.createStats();
+      // this.stats = new Stats();
+      // this.stats.showPanel(0);
+      // document.body.appendChild(this.stats.dom);
+      // this.stats.dom.style.left = "unset";
+      // this.stats.dom.style.right = "0px";
     }
 
     this.stage.filterArea = this.screen;
@@ -111,7 +112,7 @@ class Fireworks extends PIXI.Application {
 
     if (this.debug.stats) {
       const numParticles = this.emitters.reduce((res, emitter) => res + emitter.particles.length, 0);
-      console.log("NUM PARTICLES", numParticles)
+      console.log("TOTAL PARTICLES", numParticles);
     }
 
     // this.render();
@@ -175,7 +176,8 @@ class Fireworks extends PIXI.Application {
     const maxRotation = 120;
     const spread = 200;
     const size = this.maxImageSize;
-    const spawnWidth = Math.min(this.spawnWidth, this.width) / 2;
+    // const spawnWidth = Math.min(this.spawnWidth, this.width) / 2;
+    const spawnWidth = Math.min(this.spawnWidth, this.width - 200) / 2;
     let spawnSide = 1;
 
     const randomX = gsap.utils.random(100, spawnWidth, true);

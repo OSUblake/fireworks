@@ -6,7 +6,7 @@
   const settings = {
     canvas: document.querySelector("#canvas"),
     maxFireworks: Number(5), // {maxFireworks}
-    maxImageSize: Number(90), // {maxImageSize}
+    maxImageSize: Number(600), // {maxImageSize}
     spawnWidth: Number(2000), // {spawnWidth}
     delayTime: Number(10), // {alertDelay}
     volume: Number(0) * 0.01, // {audioVolume}
@@ -16,11 +16,9 @@
     fireworkDelay: Number(0.6), // {fireworkDelay} a value of 0 is normal
     explosionType: "image", // {explosionType} particle, image  
     shellSize: Number(25), // {shellSize}
-    // cropExplosion: "circle", // {cropExplosion} none, circle
     maskFirework: "true", // {maskFirework} true, false dropdown, mask emote to a circle
-    // particleSize: 30,
-    // imageTypeSize: 30,
-    // particleTypeSize: 5,
+    particleSize: Number(30), // {particleSize}
+    particleSpacing: Number(30), // {particleSpacing}
     numParticles: 300,
     mainExplodeY: 330,
     explodeTime: 1.55, // time when firework explodes in video 
@@ -39,8 +37,7 @@
     // orbSize: 10,
     // orbSpacing: 20,
 
-    particleSize: 30,
-    particleSpacing: 30,
+    
 
 
 
@@ -50,7 +47,7 @@
       stats: true,
       particles: true,
       emitters: true,
-      shapes: true,
+      shapes: false,
       particleShape: "rect"
     },
 
@@ -80,7 +77,7 @@
     "https://ext-assets.streamlabs.com/users/140067/Physics2DPlugin.min.3.3.4.js",
     "https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.0/howler.min.js",
 
-    { name: "emoteSlot1", url: "images/img-08.png" }, // {emoteSlot1}
+    { name: "emoteSlot1", url: "images/pixel.png" }, // {emoteSlot1}
     { name: "emoteSlot2", url: "videos/fire.webm" }, // {emoteSlot2}
     { name: "emoteSlot3", url: "images/ryu.jpg" }, // {emoteSlot3}
     { name: "emoteSlot4", url: "images/beach.jpg" }, // {emoteSlot4}

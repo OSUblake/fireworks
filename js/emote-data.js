@@ -54,8 +54,6 @@ class EmoteData {
     this.isValid = false;
 
     this.minAlpha = fireworks.minPixelAlpha;
-
-    console.log("CROP EXPLOSION", this.maskFirework)
   }
 
   async init() {
@@ -164,7 +162,9 @@ class EmoteData {
 
     const radius = Math.min(canvas.width, canvas.height) / 2;
 
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = "rgba(255,255,255,1)";
+    // ctx.fillStyle = "#ffffff";
+    // ctx.fillStyle = "rgba(0,0,0,0.5)";
     ctx.beginPath();
     ctx.arc(canvas.width / 2, canvas.height / 2, radius, 0, Math.PI * 2);
     ctx.fill();

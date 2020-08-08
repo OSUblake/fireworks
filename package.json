@@ -4,7 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "build": "terser js/nerd-loader.js --output build/nerd-loader.min.js && terser js/utils.js js/stats.js js/emote-data.js js/display-object.js js/shape-textures.js js/firework-emitter.js js/firework-image.js js/firework-particle.js js/fireworks.js --output build/fireworks.min.js",
+    "build": "terser js/nerd-loader.js --output build/nerd-loader.min.js && terser js/stats.js js/utils.js js/emote-data.js js/display-object.js js/shape-textures.js js/firework-emitter.js js/firework-image.js js/firework-particle.js js/fireworks.js --output build/fireworks.min.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
