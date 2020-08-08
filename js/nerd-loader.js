@@ -143,7 +143,7 @@ class NerdLoader {
   checkCache(url) {
     return new Promise((resolve, reject) => {
 
-      console.log("*** Checking cache", url);
+      // console.log("*** Checking cache", url);
 
       fetch(url)
         .then(() => resolve(url))

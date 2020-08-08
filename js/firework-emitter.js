@@ -6,6 +6,9 @@ class FireworkEmitter {
     this.fireworks = fireworks;
     // this.image = new FireworkImage(fireworks, emote.image);
     this.image = new FireworkImage(fireworks, emote);
+
+    this.imageData = emote.data;
+
     this.exploded = false;    
     this.launched = false;
     this.x = 0;
@@ -17,7 +20,11 @@ class FireworkEmitter {
 
     fireworks.emitterContainer.addChild(this.image);
 
-    this.container = new PIXI.ParticleContainer(1500, {
+    if (this.image.maskSprite) {
+      fireworks.emitterContainer.addChild(this.image.maskSprite);
+    }
+
+    this.container = new PIXI.ParticleContainer(3000, {
       vertices: true,
       position: true,
       rotation: true,
@@ -25,78 +32,18 @@ class FireworkEmitter {
       tint: true
     });
 
-    // this.container = new PIXI.Container();
-
-    this.container2 = new PIXI.Container();
-    // this.container2.addChild(this.container);
-
     const screen = fireworks.screen;
-    // this.container.filterArea = new PIXI.Rectangle(0, -screen.height, screen.width, screen.height);
 
-    this.container.filterArea = new PIXI.Rectangle(0, -screen.height, screen.width, screen.height);
+    // this.container.filterArea = new PIXI.Rectangle(0, -screen.height, screen.width, screen.height);
     this.container.filterArea = screen;
 
-    // this.container2.filterArea = new PIXI.Rectangle(0, -screen.height, screen.width, screen.height);
-    // this.container.filterArea = screen;
-    // this.container2.filterArea = this.container.filterArea;
-    // this.container2.filterArea = screen;
-    
-    // this.container2.addChild(this.container);
-
-    // const filter = new GlowFilter({
-    //   // color: 0xff0000
-    //   outerStrength: 12,
+    // this.timeline = gsap.timeline({
+    //   paused: true,
+    //   onComplete: () => {
+    //     // this.fireworks.particleContainer.removeChild(this.container);
+    //     // this.fireworks.particleContainer.removeChild(this.container2);
+    //   }
     // });
-
-
-    // const filter = new PIXI.filters.GlowFilter({
-    //   // color: 0xff0000,
-    //   outerStrength: 12,
-    // })
-
-    // this.container2.filters = [
-    //   filter
-    // ]
-    
-
-    // var filter2 = new PIXI.filters.GlowFilter({ 
-    //   // distance: 15, 
-    //   outerStrength: 0,
-    //   // knockout: true
-    // });
-
-    // this.filter2 = filter2;
-
-    // var filter = new PIXI.filters.AdvancedBloomFilter({
-
-    // })
-
-    // var filter3 = new PIXI.filters.BlurFilter ()
-
-    // filter = new PIXI.filters.OutlineFilter(10, 0xff0000)
-
-    // console.log("FILTER", filter)
-
-    
-
-    // if (fireworks.useFilters) {
-
-    //   this.container2.filters = [
-    //     // filter, 
-    //     // filter3,
-  
-    //     filter2,
-    //   ];
-
-    // }
-
-    this.timeline = gsap.timeline({
-      paused: true,
-      onComplete: () => {
-        this.fireworks.particleContainer.removeChild(this.container);
-        // this.fireworks.particleContainer.removeChild(this.container2);
-      }
-    });
   }
 
   async _prepare() {
@@ -107,6 +54,12 @@ class FireworkEmitter {
   prepare() {
     // await this.image.init();
     this.createParticles();
+
+    console.log("NUM PARTICLES", this.particles.length);
+    // console.log("PARTICLES", this.particles)
+
+    // var c = this.imageData.getColor(65487.54, 321654.2)
+    // console.log("**** GET COLOR", c)
   }
 
   play() {
@@ -128,30 +81,44 @@ class FireworkEmitter {
     //   duration: this.timeline.duration()
     // })
 
+    const debug = this.fireworks.debug.emitters;
+
     const particles = this.particles;
 
-    // for (let i = 0; i < particles.length; i++) {
-      // particles[i].play();
-      // particles[i].alive = true;
-    // }
+    for (let i = 0; i < particles.length; i++) {
+      particles[i].alive = true;
+      particles[i].alpha = 0.5;
+      !debug && particles[i].play();
+    }
+
+    
 
     this.fireworks.particleContainer.addChild(this.container);
-    // this.fireworks.particleContainer.addChild(this.container2);
 
-    this.timeline.play();
+    // this.timeline.play();
     this.emote.popSound.play();
-    this.image.alpha = 0;
-    this.fireworks.emitterContainer.removeChild(this.image);
+    
+    // TODO
+    if (debug) {
+      this.image.alpha = 0.5
+    } else {
+      this.image.alpha = 0;
+      this.fireworks.emitterContainer.removeChild(this.image);
+    }
+    
+    // this.image.alpha = 0;
+    // this.fireworks.emitterContainer.removeChild(this.image);
 
     this.exploded = true;
   }
 
   init() {
 
-    const { particles, x, y, rotation, rotationSign } = this;
+    const { particles, x, y, rotation } = this;
 
     for (let i = 0; i < particles.length; i++) {
-      particles[i].init(x, y, rotation, this.timeline);
+      // particles[i].initPolygon(x, y, 0);
+      particles[i].initPolygon(x, y, rotation);
     }
   }
 
@@ -163,8 +130,12 @@ class FireworkEmitter {
 
     
 
-    if (fireworks.explosionType === "particle") {
-      // return;
+    // if (fireworks.explosionType === "particle") {
+    //   // return;
+    //   return this.addParticles(true);
+    // }
+
+    if (fireworks.isParticleExplosion) {
       return this.addParticles(true);
     }
 
@@ -190,36 +161,55 @@ class FireworkEmitter {
 
   addParticles(centered) {
 
-    const { fireworks, image } = this;
+    const { fireworks, imageData } = this;
     // const { width, height } = image;
-    const width = image.endWidth;
-    const height = image.endHeight;
+
+    const width = imageData.endWidth;
+    const height = imageData.endHeight;
 
     // console.log("W/H", width, height)
 
-    const { particleSize, shapeTextures, randomShape, explosionType } = fireworks;
+    // const { particleSize, shapeTextures, randomShape, explosionType } = fireworks;
+    const { isParticleExplosion, polygonSpacing, orbSpacing, shapeTextures, randomShape } = fireworks;
     
     
-    const isParticleType = (explosionType === "particle");
+    // const isParticleType = (explosionType === "particle");
     // const size = particleSize;
-    const size = isParticleType ? 5 : particleSize;
+    // const gap = isParticleExplosion ? 5 : polygonSize;
+
+    // const gap = isParticleExplosion ? orbSpacing : polygonSpacing;
+    const gap = fireworks.particleSpacing;
+
     const cx = width / 2;
     const cy = height / 2;
-    const offset = size / 2;
+    // const offset = Math.round(gap / 2);
+    const offset = gap / 2;
 
     let count = 0;
     let tint = 0;
 
-    for (let y = 0; y < height; y += size) {
-      for (let x = 0; x < width; x += size) {
+    
+
+    for (let y = 0; y < height; y += gap) {
+      for (let x = 0; x < width; x += gap) {
       
         // const color = image.getColor(x, y);
         // const tint = image.getColor(x, y);
 
+        const xPos = x + offset;
+        const yPos = y + offset;
+
+        if (xPos > width || yPos > height) {
+          // console.log("PARTICLE OVERFLOW")
+          // continue;
+        }
+
+
         if (centered) {
-          tint = image.randomColor();
+          tint = imageData.randomColor();
         } else {
-          tint = image.getColor(x, y);
+          // tint = imageData.getColor(x, y);
+          tint = imageData.getColor(xPos, yPos);
         }
 
         // if (color.a < 0.9) {
@@ -238,7 +228,19 @@ class FireworkEmitter {
         // const rgb = `rgb(${255}, ${255}, ${255})`;      
         // shapeTextures.addColor(rgb); 
         // const shape = randomShape();
-        const shape = isParticleType ? "circle" : randomShape();
+
+        // TODO
+        // const shape = isParticleExplosion ? "circle" : "rect";
+        // const shape = isParticleExplosion ? "circle" : randomShape();
+        // const shape = "circle";
+
+        let shape;
+
+        if (fireworks.debug.emitters) {
+          shape = fireworks.debug.particleShape;
+        } else {
+          shape = isParticleExplosion ? "circle" : randomShape();
+        }
 
         // const frame = shapeTextures.getFrame(rgb, shape);
         // const rect = new PIXI.Rectangle(frame.sx, frame.sy, frame.sSize, frame.sSize);
@@ -254,19 +256,12 @@ class FireworkEmitter {
         const particle = new FireworkParticle(texture, fireworks, {
           centered,
           tint,
-          // color: rgb,
-          // color: PIXI.utils.rgb2hex([color.r / 255, color.g / 255, color.b / 255]),
-          // alpha: color.a,
-          dx: (x + offset) - cx,
-          dy: (y + offset) - cy,
-          // frame: rect
-          // frame: shapeTextures.getFrame(rgb, shape)
+          dx: xPos - cx,
+          dy: yPos - cy,
         });
 
-        // fireworks.particleContainer.addChild(particle);
-
         this.container.addChild(particle);
-        particle.alpha = 1;
+        // particle.alpha = 1;
 
         this.particles.push(particle);        
 
@@ -279,7 +274,7 @@ class FireworkEmitter {
 
   update() {
 
-    const { exploded, image, particles, x, y } = this;
+    const { exploded, fireworks, image, particles, x, y, rotation } = this;
 
     let alive = 0;
 
@@ -289,9 +284,11 @@ class FireworkEmitter {
 
     if (!exploded) {
 
-      image.x = x;
-      image.y = y;
-      image.rotation = this.rotation;
+      // image.x = x;
+      // image.y = y;
+      // image.rotation = this.rotation;
+      image.update(x, y, rotation);
+
       // image.render();
       alive++;
 
@@ -309,8 +306,27 @@ class FireworkEmitter {
 
     this.aliveCount = alive;
 
-    if (!alive) {
-      image.pause();
+    if (!alive && !fireworks.debug.emitters) {
+      
+      this.kill();
+      // if (this.image.maskSprite) {
+      //   fireworks.emitterContainer.removeChild(this.image.maskSprite);
+      // }
+    }
+
+    // if (!alive) {
+    //   image.pause();
+    // }
+  }
+
+  kill() {
+
+    this.fireworks.particleContainer.removeChild(this.container);
+
+    this.fireworks.emitterContainer.removeChild(this.image);
+
+    if (this.image.maskSprite) {
+      this.fireworks.emitterContainer.removeChild(this.image.maskSprite);
     }
   }
 }

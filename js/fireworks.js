@@ -15,7 +15,7 @@ class Fireworks extends PIXI.Application {
 
     Object.assign(this, settings);
 
-    if (settings.debug) {
+    if (settings.debug.stats) {
       this.stats = new Stats();
       this.stats.showPanel(0);
       document.body.appendChild(this.stats.dom);
@@ -23,24 +23,15 @@ class Fireworks extends PIXI.Application {
       this.stats.dom.style.right = "0px";
     }
 
-    // this.spriteCache = [];
-
-    // this.stage.filters = [
-    //   // new PIXI.filters.AlphaFilter(1)
-    // ];
-
     this.stage.filterArea = this.screen;
 
     this.dpr = window.devicePixelRatio;
 
     this.emitterContainer = new PIXI.Container();
-    // this.lightContainer = new PIXI.Container();
     this.particleContainer = new PIXI.Container();
     this.trailContainer = new PIXI.Container();
     this.mainContainer = new PIXI.Container();
-    this.mainContainer.addChild(this.trailContainer, this.emitterContainer, this.particleContainer);
-    // this.mainContainer.addChild(this.lightContainer, this.trailContainer, this.emitterContainer, this.particleContainer);
-    
+    this.mainContainer.addChild(this.trailContainer, this.emitterContainer, this.particleContainer);    
     
     this.canPlay = false;
 
@@ -52,10 +43,10 @@ class Fireworks extends PIXI.Application {
     this.shapeTextures = new ShapeTextures(this);
     // this.colors.forEach(color => this.shapeTextures.addColor(color));
     this.randomColor = gsap.utils.random(this.colors, true);
-    this.randomShape = gsap.utils.random(["triangle", "rect"], true);
+    this.randomShape = gsap.utils.random(["triangle", "rect", "polygon1"], true);
 
-    this.getFPS = this.smoothedAverage();
-    this.getElapsed = this.smoothedAverage();
+    // this.getFPS = this.smoothedAverage();
+    // this.getElapsed = this.smoothedAverage();
 
     console.log("FIREWORKS", this)
 
@@ -86,6 +77,17 @@ class Fireworks extends PIXI.Application {
     
     await Promise.all(promises);
 
+    console.time("CREATE SPRITES");
+
+    var texture = this.emotes[0].texture;
+
+    var sprites = [];
+    for (var i = 0; i < 5000; i++) {
+      sprites.push(new PIXI.Sprite(texture))
+    }
+
+    console.timeEnd("CREATE SPRITES");
+
     // console.log("EMOTES", this.emotes)
     
     // this.emotes = this.emotes.filter
@@ -107,6 +109,11 @@ class Fireworks extends PIXI.Application {
     console.timeEnd("INIT")
     this.fireReady();
 
+    if (this.debug.stats) {
+      const numParticles = this.emitters.reduce((res, emitter) => res + emitter.particles.length, 0);
+      console.log("NUM PARTICLES", numParticles)
+    }
+
     // this.render();
     // this.start();
 
@@ -119,6 +126,21 @@ class Fireworks extends PIXI.Application {
     // });
   }
 
+  createVars() {
+
+    this.polygonVars = {
+      startAlpha: gsap.utils.random(0.5, 1, true),
+      scale: gsap.utils.random(0.5, 1, true),
+      duration: gsap.utils.random(1, 2, true),
+      friction: gsap.utils.random(0.1, 0.3, true),
+      gravity: 400,
+      rotation: gsap.utils.random(45 * utils.RAD, 90 * utils.RAD, true),
+      spread: 60,
+      skew: gsap.utils.random(-45 * utils.RAD, 45 * utils.RAD, true),
+      velocity: gsap.utils.random(800, 1100, true),
+    };
+  }
+
   init() {
 
     // console.log("INIT", this.shapeTextures.baseTexture)
@@ -127,17 +149,21 @@ class Fireworks extends PIXI.Application {
     this.shapesBaseTexture = this.shapeTextures.baseTexture; 
     this.shapesSprite = new PIXI.Sprite(new PIXI.Texture(this.shapesBaseTexture));
 
-    if (this.debug) {
-      this.text = new PIXI.Text("",{
-        fontFamily: "monospace", 
-        fontSize: 18, 
-        fill : 0xffffff, 
-        dropShadow: true,
-        dropShadowDistance: 1
-        // align : 'center'
-      });
-      this.stage.addChild(this.shapesSprite, this.text);
+    if (this.debug.shapes) {
+      this.stage.addChild(this.shapesSprite);
     }
+
+    // if (this.debug) {
+    //   this.text = new PIXI.Text("",{
+    //     fontFamily: "monospace", 
+    //     fontSize: 18, 
+    //     fill : 0xffffff, 
+    //     dropShadow: true,
+    //     dropShadowDistance: 1
+    //     // align : 'center'
+    //   });
+    //   this.stage.addChild(this.shapesSprite, this.text);
+    // }
 
     this.stage.addChild(this.mainContainer);
 
@@ -154,14 +180,14 @@ class Fireworks extends PIXI.Application {
 
     const randomX = gsap.utils.random(100, spawnWidth, true);
     const randomY = gsap.utils.random(mainExplodeY - spread, mainExplodeY + spread, true);
-    const randomRotation = gsap.utils.random(minRotation * RAD, maxRotation * RAD, true);
+    const randomRotation = gsap.utils.random(minRotation * utils.RAD, maxRotation * utils.RAD, true);
     const randomDelay = gsap.utils.random(0.1, 0.5, true);
     const randomDrop = gsap.utils.random(50, 80, true);
 
     this.emitters.forEach((emitter, index) => {
 
       const isMain = !index;
-      const sign = randomChoice(1, -1);
+      const sign = utils.randomChoice(1, -1);
       const duration = 1;
       const drop = randomDrop();
 
@@ -283,7 +309,7 @@ class Fireworks extends PIXI.Application {
     const randomDrop = gsap.utils.random(100, 150, true);
     const randomOffsetX = gsap.utils.random(50, maxOffsetX, true);
     const randomOffsetY = gsap.utils.random(endY * 0.2, endY * 0.5, true);
-    const randomRotation = gsap.utils.random(minRotation * RAD, maxRotation * RAD, true);
+    const randomRotation = gsap.utils.random(minRotation * utils.RAD, maxRotation * utils.RAD, true);
 
     const size = gsap.utils.mapRange(
       this.minImageSizeSlider,
@@ -293,7 +319,8 @@ class Fireworks extends PIXI.Application {
       imageSize
     );
 
-    const scale = size / this.particleSize;
+    // const scale = size / this.particleSize;
+    const scale = size / this.shapeTextures.particleSize;
 
     const count = isMain ? gsap.utils.random(6, 9, 1) : gsap.utils.random(2, 3, 1);
 
@@ -302,9 +329,9 @@ class Fireworks extends PIXI.Application {
     for (let i = 0; i < count; i++) {
 
       const tint = randomColor();      
-      const x = emitter.x + randomOffsetX() * randomChoice(1, -1);
+      const x = emitter.x + randomOffsetX() * utils.randomChoice(1, -1);
       const shape = this.randomShape();      
-      const sign = randomChoice(1, -1);      
+      const sign = utils.randomChoice(1, -1);      
       const offsetY = randomOffsetY();
       const startY = emitter.y + offsetY;
       const peakY = endY - offsetY;
@@ -417,21 +444,6 @@ class Fireworks extends PIXI.Application {
     return trailTimeline;
   }  
 
-  createVars() {
-
-    this.particleVars = {
-      startAlpha: gsap.utils.random(0.5, 1, true),
-      scale: gsap.utils.random(0.5, 1, true),
-      duration: gsap.utils.random(1, 2, true),
-      friction: gsap.utils.random(0.1, 0.3, true),
-      gravity: 400,
-      rotation: gsap.utils.random(45 * RAD, 90 * RAD, true),
-      spread: 60,
-      skew: gsap.utils.random(-45 * RAD, 45 * RAD, true),
-      velocity: gsap.utils.random(800, 1100, true),
-    };
-  }
-
   onResize() {
 
     this.width = this.screen.width;
@@ -443,31 +455,6 @@ class Fireworks extends PIXI.Application {
     this.renderer.resize(this.width, this.height);
   }
 
-  ___onResize() {
-
-    this.width = this.canvas.clientWidth;
-    this.height = this.canvas.clientHeight;
-
-    this.cx = this.width / 2;
-    this.cy = this.height / 2;
-    
-    this.canvas.width = this.width * this.dpr;
-    this.canvas.height = this.height * this.dpr;
-    this.offsetY = this.height;
-
-    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-
-    this.ctx.font = "700 18px monospace";
-  }
-
-  // get cx() {
-  //   return this.width / 2;
-  // }
-
-  // get cy() {
-  //   return this.height / 2;
-  // }
-
   play(tl) {
 
     if (!this.canPlay) {
@@ -475,36 +462,18 @@ class Fireworks extends PIXI.Application {
       return;
     }
 
-    // this.fireworksTimeline.pause(0.5);
-    // this.render(0, 1);
-
     this.lastTime = performance.now();
 
     this.fireworksTimeline.play(0);
     tl.play(0);
     gsap.ticker.add(this.update);  
     this.update();
-
-    // this.start();
-
-    // this.emitters[0].x = 200;
-    // this.emitters[0].y = 200;
-
-
-    // gsap.ticker.remove(gsap.updateRoot);
-    // this.fireworksTimeline.play();
-
-    // this.startTime = this.lastTime = Date.now();
-    // this.update();
-
-    
-    // requestAnimationFrame(() => this.update());
   }
 
   kill() {
     gsap.ticker.remove(this.update);
 
-    if (this.debug) {
+    if (this.debug.stats) {
       console.log("*** Fireworks complete");
     }
 
@@ -516,24 +485,13 @@ class Fireworks extends PIXI.Application {
     this.onReady && this.onReady.call(this, this);
   }
 
-  smoothedAverage(smoothing = 0.9) {
-    
-    let smoothingInv = 1 - smoothing;
-    let measurement = 0;
-    
-    return current => {
-      measurement = (measurement * smoothing) + (current * smoothingInv);
-      return measurement;
-    }
-  }
-
-  update() {
-    this.render();
-  }
-
-  render(time, deltaTime) {
+  update(time, deltaTime) {
 
     const { emitters, trailParticles } = this;
+
+    // const currentTime = performance.now();
+    // const delta = (currentTime - this.lastTime) * 0.06;
+    // this.lastTime = currentTime;
 
     let aliveCount = 0;
     let i = 0;
@@ -556,7 +514,7 @@ class Fireworks extends PIXI.Application {
       this.kill();
     }  
 
-    if (this.debug) {
+    if (this.debug.stats) {
       this.stats.update();
       // const currentTime = performance.now();
       // const elapsed = currentTime - this.lastTime;

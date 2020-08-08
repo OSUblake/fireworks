@@ -4,6 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
+    "build": "terser js/nerd-loader.js --output build/nerd-loader.min.js && terser js/utils.js js/stats.js js/emote-data.js js/display-object.js js/shape-textures.js js/firework-emitter.js js/firework-image.js js/firework-particle.js js/fireworks.js --output build/fireworks.min.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,6 +20,7 @@
   "homepage": "https://github.com/OSUblake/fireworks#readme",
   "dependencies": {
     "gsap": "^3.4.2",
-    "pixi.js": "^5.3.2"
+    "pixi.js": "^5.3.2",
+    "terser": "^5.0.0"
   }
 }

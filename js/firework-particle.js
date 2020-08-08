@@ -1,62 +1,37 @@
-// class FireworkParticle extends DisplayObject {
-// class FireworkParticle extends PIXI.Sprite {
-
-// const texture = new PIXI.Sprite(PIXI.Texture.EMPTY);
-
-// class FireworkParticle {
 class FireworkParticle extends PIXI.Sprite {
 
   constructor(texture, fireworks, settings) {
 
-    // super(PIXI.Texture.EMPTY);
     super(texture);
 
     this.fireworks = fireworks;
 
     Object.assign(this, {
+
+      // visible: false,
+
       alive: false,
       // alpha: 1,
-      alpha: 0,
+      // alpha: 0,
       centered: false,
       dx: 0,
       dy: 0
     }, settings);
 
-    // this.tint = 0xff0000;
-    // this.tint = 16711680;
-
-    this.size = fireworks.particleSize;
-    // this.originX = this.size / 2;
-    // this.originY = this.size / 2;
-
-    // this.anchor = {
-    //   x: 0,
-    //   y: 0,
-    //   set() {
-
-    //   }
-    // }
-
-    // this.scale = {
-    //   x: 0,
-    //   y: 0,
-    //   set() {
-
-    //   }
-    // }
-
-    // this.skew = {
-    //   x: 0,
-    //   y: 0,
-    //   set() {
-        
-    //   }
-    // }
+    // this.size = fireworks.particleSize;
 
     this.anchor.set(0.5);
+
+    this.timeline = gsap.timeline({
+      paused: true,
+      onComplete: () => {
+        this.alive = false;
+        this.alpha = 0;
+      }
+    });
   }
 
-  init(cx, cy, currentRotation, timeline) {
+  initPolygon(cx, cy, currentRotation) {
 
     const { dx, dy, fireworks } = this;
 
@@ -70,22 +45,34 @@ class FireworkParticle extends PIXI.Sprite {
       startAlpha,
       rotation,
       velocity
-    } = fireworks.particleVars;
+    } = fireworks.polygonVars;
 
-    // this.rotation = currentRotation;
+    // this.width = this.height = fireworks.polygonSize;
+    this.width = this.height = fireworks.particleSize;
     
-    this.rotation = Math.random() * Math.PI;    
-    this.startAlpha = startAlpha();
-    this.scale.x = this.scale.y = scale();
-    this.skew.x = skew();
-    this.skew.y = skew();
+    if (fireworks.debug.particles) {
+      this.rotation = currentRotation;
+    } else {
+
+      this.rotation = Math.random() * Math.PI;    
+      this.startAlpha = startAlpha();
+      this.width = this.height = this.width * scale();
+    }
+
+    // this.rotation = Math.random() * Math.PI;    
+    // this.startAlpha = startAlpha();
+    // this.scale.x = this.scale.y = scale();
+
+
+    // this.skew.x = skew();
+    // this.skew.y = skew();
 
     let angle = 0;
     let minAngle = 0;
     let maxAngle = 360;
     let frictionValue = friction();
 
-    frictionValue = randomChoice(Math.min(frictionValue * 2, 0.8), frictionValue, 0.3);
+    frictionValue = utils.randomChoice(Math.min(frictionValue * 2, 0.8), frictionValue, 0.3);
 
     const cos = Math.cos(currentRotation);
     const sin = Math.sin(currentRotation);
@@ -93,7 +80,7 @@ class FireworkParticle extends PIXI.Sprite {
     this.x = ((cos * dx) - (sin * dy)) + cx;
     this.y = ((cos * dy) + (sin * dx)) + cy;
 
-    angle = Math.atan2(this.y - cy, this.x - cx) * DEG;
+    angle = Math.atan2(this.y - cy, this.x - cx) * utils.DEG;
     minAngle = angle - spread;
     maxAngle = angle + spread;
 
@@ -107,37 +94,23 @@ class FireworkParticle extends PIXI.Sprite {
       maxAngle = 360;
     }
 
-    this.alpha = 0;
+    // this.alpha = 0;
 
-    // this.renderable = false;
-
-    // this.timeline = gsap.timeline({
-    //     paused: true
-    //   })
-    timeline
-      .add(() => this.alive = true, 0)
-      // .add(() => this.play(), 0)
-      .set(this, { 
-        alpha: this.startAlpha,
-        immediateRender: false, 
-      }, 0)
+    this.timeline
+      // .add(() => this.alive = true, 0)
+      // .set(this, { 
+      //   alpha: this.startAlpha,
+      //   immediateRender: false, 
+      // }, 0)
       .to(this, {
         duration,
-        // alpha: 0,
-        // onStart: () => this.alive = true,
+        alpha: 0,
+        rotation: "+=" + rotation()
+        // rotation: Math.random() * Math.PI,
         // onComplete: () => this.kill()
-        // onComplete: () => this.alive = false
-        onComplete: () => this.kill()
       }, 0.2)
-      // .from(this, {
-      //   duration,
-      //   alpha: this.startAlpha,
-      //   immediateRender: false,
-      //   // onStart: () => this.alive = true,
-      //   // onComplete: () => this.kill()
-      //   // onComplete: () => this.alive = false
-      //   onComplete: () => this.kill()
-      // }, 0.2)
+
+
       .to(this.scale, {
         duration,
         x: 0,
@@ -153,28 +126,8 @@ class FireworkParticle extends PIXI.Sprite {
         }
       }, 0);
 
-      // this.texture = new PIXI.Texture(this.fireworks.shapesBaseTexture, this.frame);
-
-      // var filter2 = new PIXI.filters.GlowFilter({ 
-      //   color: this.color,
-      //   // distance: 15, 
-      //   outerStrength: 0,
-      //   // knockout: true
-      // });
-
-      // var filter = new PIXI.filters.AdvancedBloomFilter({
-
-      // })
-
-      // this.filters = [
-      //   // filter2,
-      //   // filter
-      // ]
-
-      // timeline.to(filter2, {
-      //   duration,
-      //   outerStrength: 2
-      // }, 0)
+      // TODO: Waiting on Jack to fix this
+      // this.timeline.progress(1, true).progress(0, true);
   }
 
   play() {
@@ -185,11 +138,11 @@ class FireworkParticle extends PIXI.Sprite {
 
     this.alive = true;
     // this.alpha = this.startAlpha;
-    // this.timeline.play();
+    this.timeline.play();
   }
 
   kill() {
-    // this.timeline.kill();
+    this.timeline.kill();
     this.alpha = 0;
     this.alive = false;
     // this.parent.removeChild(this);

@@ -5,6 +5,8 @@ class EmoteData {
     this.image = image;
     this.fireworks = fireworks;
 
+    this.maskFirework = fireworks.maskFirework;
+
     this.imageData = [0,0,0,0];
     this.isValid = false;
 
@@ -15,31 +17,28 @@ class EmoteData {
 
     const maxSize = this.fireworks.maxImageSize;
     const shellSize = this.fireworks.shellSize;
+    
+    // const sx1 = maxSize / this.baseWidth;
+    // const sy1 = maxSize / this.baseHeight;  
+
+    // const sx2 = shellSize / this.baseWidth;
+    // const sy2 = shellSize / this.baseHeight;  
+
+    // this.scaleMax = Math.min(sx1, sy1);
+    // this.scaleMin = Math.min(sx2, sy2);
+
+    this.scaleMin = utils.getScale(this.baseWidth, this.baseHeight, shellSize);
+    this.scaleMax = utils.getScale(this.baseWidth, this.baseHeight, maxSize);
+
     let ratio = 1;
 
-    // if (this.baseWidth > maxSize) {
-    //   ratio = maxSize / this.baseWidth;
-    // } else if (this.baseHeight > maxSize) {
-    //   ratio = maxSize / this.baseHeight;
-    // }
-
-    const sx1 = maxSize / this.baseWidth;
-    const sy1 = maxSize / this.baseHeight;  
-
-    const sx2 = shellSize / this.baseWidth;
-    const sy2 = shellSize / this.baseHeight;  
-
-    this.scaleMax = Math.min(sx1, sy1);
-    this.scaleMin = Math.min(sx2, sx2);
-
     if (fireworks.explosionType === "particle") {
-
-      // ratio = this.scaleMax;
 
       this.startWidth = Math.floor(this.baseWidth * this.scaleMin);
       this.startHeight = Math.floor(this.baseHeight * this.scaleMin);
       this.endWidth = Math.floor(this.baseWidth * this.scaleMax);
       this.endHeight = Math.floor(this.baseHeight * this.scaleMax);
+
     } else {
 
       if (this.scaleMax < 1) {
@@ -50,18 +49,13 @@ class EmoteData {
       this.startHeight = this.endHeight = Math.floor(this.baseHeight * ratio);
     }
 
-    // this.width = Math.floor(this.baseWidth * ratio);
-    // this.height = Math.floor(this.baseHeight * ratio);
-
-    // this.startWidth = 
-
     this.colorCache = [];
     this.validColors = [];
     this.isValid = false;
 
     this.minAlpha = fireworks.minPixelAlpha;
 
-    // console.log("EMOTE DATA", this)
+    console.log("CROP EXPLOSION", this.maskFirework)
   }
 
   async init() {
@@ -77,14 +71,14 @@ class EmoteData {
 
       if (!this.isVideo) {
 
-        this.resizeImage();
+        this.createImageData();
         resolve();
 
       } else {
 
         const fulfill = () => {
           image.removeEventListener("timeupdate", fulfill);          
-          this.resizeImage();
+          this.createImageData();
           resolve();
         }
 
@@ -97,6 +91,45 @@ class EmoteData {
 
   resizeImage() {
 
+    const frame = new PIXI.Rectangle(0, 0, this.baseWidth, this.baseHeight);
+
+    let src;
+
+    if (this.isVideo) {      
+      src = this.image;
+      src.loop = true;
+    } else {
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      canvas.width = utils.nextPow2(this.baseWidth);
+      canvas.height = utils.nextPow2(this.baseHeight);
+
+      ctx.drawImage(this.image, 0, 0);
+      src = canvas;
+    }
+
+    // if (this.isVideo) {
+    //   this.baseTexture = new PIXI.BaseTexture(this.image);
+    //   this.texture = new PIXI.Texture(this.baseTexture, frame);
+    //   return this;
+    // }
+
+    // const canvas = document.createElement("canvas");
+    // const ctx = canvas.getContext("2d");
+
+    // canvas.width = utils.nextPow2(this.baseWidth);
+    // canvas.height = utils.nextPow2(this.baseHeight);
+
+    // ctx.drawImage(this.image, 0, 0);
+
+    this.baseTexture = new PIXI.BaseTexture(src);
+    this.texture = new PIXI.Texture(this.baseTexture, frame);
+  }
+
+  createImageData() {
+
     const image = this.image;
 
     const canvas = document.createElement("canvas");
@@ -107,11 +140,36 @@ class EmoteData {
 
     ctx.imageSmoothingEnabled = false;
 
-    // ctx.drawImage(image, 0, 0, this.baseWidth, this.baseHeight, 0, 0, this.width, this.height);
     ctx.drawImage(image, 0, 0, this.baseWidth, this.baseHeight, 0, 0, canvas.width, canvas.height);
     this.imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data; 
 
+    const radius = Math.min(canvas.width, canvas.height) / 2;
+    this.circle = new PIXI.Circle(canvas.width / 2, canvas.height / 2, radius);
+
+    this.maskFirework && this.createMask();
+    // this.createMask();
     this.createColors();
+    this.resizeImage();
+  }
+
+  createMask() {
+
+    // console.log("CREATE MASK")
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    
+    canvas.width = this.startWidth;
+    canvas.height = this.startHeight;
+
+    const radius = Math.min(canvas.width, canvas.height) / 2;
+
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    this.maskTexture = PIXI.Texture.from(canvas);
   }
 
   createColors() {
@@ -119,7 +177,6 @@ class EmoteData {
     const width = this.endWidth;
     const height = this.endHeight;
 
-    // let numColors = 0;
     let reds = 0;
     let greens = 0;
     let blues = 0;
@@ -129,15 +186,18 @@ class EmoteData {
     
     const minAlpha = 0;
     const data = this.imageData;
-
-    // let x, y, i, r, g, b, a;
-    // let index = 0;
+    const circle = this.circle;
+    const maskFirework = this.maskFirework;
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
 
-          // index = 
           const i = (y * width + x) * 4;
+
+          if (maskFirework && !circle.contains(x, y)) {
+            colorCache.push(-1);
+            continue;
+          }
 
           const r = data[i];
           const g = data[i+1];
@@ -168,10 +228,7 @@ class EmoteData {
     const g = greens / count;
     const b = blues / count;
 
-    const tint = ((r << 16) + (g << 8) + (b | 0));
-
-    console.log("AVG COLOR", tint.toString(16))
-
+    this.avgColor = ((r << 16) + (g << 8) + (b | 0));
 
     this.validColors = validColors;
     this.colorCache = colorCache;
@@ -183,58 +240,23 @@ class EmoteData {
 
   getColor(x = 0, y = 0) {
 
+    x = Math.round(x);
+    y = Math.round(y);
+
+    // console.log("COLOR", x, y)
+
     const i = (y * this.endWidth + x);
 
     const tint = this.colorCache[i];
+
+    // if (this.cropExplosion && !this.circle.contains(x, y)) {
+    //   return -1;
+    // }
 
     if (tint != null) {
       return tint;
     }
 
     return -1;
-    
-
-    // if (!this.colorCache[i]) {
-    //   return -1;
-    // }
-
-    // return this.co
-  }
-
-  ___getColor(x = 0, y = 0) {
-
-    const i = (y * this.width + x) * 4;
-
-    if (!this.imageData[i]) {
-      return -1;
-      // return 0;
-      // return this.emptyColor;
-      // return {
-      //   r: 0,
-      //   g: 0,
-      //   b: 0,
-      //   a: 0
-      // };
-    }
-
-    // const key = "i"
-
-    if (this.colorCache[i]) {
-      return this.colorCache[i];
-    }
-
-    const data = this.imageData;
-    const alpha = data[i+3] / 255;
-
-    if (alpha < this.minAlpha) {
-      return this.emptyColor;
-    }
-
-    return {
-      r: this.imageData[i],
-      g: this.imageData[i+1],
-      b: this.imageData[i+2],
-      a: this.imageData[i+3] / 255,
-    };
   }
 }

@@ -2,110 +2,58 @@ class FireworkImage extends PIXI.Sprite {
 
   constructor(fireworks, emote) {
 
-    super(PIXI.Texture.from(emote.image));
+    super(emote.data.texture);
+    
     this.fireworks = fireworks;
 
     this.emote = emote;
 
-    this.origImage = emote.image;
+    // this.origImage = emote.image;
 
     const data = emote.data;
 
-    this.imageData = data.imageData;
-    this.isValid = data.isValid;
+    // this.imageData = data.imageData;
+    // this.isValid = data.isValid;
 
-    this.isVideo = data.isVideo;
+    // this.isVideo = data.isVideo;
 
-    this.baseWidth = data.baseWidth;
-    this.baseHeight = data.baseHeight;
-
-    // this.width = data.width;
-    // this.height = data.height;
+    // this.baseWidth = data.baseWidth;
+    // this.baseHeight = data.baseHeight;
 
     this.width = data.startWidth;
     this.height = data.startHeight;
 
-    this.startWidth = data.startWidth;
-    this.startHeight = data.startHeight;
-    this.endWidth = data.endWidth;
-    this.endHeight = data.endHeight;
-
-
-    // this.origImage = image;
-    // this.imageData = [0,0,0,0];
-    // this.isValid = false;
-
-    // this.isVideo = image instanceof HTMLMediaElement;
-
-    // this.baseWidth = image.naturalWidth || image.videoWidth || image.width;
-    // this.baseHeight = image.naturalHeight || image.videoHeight || image.height;
-
-    // const maxSize = this.fireworks.maxImageSize;
-    // let ratio = 1;
-
-    // if (this.baseWidth > maxSize) {
-    //   ratio = maxSize / this.baseWidth;
-    // } else if (this.baseHeight > maxSize) {
-    //   ratio = maxSize / this.baseHeight;
-    // }
-
-    // this.width = Math.floor(this.baseWidth * ratio);
-    // this.height = Math.floor(this.baseHeight * ratio);
+    // this.startWidth = data.startWidth;
+    // this.startHeight = data.startHeight;
+    // this.endWidth = data.endWidth;
+    // this.endHeight = data.endHeight;
 
     this.anchor.set(0.5);
+
+    if (emote.data.maskTexture) {
+      this.maskSprite = new PIXI.Sprite(emote.data.maskTexture);
+      this.maskSprite.anchor.set(0.5);
+      this.mask = this.maskSprite;
+    }
   }
 
-  ___init() {
-    
-    // console.log("FIREWORK IMAGE", this)
+  update(x = 0, y = 0, rotation = 0) {
 
-    const origImage = this.origImage;
+    this.x = x;
+    this.y = y;
+    this.rotation = rotation;
 
-    return new Promise(resolve => {
-
-      if (!origImage) {
-        console.log("*** FIREWORKS: Invalid Texture");
-        return resolve();
-      }
-
-      if (!this.isVideo) {
-
-        this.resizeImage();
-        resolve();
-
-      } else {
-
-        const fulfill = () => {
-          origImage.removeEventListener("timeupdate", fulfill);          
-          this.resizeImage();
-          resolve();
-        }
-
-        // needed to get the first frame to render
-        origImage.addEventListener("timeupdate", fulfill);
-        origImage.currentTime = origImage.duration * 0.5;
-      }
-    });
-  }
-
-  ___resizeImage() {
-
-    const image = this.origImage;
-
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-
-    canvas.width = this.width;
-    canvas.height = this.height;
-
-    ctx.drawImage(image, 0, 0, this.baseWidth, this.baseHeight, 0, 0, this.width, this.height);
-    this.imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data; 
+    if (this.maskSprite) {
+      this.maskSprite.x = x;
+      this.maskSprite.y = y;
+      this.maskSprite.rotation = rotation;
+    }
   }
 
   play() {
     if (this.isVideo) {
-      this.origImage.currentTime = 0;
-      this.origImage.play();
+      // this.origImage.currentTime = 0;
+      // this.origImage.play();
     }    
   }
 
@@ -115,50 +63,11 @@ class FireworkImage extends PIXI.Sprite {
     }    
   }
 
-  randomColor() {
-    return this.emote.data.randomColor();
-  }
+  // randomColor() {
+  //   return this.emote.data.randomColor();
+  // }
 
-  getColor(x = 0, y = 0) {
-
-    return this.emote.data.getColor(x, y);
-
-    // const i = (y * this.width + x) * 4;
-
-    // if (!this.imageData[i]) {
-    //   return {
-    //     r: 0,
-    //     g: 0,
-    //     b: 0,
-    //     a: 0
-    //   };
-    // }
-
-    // return {
-    //   r: this.imageData[i],
-    //   g: this.imageData[i+1],
-    //   b: this.imageData[i+2],
-    //   a: this.imageData[i+3] / 255,
-    // };
-  }
-
-  ____render() {
-
-    const ctx = this.fireworks.ctx;
-
-    this.setTransform();
-    ctx.globalAlpha = 1;
-
-    ctx.drawImage(
-      this.texture,
-      0,
-      0,
-      this.baseWidth,
-      this.baseHeight,
-      0,
-      0,
-      this.width,
-      this.height
-    );
-  }
+  // getColor(x = 0, y = 0) {
+  //   return this.emote.data.getColor(x, y);
+  // }
 }
