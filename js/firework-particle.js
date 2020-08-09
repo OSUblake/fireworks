@@ -46,6 +46,18 @@ class FireworkParticle extends PIXI.Sprite {
     if (this.glow) {
       this.glow.alpha = 0;
     }
+
+    if (this.particleContainer) {
+      // this.particleContainer.removeChild(this, this.glow);
+    }
+
+    // if (this.parent) {
+    //   this.parent.removeChild(this);
+
+    //   if (this.glow.parent) {
+    //     this.glow.parent.removeChild(this.glow)
+    //   }
+    // }
   }
 
   update() {
@@ -62,23 +74,37 @@ class FireworkParticle extends PIXI.Sprite {
     }
   }
 
+  addGlow(container) {
+
+    this.glow = new PIXI.Sprite(this.texture);
+    this.glow.alpha = 0.75;
+    this.glow.anchor.set(0.5);
+    // container.addChild(this.glow, this);
+    this.glow.width = this.glow.height = this.fireworks.particleSize * 0.5;
+  }
+
   initOrb(emitterX, emitterY, emitterRotation, container) {
 
     const { dx, dy, fireworks } = this;
 
     this.alpha = 1;
 
-    this.glow = new PIXI.Sprite(this.texture);
-    // sprite2.blendMode = PIXI.BLEND_MODES.ADD;
-    // sprite2.tint = 0xff0000;
-    // this.addChild(sprite2);
-    this.glow.alpha = 0.75;
-    this.glow.anchor.set(0.5);
-    container.addChild(this.glow, this);
+    // if (fireworks.isOrbType) {
+    //   this.addGlow(container);
+    // }
+
+    // this.addGlow(container);
+    if (fireworks.useGlow) {
+      this.addGlow();
+    }
+    this.particleContainer = container;
+    
+    this.rotation = Math.random() * Math.PI;  
+    
     // container.addChild(this, sprite2);
 
     this.width = this.height = fireworks.particleSize;
-    this.glow.width = this.glow.height = fireworks.particleSize * 0.5;
+    // this.glow.width = this.glow.height = fireworks.particleSize * 0.5;
 
     // sprite2.width = sprite2.height = 4;
 
@@ -94,13 +120,12 @@ class FireworkParticle extends PIXI.Sprite {
     this.y = emitterY;
 
     const duration = 2;
-    const speed = 100;
-    const dist = Math.sqrt(dx * dx + dy * dy);
+    // const speed = 100;
+    // const dist = Math.sqrt(dx * dx + dy * dy);
 
     // const velocitySpread = gsap.utils.random(-1.01, 1.01);
-    const velocitySpread = gsap.utils.random(-10, 10);
-
-    const velocity = dist + velocitySpread;
+    // const velocitySpread = gsap.utils.random(-10, 10);
+    // const velocity = dist + velocitySpread;
 
     // console.log("\nVELOCIT", velocity)
     // console.log("DIST", dist)
@@ -128,15 +153,18 @@ class FireworkParticle extends PIXI.Sprite {
         duration: dur,
         x: endX + gsap.utils.random(-5, 5),
         y: endY + gsap.utils.random(-5, 5),
-        ease: "power4"
+        ease: "power2"
       }, 0)
       .to(this.proxy, {
-        duration: dur * 2,
-        drop: "random(50, 60)"
-      }, 0);
+        duration: dur,
+        drop: "random(50, 60)",
+        ease: "sine.in"
+      }, 0.2);
+
+    this.timeline.progress(1, true).progress(0, true);
   }
 
-  initPolygon(emitterX, emitterY, emitterRotation) {
+  initPolygon(emitterX, emitterY, emitterRotation, container) {
 
     const { dx, dy, fireworks } = this;
 
@@ -151,6 +179,12 @@ class FireworkParticle extends PIXI.Sprite {
       rotation,
       velocity
     } = fireworks.polygonVars;
+
+    this.particleContainer = container;
+
+    if (fireworks.isOrbType) {
+      // this.addGlow(container);
+    }
 
     this.width = this.height = fireworks.particleSize;
     
@@ -229,8 +263,15 @@ class FireworkParticle extends PIXI.Sprite {
         }
       }, 0);
 
+      if (this.glow) {
+        this.timeline.to(this.glow, {
+          alpha: 0,
+          duration
+        }, 0.2)
+      }
+
       // TODO: Waiting on Jack to fix this
-      // this.timeline.progress(1, true).progress(0, true);
+      this.timeline.progress(1, true).progress(0, true);
   }
 
   play() {
@@ -239,39 +280,19 @@ class FireworkParticle extends PIXI.Sprite {
     //   return;
     // }
 
+    
+
     this.alive = true;
     // this.alpha = this.startAlpha;
     this.timeline.play();
-  }
 
-  
+    if (this.particleContainer) {
+      
+      if (this.glow) {
+        this.particleContainer.addChild(this.glow);
+      } 
 
-  
-
-  
-
-  ___render() {
-
-    if (!this.alpha || !this.scaleX || !this.scaleY) {
-      return;
+      this.particleContainer.addChild(this);
     }
-
-    const { fireworks, frame } = this;
-    const ctx = fireworks.ctx;
-
-    this.setTransform();
-    
-    ctx.globalAlpha = this.alpha;
-    ctx.drawImage(
-      frame.texture,
-      frame.sx,
-      frame.sy,
-      frame.sSize,
-      frame.sSize,
-      0,
-      0,
-      frame.dSize,
-      frame.dSize
-    );
   }
 }

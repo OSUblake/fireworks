@@ -15,20 +15,22 @@
     maskFirework: false, // {maskFirework} mask emote to a circle
     explosionType: "particle", // "{explosionType}"" particle, image  
     shellSize: Number(25), // {shellSize} only affects explosionType particle
-    particleType: "orb", // "{particleType}" polygon, orb
+    particleType: "polygon", // "{particleType}" polygon, orb
 
     particleSize: Number(30), // {particleSize}
-    particleSpacing: Number(15), // {particleSpacing}
+    particleSpacing: Number(20), // {particleSpacing}
 
-    clusterParticles: true, // {clusterParticles} group extra particles in the center of image
+    clusterParticles: false, // {clusterParticles} group extra particles in the center of image
     displayGif: false, // {displayGif}
 
     mainExplodeY: 330,
     explodeTime: 1.55, // timestamp when firework explodes in video 
     
-    numParticles: 300,
+    numParticles: 30,
     minPixelAlpha: 0.9, // min alpha level of pixel to be candidate for particle
     // fps: Number(60), // TODO: fps option?
+
+    useGlow: true,
 
     colors: [
       0xF05189, // red
@@ -146,9 +148,14 @@
     } else if (settings.fireworkType === "emotePopper") {
 
       settings.isParticleExplosion = (settings.explosionType === "particle");
+
+      if (settings.isParticleExplosion) {
+        settings.particleType = "orb";
+      }
+
       settings.isOrbType = (settings.particleType === "orb");
       settings.canvas = document.querySelector("#canvas");
-      settings.dpr = window.devicePixelRatio || 1;
+      settings.dpr = window.devicePixelRatio || 1;      
 
       if (!settings.debug.enabled) {
         for (let key in settings.debug) {

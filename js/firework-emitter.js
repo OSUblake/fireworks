@@ -1,10 +1,17 @@
+// const particleContainer = new PIXI.ParticleContainer(30000, {
+//   vertices: true,
+//   position: true,
+//   rotation: true,
+//   // uvs: true,
+//   tint: true
+// });
+
 class FireworkEmitter {
 
   constructor(fireworks, emote) {
 
     this.emote = emote;
     this.fireworks = fireworks;
-    // this.image = new FireworkImage(fireworks, emote.image);
     this.image = new FireworkImage(fireworks, emote);
 
     this.imageData = emote.data;
@@ -25,7 +32,7 @@ class FireworkEmitter {
       fireworks.emitterContainer.addChild(this.image.maskSprite);
     }
 
-    this.particleContainer = new PIXI.ParticleContainer(3000, {
+    this.particleContainer = new PIXI.ParticleContainer(10000, {
       vertices: true,
       position: true,
       rotation: true,
@@ -33,25 +40,26 @@ class FireworkEmitter {
       tint: true
     });
 
-    this.filterContainer = new PIXI.Container();
-    this.filterContainer.addChild(this.particleContainer);
+    // this.particleContainer = particleContainer;
+    this.fireworks.particleContainer.addChild(this.particleContainer);
+
+    // this.filterContainer = new PIXI.Container();
+    // this.filterContainer.addChild(this.particleContainer);
 
     const screen = fireworks.screen;
+    // this.particleContainer.filterArea = screen;
+    // this.filterContainer.filterArea = screen;
 
-    // this.container.filterArea = new PIXI.Rectangle(0, -screen.height, screen.width, screen.height);
-    this.particleContainer.filterArea = screen;
-    this.filterContainer.filterArea = screen;
+    // this.filter = new PIXI.filters.GlowFilter({
+    //   color: emote.data.avgColor,
+    //   outerStrength: 0,
+    //   innerStrength: 1,
+    //   distance: 10
+    // });
 
-    this.filter = new PIXI.filters.GlowFilter({
-      color: emote.data.avgColor,
-      outerStrength: 0,
-      innerStrength: 1,
-      distance: 10
-    });
-
-    this.filterContainer.filters = [
-      // this.filter
-    ];
+    // this.filterContainer.filters = [
+    //   // this.filter
+    // ];
 
     // this.filterContainer.blendMode = PIXI.BLEND_MODES.ADD;
     // this.filterContainer.blendMode = PIXI.BLEND_MODES.MULTIPLY;
@@ -106,8 +114,8 @@ class FireworkEmitter {
 
     
 
-    // this.fireworks.particleContainer.addChild(this.particleContainer);
-    this.fireworks.particleContainer.addChild(this.filterContainer);
+    this.fireworks.particleContainer.addChild(this.particleContainer);
+    // this.fireworks.particleContainer.addChild(this.filterContainer);
 
     // this.timeline.play();
     this.emote.popSound.play();
@@ -160,6 +168,7 @@ class FireworkEmitter {
       return;
     }
 
+    // this.addParticles();
     this.addParticles();
 
     let len = this.particles.length;
@@ -217,7 +226,6 @@ class FireworkEmitter {
     let count = 0;
     let tint = 0;
 
-    
 
     for (let y = 0; y < height; y += gap) {
       for (let x = 0; x < width; x += gap) {
@@ -289,7 +297,7 @@ class FireworkEmitter {
           dy: yPos - cy,
         });
 
-        this.particleContainer.addChild(particle);
+        // this.particleContainer.addChild(particle);
         // particle.alpha = 1;
 
         this.particles.push(particle);        
@@ -350,8 +358,8 @@ class FireworkEmitter {
 
   kill() {
 
-    // this.fireworks.particleContainer.removeChild(this.particleContainer);
-    this.fireworks.particleContainer.removeChild(this.filterContainer);
+    this.fireworks.particleContainer.removeChild(this.particleContainer);
+    // this.fireworks.particleContainer.removeChild(this.filterContainer);
 
     this.fireworks.emitterContainer.removeChild(this.image);
 

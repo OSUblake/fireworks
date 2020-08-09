@@ -46,6 +46,10 @@ class Fireworks extends PIXI.Application {
 
     this.stage.filterArea = this.screen;
 
+    this.stage.filters = [
+      // new PIXI.filters.AlphaFilter(1)
+    ]
+
     if (this.emotes.length) {
       this.prepare();
     } else {
