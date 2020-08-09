@@ -31,7 +31,71 @@ class FireworkParticle extends PIXI.Sprite {
     });
   }
 
-  initPolygon(cx, cy, currentRotation) {
+  initOrb(emitterX, emitterY, emitterRotation) {
+
+    const { dx, dy, fireworks } = this;
+
+    this.width = this.height = fireworks.particleSize;
+
+    const cos = Math.cos(emitterRotation);
+    const sin = Math.sin(emitterRotation);
+
+    const endX = ((cos * dx) - (sin * dy)) + emitterX;
+    const endY = ((cos * dy) + (sin * dx)) + emitterY;
+
+    const angle = Math.atan2(endY - emitterY, endX - emitterX) * utils.DEG;
+
+    this.x = emitterX;
+    this.y = emitterY;
+
+    const duration = 2;
+    const speed = 100;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    // const velocitySpread = gsap.utils.random(-1.01, 1.01);
+    const velocitySpread = gsap.utils.random(-10, 10);
+
+    const velocity = dist + velocitySpread;
+
+    // console.log("\nVELOCIT", velocity)
+    // console.log("DIST", dist)
+
+    // this.timeline
+    //   .to(this, {
+    //     duration,
+    //     physics2D: {
+    //       angle,
+    //       velocity,
+    //       gravity: 100
+    //     }
+    //   }, 0)
+
+    const proxy = {
+      x: this.x,
+      y: this.y,
+      drop: 0
+    };
+
+    this.timeline
+      .to(proxy, {
+        duration: duration + gsap.utils.random(-0.3, 0.3),
+        x: endX + gsap.utils.random(-10, 10),
+        y: endY + gsap.utils.random(-10, 10),
+        ease: "power4"
+      }, 0)
+      .to(proxy, {
+        duration: duration,
+        drop: "random(10, 15)"
+      }, 0)
+
+    this.timeline.eventCallback("onUpdate", () => {
+
+      this.x = proxy.x;
+      this.y = proxy.y + proxy.drop;
+    })
+  }
+
+  initPolygon(emitterX, emitterY, emitterRotation) {
 
     const { dx, dy, fireworks } = this;
 
@@ -47,13 +111,11 @@ class FireworkParticle extends PIXI.Sprite {
       velocity
     } = fireworks.polygonVars;
 
-    // this.width = this.height = fireworks.polygonSize;
     this.width = this.height = fireworks.particleSize;
     
     if (fireworks.debug.particles) {
-      this.rotation = currentRotation;
+      this.rotation = emitterRotation;
     } else {
-
       this.rotation = Math.random() * Math.PI;    
       this.startAlpha = startAlpha();
       this.width = this.height = this.width * scale();
@@ -74,20 +136,20 @@ class FireworkParticle extends PIXI.Sprite {
 
     frictionValue = utils.randomChoice(Math.min(frictionValue * 2, 0.8), frictionValue, 0.3);
 
-    const cos = Math.cos(currentRotation);
-    const sin = Math.sin(currentRotation);
+    const cos = Math.cos(emitterRotation);
+    const sin = Math.sin(emitterRotation);
 
-    this.x = ((cos * dx) - (sin * dy)) + cx;
-    this.y = ((cos * dy) + (sin * dx)) + cy;
+    this.x = ((cos * dx) - (sin * dy)) + emitterX;
+    this.y = ((cos * dy) + (sin * dx)) + emitterY;
 
-    angle = Math.atan2(this.y - cy, this.x - cx) * utils.DEG;
+    angle = Math.atan2(this.y - emitterY, this.x - emitterX) * utils.DEG;
     minAngle = angle - spread;
     maxAngle = angle + spread;
 
     if (fireworks.clusterParticles && this.centered) {
 
-      this.x = cx;
-      this.y = cy;
+      this.x = emitterX;
+      this.y = emitterY;
 
       angle = 0;
       minAngle = 0;
@@ -148,6 +210,8 @@ class FireworkParticle extends PIXI.Sprite {
     // this.parent.removeChild(this);
     
   }
+
+  
 
   update() {
 

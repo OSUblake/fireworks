@@ -2,10 +2,8 @@ class Fireworks extends PIXI.Application {
 
   constructor(settings) {
 
-    const dpr = window.devicePixelRatio || 1;
-
     super({
-      resolution: dpr,
+      resolution: settings.dpr,
       view: settings.canvas,
       autoStart: false,
       resizeTo: window,
@@ -17,11 +15,6 @@ class Fireworks extends PIXI.Application {
 
     if (settings.debug.stats) {
       this.stats = utils.createStats();
-      // this.stats = new Stats();
-      // this.stats.showPanel(0);
-      // document.body.appendChild(this.stats.dom);
-      // this.stats.dom.style.left = "unset";
-      // this.stats.dom.style.right = "0px";
     }
 
     this.stage.filterArea = this.screen;
@@ -49,7 +42,7 @@ class Fireworks extends PIXI.Application {
     // this.getFPS = this.smoothedAverage();
     // this.getElapsed = this.smoothedAverage();
 
-    console.log("FIREWORKS", this)
+    utils.log("FIREWORKS", this)
 
     this.stage.filterArea = this.screen;
 
@@ -75,23 +68,8 @@ class Fireworks extends PIXI.Application {
       return emote.data.init();
     });
 
-    
     await Promise.all(promises);
-
-    console.time("CREATE SPRITES");
-
-    var texture = this.emotes[0].texture;
-
-    var sprites = [];
-    for (var i = 0; i < 5000; i++) {
-      sprites.push(new PIXI.Sprite(texture))
-    }
-
-    console.timeEnd("CREATE SPRITES");
-
-    // console.log("EMOTES", this.emotes)
     
-    // this.emotes = this.emotes.filter
     this.emitters = this.emotes
       .filter(emote => emote.data.isValid)
       .map(emote => new FireworkEmitter(this, emote));
@@ -105,26 +83,20 @@ class Fireworks extends PIXI.Application {
 
     this.emitters.forEach(emitter => emitter.prepare());
 
-    console.time("INIT");
+    utils.time("INIT TIME");
     this.init();
-    console.timeEnd("INIT")
-    this.fireReady();
+    utils.timeEnd("INIT TIME")
 
     if (this.debug.stats) {
-      const numParticles = this.emitters.reduce((res, emitter) => res + emitter.particles.length, 0);
-      console.log("TOTAL PARTICLES", numParticles);
+      const numParticles = this.emitters.reduce((res, emitter, i) => {
+        const count = emitter.particles.length;
+        utils.log(`*** EMITTER ${i} PARTICLES`, count);
+        return res + count;
+      }, 0);
+      utils.log("*** TOTAL PARTICLES", numParticles);
     }
 
-    // this.render();
-    // this.start();
-
-    // Promise.all(
-    //   this.emitters.map(emitter => emitter.prepare())
-    // )
-    // .then((res) => {      
-    //   this.init();
-    //   this.fireReady();
-    // });
+    this.fireReady();
   }
 
   createVars() {
@@ -144,27 +116,12 @@ class Fireworks extends PIXI.Application {
 
   init() {
 
-    // console.log("INIT", this.shapeTextures.baseTexture)
-
-    // this.shapeTextures.generate();
     this.shapesBaseTexture = this.shapeTextures.baseTexture; 
     this.shapesSprite = new PIXI.Sprite(new PIXI.Texture(this.shapesBaseTexture));
 
     if (this.debug.shapes) {
       this.stage.addChild(this.shapesSprite);
     }
-
-    // if (this.debug) {
-    //   this.text = new PIXI.Text("",{
-    //     fontFamily: "monospace", 
-    //     fontSize: 18, 
-    //     fill : 0xffffff, 
-    //     dropShadow: true,
-    //     dropShadowDistance: 1
-    //     // align : 'center'
-    //   });
-    //   this.stage.addChild(this.shapesSprite, this.text);
-    // }
 
     this.stage.addChild(this.mainContainer);
 
@@ -248,9 +205,9 @@ class Fireworks extends PIXI.Application {
         tl.time(currentTime, true);
 
         if (emitter.y > explodeY) {
-          console.time(`EMITTER ${index}`)
+          utils.time(`EMITTER ${index} TIME`)
           emitter.init();
-          console.timeEnd(`EMITTER ${index}`)
+          utils.timeEnd(`EMITTER ${index} TIME`)
           explodeTime = currentTime;
           break;
         }
@@ -284,9 +241,7 @@ class Fireworks extends PIXI.Application {
       });
 
       tweener.add(trailAnimation, 0);         
-      this.fireworksTimeline.add(tweener, delay);        
-
-      // console.log("DELAY", delay)
+      this.fireworksTimeline.add(tweener, delay);
     });
   }
 
@@ -312,17 +267,18 @@ class Fireworks extends PIXI.Application {
     const randomOffsetX = gsap.utils.random(50, maxOffsetX, true);
     const randomOffsetY = gsap.utils.random(endY * 0.2, endY * 0.5, true);
     const randomRotation = gsap.utils.random(minRotation * utils.RAD, maxRotation * utils.RAD, true);
+    const randomShape = gsap.utils.random(["triangle", "rect"], true);
+    const randomSize = gsap.utils.random(10, 15, true);
 
-    const size = gsap.utils.mapRange(
-      this.minImageSizeSlider,
-      this.maxImageSizeSlider,
-      this.minTrailParticleSize,
-      this.maxTrailParticleSize,
-      imageSize
-    );
+    // const size = gsap.utils.mapRange(
+    //   this.minImageSizeSlider,
+    //   this.maxImageSizeSlider,
+    //   this.minTrailParticleSize,
+    //   this.maxTrailParticleSize,
+    //   imageSize
+    // );
 
-    // const scale = size / this.particleSize;
-    const scale = size / this.shapeTextures.particleSize;
+    // const scale = size / this.shapeTextures.particleSize;
 
     const count = isMain ? gsap.utils.random(6, 9, 1) : gsap.utils.random(2, 3, 1);
 
@@ -332,31 +288,24 @@ class Fireworks extends PIXI.Application {
 
       const tint = randomColor();      
       const x = emitter.x + randomOffsetX() * utils.randomChoice(1, -1);
-      const shape = this.randomShape();      
+      const shape = randomShape();      
       const sign = utils.randomChoice(1, -1);      
       const offsetY = randomOffsetY();
       const startY = emitter.y + offsetY;
       const peakY = endY - offsetY;
       const fadeY = peakY + randomDrop();
 
-      // const frame = shapeTextures.getFrame(color, shape);
-      // const rect = new PIXI.Rectangle(frame.sx, frame.sy, frame.sSize, frame.sSize);
-
-      const texture = shapeTextures[shape + "Texture"];
-
-      const particle = new FireworkParticle(texture, this, {
-        tint,
-        // scaleX: scale,
-        // scaleY: scale,
-        // frame: rect,
-        // frame: shapeTextures.getFrame(color, shape),
-        x,
-        y: startY,
-        rotation: Math.random() * Math.PI,
-      });     
-
-      particle.scale.set(scale);
-      // particle.texture = new PIXI.Texture(this.shapesBaseTexture, rect);
+      const texture = shapeTextures[shape + "Texture"];  
+      
+      const particle = new PIXI.Sprite(texture);
+      particle.tint = tint;
+      particle.alive = false;
+      particle.alpha = 0;
+      particle.rotation = Math.random() * Math.PI;
+      particle.position.set(x, startY);
+      particle.anchor.set(0.5);
+      particle.width = particle.height = randomSize();
+      // particle.scale.set(scale);
 
       this.trailContainer.addChild(particle);
 
@@ -428,19 +377,9 @@ class Fireworks extends PIXI.Application {
           ease: "none"            
         });
 
-      // this.fireworksTimeline.add(tweener, delay);
-
-        // particle.y = -1000;
-        // particle.x = 1000;
-        // particle.alpha = 1;
-
       trailTimeline.add(tweener, 0);
 
-      // trailTimeline.play()
-
       this.trailParticles.push(particle);
-
-      // return tweener;
     }
 
     return trailTimeline;
@@ -460,7 +399,7 @@ class Fireworks extends PIXI.Application {
   play(tl) {
 
     if (!this.canPlay) {
-      console.log("*** Fireworks can't play");
+      utils.log("*** Fireworks can't play");
       return;
     }
 
@@ -476,7 +415,7 @@ class Fireworks extends PIXI.Application {
     gsap.ticker.remove(this.update);
 
     if (this.debug.stats) {
-      console.log("*** Fireworks complete");
+      utils.log("*** Fireworks complete");
     }
 
     // this.stop();
@@ -518,12 +457,6 @@ class Fireworks extends PIXI.Application {
 
     if (this.debug.stats) {
       this.stats.update();
-      // const currentTime = performance.now();
-      // const elapsed = currentTime - this.lastTime;
-      // this.lastTime = currentTime;
-      // const fps = this.getFPS(1000 / elapsed).toFixed(0);
-      // const elapsedAvg = this.getElapsed(elapsed).toFixed(0);
-      // this.text.text = `FPS: ${fps}\nELAPSED: ${elapsedAvg}`;
     }
 
     this.renderer.render(this.stage);

@@ -17,6 +17,7 @@ class FireworkEmitter {
     this.rotationSign = 1;
     this.particles = [];
     this.aliveCount = 1;
+    this.isValid = false;
 
     fireworks.emitterContainer.addChild(this.image);
 
@@ -24,7 +25,7 @@ class FireworkEmitter {
       fireworks.emitterContainer.addChild(this.image.maskSprite);
     }
 
-    this.container = new PIXI.ParticleContainer(3000, {
+    this.particleContainer = new PIXI.ParticleContainer(3000, {
       vertices: true,
       position: true,
       rotation: true,
@@ -32,10 +33,25 @@ class FireworkEmitter {
       tint: true
     });
 
+    this.filterContainer = new PIXI.Container();
+    this.filterContainer.addChild(this.particleContainer);
+
     const screen = fireworks.screen;
 
     // this.container.filterArea = new PIXI.Rectangle(0, -screen.height, screen.width, screen.height);
-    this.container.filterArea = screen;
+    this.particleContainer.filterArea = screen;
+    this.filterContainer.filterArea = screen;
+
+    this.filter = new PIXI.filters.GlowFilter({
+      color: emote.data.avgColor,
+      outerStrength: 0,
+      innerStrength: 1,
+      distance: 10
+    });
+
+    this.filterContainer.filters = [
+      // this.filter
+    ];
 
     // this.timeline = gsap.timeline({
     //   paused: true,
@@ -46,16 +62,12 @@ class FireworkEmitter {
     // });
   }
 
-  async _prepare() {
-    await this.image.init();
-    this.createParticles();
-  }
 
   prepare() {
     // await this.image.init();
     this.createParticles();
 
-    console.log("NUM PARTICLES", this.particles.length);
+    // console.log("*** EMITTER PARTICLES", this.particles.length);
     // console.log("PARTICLES", this.particles)
 
     // var c = this.imageData.getColor(65487.54, 321654.2)
@@ -67,9 +79,6 @@ class FireworkEmitter {
   }
 
   launch() {
-
-    
-
     this.emote.launchSound.play();
     this.launched = true;
   }
@@ -93,7 +102,8 @@ class FireworkEmitter {
 
     
 
-    this.fireworks.particleContainer.addChild(this.container);
+    // this.fireworks.particleContainer.addChild(this.particleContainer);
+    this.fireworks.particleContainer.addChild(this.filterContainer);
 
     // this.timeline.play();
     this.emote.popSound.play();
@@ -115,10 +125,12 @@ class FireworkEmitter {
   init() {
 
     const { particles, x, y, rotation } = this;
+    const initType = this.fireworks.isParticleExplosion ? "initOrb" : "initPolygon";
 
     for (let i = 0; i < particles.length; i++) {
       // particles[i].initPolygon(x, y, 0);
-      particles[i].initPolygon(x, y, rotation);
+      // particles[i].initPolygon(x, y, rotation);
+      particles[i][initType](x, y, rotation);
     }
   }
 
@@ -135,31 +147,43 @@ class FireworkEmitter {
     //   return this.addParticles(true);
     // }
 
+    // let len;
+
     if (fireworks.isParticleExplosion) {
-      return this.addParticles(true);
+      this.addParticles();
+      this.isValid = this.particles.length > -1;
+      return;
     }
 
-    this.addParticles(false);
-
-    // console.log("NUM PARTICLES 1", this.particles.length)
+    this.addParticles();
 
     let len = this.particles.length;
+
+    if (len > -1 && len < numParticles) {
+      this.addParticles();
+    }
+
+    this.addParticles(true);
+
+    len = this.particles.length;
 
     if (!len) {
       return;
     }
 
-    this.addParticles(true);
+    // this.addParticles(true);
 
     while (len < numParticles) {
       this.addParticles(true);
       len = this.particles.length;
     }
 
+    this.isValid = true;
+
     // console.log("NUM PARTICLES 2", this.particles.length)
   }
 
-  addParticles(centered) {
+  addParticles(centered = false) {
 
     const { fireworks, imageData } = this;
     // const { width, height } = image;
@@ -170,7 +194,7 @@ class FireworkEmitter {
     // console.log("W/H", width, height)
 
     // const { particleSize, shapeTextures, randomShape, explosionType } = fireworks;
-    const { isParticleExplosion, polygonSpacing, orbSpacing, shapeTextures, randomShape } = fireworks;
+    const { isParticleExplosion, isOrbType, shapeTextures, randomShape } = fireworks;
     
     
     // const isParticleType = (explosionType === "particle");
@@ -237,9 +261,9 @@ class FireworkEmitter {
         let shape;
 
         if (fireworks.debug.emitters) {
-          shape = fireworks.debug.particleShape;
+          shape = fireworks.debug.particleShape || "rect";
         } else {
-          shape = isParticleExplosion ? "circle" : randomShape();
+          shape = isOrbType ? "circle" : randomShape();
         }
 
         // const frame = shapeTextures.getFrame(rgb, shape);
@@ -260,7 +284,7 @@ class FireworkEmitter {
           dy: yPos - cy,
         });
 
-        this.container.addChild(particle);
+        this.particleContainer.addChild(particle);
         // particle.alpha = 1;
 
         this.particles.push(particle);        
@@ -321,7 +345,8 @@ class FireworkEmitter {
 
   kill() {
 
-    this.fireworks.particleContainer.removeChild(this.container);
+    // this.fireworks.particleContainer.removeChild(this.particleContainer);
+    this.fireworks.particleContainer.removeChild(this.filterContainer);
 
     this.fireworks.emitterContainer.removeChild(this.image);
 

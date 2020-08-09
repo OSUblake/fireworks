@@ -2,11 +2,9 @@
    
   // NerdLoader
 
-
   const settings = {
-    canvas: document.querySelector("#canvas"),
     maxFireworks: Number(5), // {maxFireworks}
-    maxImageSize: Number(600), // {maxImageSize}
+    maxImageSize: Number(500), // {maxImageSize}
     spawnWidth: Number(2000), // {spawnWidth}
     delayTime: Number(10), // {alertDelay}
     volume: Number(0) * 0.01, // {audioVolume}
@@ -14,48 +12,23 @@
     fireworkType: "emotePopper", // "{fireworkType}" emotePopper, classic, none
     fireworkOrder: "ordered", // "{fireworkOrder}" random, ordered
     fireworkDelay: Number(0.6), // {fireworkDelay} a value of 0 is normal
-    explosionType: "image", // {explosionType} particle, image  
-    shellSize: Number(25), // {shellSize}
-    maskFirework: "true", // {maskFirework} true, false dropdown, mask emote to a circle
+    maskFirework: true, // {maskFirework} mask emote to a circle
+    explosionType: "particle", // "{explosionType}"" particle, image  
+    shellSize: Number(25), // {shellSize} only affects explosionType particle
+    particleType: "orb", // "{particleType}" polygon, orb
+
     particleSize: Number(30), // {particleSize}
-    particleSpacing: Number(30), // {particleSpacing}
-    numParticles: 300,
+    particleSpacing: Number(15), // {particleSpacing}
+
+    clusterParticles: true, // {clusterParticles} group extra particles in the center of image
+    displayGif: false, // {displayGif}
+
     mainExplodeY: 330,
-    explodeTime: 1.55, // time when firework explodes in video 
-    minTrailParticleSize: 10, 
-    maxTrailParticleSize: 30,
-    minImageSizeSlider: 10, // based on maxImageSize slider 
-    maxImageSizeSlider: 1000, // based on maxImageSize slider
-    clusterParticles: true, // group extra particles in the center of image
-
-    // debug: true, // dev mode
-    // debugParticles: true, // dev stuff
-
-    // polygonSize: 30,
-    // polygonSpacing: 15,
-
-    // orbSize: 10,
-    // orbSpacing: 20,
-
+    explodeTime: 1.55, // timestamp when firework explodes in video 
     
-
-
-
-    // cropExplosion: false,
-
-    debug: { // only for development
-      stats: true,
-      particles: true,
-      emitters: true,
-      shapes: false,
-      particleShape: "rect"
-    },
-
-    // fps: Number(60),
-    minPixelAlpha: 0.9,
-
-    // particleSize: 15,
-    
+    numParticles: 300,
+    minPixelAlpha: 0.9, // min alpha level of pixel to be candidate for particle
+    // fps: Number(60), // TODO: fps option?
 
     colors: [
       0xF05189, // red
@@ -63,21 +36,26 @@
       0xA800FF, // purple
       0xFFE300, // yellow
       0x51F058, // green
-    ]
+    ],
+
+    // only for development
+    debug: { 
+      enabled: true, // make sure this is false before releasing
+      stats: true,
+      particles: false,
+      emitters: false,
+      shapes: false,
+      particleShape: "rect"
+    }
   };
   
-  if (Boolean(true)) { // {displayGif}
-  	// document.getElementById("bit").style.display = "block";
-  }
-
   const resources = await NerdLoader.load([
-    // "https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.3.2/pixi.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.3.2/pixi.min.js",
     "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.4.2/gsap.js",
-    // "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.4.2/PixiPlugin.min.js",
     "https://ext-assets.streamlabs.com/users/140067/Physics2DPlugin.min.3.3.4.js",
     "https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.0/howler.min.js",
 
-    { name: "emoteSlot1", url: "images/pixel.png" }, // {emoteSlot1}
+    { name: "emoteSlot1", url: "images/img-08.png" }, // {emoteSlot1}
     { name: "emoteSlot2", url: "videos/fire.webm" }, // {emoteSlot2}
     { name: "emoteSlot3", url: "images/ryu.jpg" }, // {emoteSlot3}
     { name: "emoteSlot4", url: "images/beach.jpg" }, // {emoteSlot4}
@@ -149,6 +127,10 @@
       })
       .to("#bit", { duration: 0.2, opacity: 0, scale: 0, delay: 0.5 }, "-=.6");
 
+    if (settings.displayGif) {
+      tl.set("#bit", { display: "block" }, 0);
+    }
+
     if (settings.fireworkType === "classic") {
 
       tl.add(() => {
@@ -162,6 +144,19 @@
       .play();
 
     } else if (settings.fireworkType === "emotePopper") {
+
+      settings.isParticleExplosion = (settings.explosionType === "particle");
+      settings.isOrbType = (settings.particleType === "orb");
+      settings.canvas = document.querySelector("#canvas");
+      settings.dpr = window.devicePixelRatio || 1;
+
+      if (!settings.debug.enabled) {
+        for (let key in settings.debug) {
+          settings.debug[key] = false;
+        }
+      }
+
+      utils.debugEnabled = settings.debug.enabled;
 
       const allEmotes = [
         { image: resources.emoteSlot1, launchSound: launchSound1, popSound: popSound1 },
@@ -180,12 +175,7 @@
         emotes.push(image);
       }
 
-      settings.isParticleExplosion = (settings.explosionType === "particle");
-
-      // TODO: need to check for explosion type?
-      settings.maskFirework = (settings.maskFirework === "true");
-
-      console.time("FIREWORKS");      
+      utils.time("FIREWORKS TIME");      
 
       const fireworks = createFireworks({
         ...settings,
@@ -193,8 +183,7 @@
         emotes,
         onReady(fireworks) {
           fireworks.play(tl);
-
-          console.timeEnd("FIREWORKS");
+          utils.timeEnd("FIREWORKS TIME");
         }
       });
 

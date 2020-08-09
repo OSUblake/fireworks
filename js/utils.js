@@ -1,4 +1,5 @@
 const utils = {
+  debugEnabled: true,
   RAD: Math.PI / 180,
   DEG: 180 / Math.PI,
   randomChoice(a, b, chance = 0.5) {
@@ -20,5 +21,15 @@ const utils = {
     stats.dom.style.left = "unset";
     stats.dom.style.right = "0px";
     return stats;
+  },
+  log(...args) {
+    this.debugEnabled && console.log(...args);
+  },
+  time(id) {
+    this.debugEnabled && console.time(id);
+  },
+  timeEnd(id) {
+    this.debugEnabled && console.timeEnd(id);
   }
+
 }

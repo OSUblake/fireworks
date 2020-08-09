@@ -63,7 +63,7 @@ class EmoteData {
     return new Promise(resolve => {
 
       if (!image) {
-        console.log("*** FIREWORKS: Invalid Texture");
+        utils.log("*** FIREWORKS: Invalid Texture");
         return resolve();
       }
 
@@ -195,6 +195,7 @@ class EmoteData {
           const i = (y * width + x) * 4;
 
           if (maskFirework && !circle.contains(x, y)) {
+            // utils.log("COLOR OUTSIDE MASK", x, y)
             colorCache.push(-1);
             continue;
           }
