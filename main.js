@@ -12,7 +12,7 @@
     fireworkType: "emotePopper", // "{fireworkType}" emotePopper, classic, none
     fireworkOrder: "ordered", // "{fireworkOrder}" random, ordered
     fireworkDelay: Number(0.6), // {fireworkDelay} a value of 0 is normal
-    maskFirework: true, // {maskFirework} mask emote to a circle
+    maskFirework: false, // {maskFirework} mask emote to a circle
     explosionType: "particle", // "{explosionType}"" particle, image  
     shellSize: Number(25), // {shellSize} only affects explosionType particle
     particleType: "orb", // "{particleType}" polygon, orb
