@@ -28,11 +28,38 @@ class FireworkParticle extends PIXI.Sprite {
 
     this.timeline = gsap.timeline({
       paused: true,
-      onComplete: () => {
-        this.alive = false;
-        this.alpha = 0;
-      }
+      onComplete: this.kill,
+      onUpdate: this.update,
+      callbackScope: this
+      // onComplete: () => {
+      //   this.alive = false;
+      //   this.alpha = 0;
+      // }
     });
+  }
+
+  kill() {
+    this.timeline.kill();
+    this.alpha = 0;
+    this.alive = false;    
+
+    if (this.glow) {
+      this.glow.alpha = 0;
+    }
+  }
+
+  update() {
+
+    if (this.proxy) {
+      this.position.set(
+        this.proxy.x,
+        this.proxy.y + this.proxy.drop
+      );
+    }
+
+    if (this.glow) {
+      this.glow.position.set(this.x, this.y);
+    }
   }
 
   initOrb(emitterX, emitterY, emitterRotation, container) {
@@ -41,18 +68,18 @@ class FireworkParticle extends PIXI.Sprite {
 
     this.alpha = 1;
 
-    const sprite2 = new PIXI.Sprite(this.texture);
+    this.glow = new PIXI.Sprite(this.texture);
     // sprite2.blendMode = PIXI.BLEND_MODES.ADD;
-    sprite2.alpha = 0.75;
     // sprite2.tint = 0xff0000;
-    sprite2.anchor.set(0.5);
     // this.addChild(sprite2);
-    container.addChild(sprite2, this);
+    this.glow.alpha = 0.75;
+    this.glow.anchor.set(0.5);
+    container.addChild(this.glow, this);
     // container.addChild(this, sprite2);
 
     this.width = this.height = fireworks.particleSize;
+    this.glow.width = this.glow.height = fireworks.particleSize * 0.5;
 
-    sprite2.width = sprite2.height = fireworks.particleSize * 0.5;
     // sprite2.width = sprite2.height = 4;
 
     const cos = Math.cos(emitterRotation);
@@ -88,7 +115,7 @@ class FireworkParticle extends PIXI.Sprite {
     //     }
     //   }, 0)
 
-    const proxy = {
+    this.proxy = {
       x: this.x,
       y: this.y,
       drop: 0
@@ -97,25 +124,16 @@ class FireworkParticle extends PIXI.Sprite {
     const dur = duration + gsap.utils.random(-0.3, 0.3);
 
     this.timeline
-      .to(proxy, {
+      .to(this.proxy, {
         duration: dur,
         x: endX + gsap.utils.random(-5, 5),
         y: endY + gsap.utils.random(-5, 5),
         ease: "power4"
       }, 0)
-      .to(proxy, {
+      .to(this.proxy, {
         duration: dur * 2,
         drop: "random(50, 60)"
-      }, 0)
-
-    this.timeline.eventCallback("onUpdate", () => {
-
-      this.x = proxy.x;
-      this.y = proxy.y + proxy.drop;
-
-      sprite2.x = this.x;
-      sprite2.y = this.y;
-    })
+      }, 0);
   }
 
   initPolygon(emitterX, emitterY, emitterRotation) {
@@ -226,19 +244,11 @@ class FireworkParticle extends PIXI.Sprite {
     this.timeline.play();
   }
 
-  kill() {
-    this.timeline.kill();
-    this.alpha = 0;
-    this.alive = false;
-    // this.parent.removeChild(this);
-    
-  }
+  
 
   
 
-  update() {
-
-  }
+  
 
   ___render() {
 

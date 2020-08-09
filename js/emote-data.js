@@ -163,8 +163,6 @@ class EmoteData {
     const radius = Math.min(canvas.width, canvas.height) / 2;
 
     ctx.fillStyle = "rgba(255,255,255,1)";
-    // ctx.fillStyle = "#ffffff";
-    // ctx.fillStyle = "rgba(0,0,0,0.5)";
     ctx.beginPath();
     ctx.arc(canvas.width / 2, canvas.height / 2, radius, 0, Math.PI * 2);
     ctx.fill();
@@ -184,7 +182,7 @@ class EmoteData {
     const validColors = [];
     const colorCache = [];
     
-    const minAlpha = 0;
+    const minAlpha = this.minAlpha;
     const data = this.imageData;
     const circle = this.circle;
     const maskFirework = this.maskFirework;
@@ -195,7 +193,6 @@ class EmoteData {
           const i = (y * width + x) * 4;
 
           if (maskFirework && !circle.contains(x, y)) {
-            // utils.log("COLOR OUTSIDE MASK", x, y)
             colorCache.push(-1);
             continue;
           }

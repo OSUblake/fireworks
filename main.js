@@ -58,8 +58,8 @@
     { name: "emoteSlot1", url: "images/img-08.png" }, // {emoteSlot1}
     { name: "emoteSlot2", url: "videos/fire.webm" }, // {emoteSlot2}
     { name: "emoteSlot3", url: "images/ryu.jpg" }, // {emoteSlot3}
-    { name: "emoteSlot4", url: "images/beach.jpg" }, // {emoteSlot4}
-    { name: "emoteSlot5", url: "images/red.png" }, // {emoteSlot5}
+    { name: "emoteSlot4", url: "images/gsap-hero.svg" }, // {emoteSlot4}
+    { name: "emoteSlot5", url: "images/img-09.png" }, // {emoteSlot5}
 
     { name: "launchSound1", url: "sounds/firework_launch_01.wav" },// {launchSound1}
     { name: "launchSound2", url: "sounds/firework_launch_02.wav" },// {launchSound2}
