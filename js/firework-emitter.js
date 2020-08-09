@@ -53,6 +53,10 @@ class FireworkEmitter {
       // this.filter
     ];
 
+    // this.filterContainer.blendMode = PIXI.BLEND_MODES.ADD;
+    // this.filterContainer.blendMode = PIXI.BLEND_MODES.MULTIPLY;
+    // this.filterContainer.blendMode = PIXI.BLEND_MODES.SCREEN;
+
     // this.timeline = gsap.timeline({
     //   paused: true,
     //   onComplete: () => {
@@ -130,7 +134,8 @@ class FireworkEmitter {
     for (let i = 0; i < particles.length; i++) {
       // particles[i].initPolygon(x, y, 0);
       // particles[i].initPolygon(x, y, rotation);
-      particles[i][initType](x, y, rotation);
+      // particles[i][initType](x, y, rotation);
+      particles[i][initType](x, y, rotation, this.particleContainer);
     }
   }
 

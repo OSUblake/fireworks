@@ -22,6 +22,10 @@ class FireworkParticle extends PIXI.Sprite {
 
     this.anchor.set(0.5);
 
+    // this.blendMode = PIXI.BLEND_MODES.ADD;
+    // this.blendMode = PIXI.BLEND_MODES.MULTIPLY;
+    // this.blendMode = PIXI.BLEND_MODES.SCREEN;
+
     this.timeline = gsap.timeline({
       paused: true,
       onComplete: () => {
@@ -31,11 +35,25 @@ class FireworkParticle extends PIXI.Sprite {
     });
   }
 
-  initOrb(emitterX, emitterY, emitterRotation) {
+  initOrb(emitterX, emitterY, emitterRotation, container) {
 
     const { dx, dy, fireworks } = this;
 
+    this.alpha = 1;
+
+    const sprite2 = new PIXI.Sprite(this.texture);
+    // sprite2.blendMode = PIXI.BLEND_MODES.ADD;
+    sprite2.alpha = 0.75;
+    // sprite2.tint = 0xff0000;
+    sprite2.anchor.set(0.5);
+    // this.addChild(sprite2);
+    container.addChild(sprite2, this);
+    // container.addChild(this, sprite2);
+
     this.width = this.height = fireworks.particleSize;
+
+    sprite2.width = sprite2.height = fireworks.particleSize * 0.5;
+    // sprite2.width = sprite2.height = 4;
 
     const cos = Math.cos(emitterRotation);
     const sin = Math.sin(emitterRotation);
@@ -76,22 +94,27 @@ class FireworkParticle extends PIXI.Sprite {
       drop: 0
     };
 
+    const dur = duration + gsap.utils.random(-0.3, 0.3);
+
     this.timeline
       .to(proxy, {
-        duration: duration + gsap.utils.random(-0.3, 0.3),
-        x: endX + gsap.utils.random(-10, 10),
-        y: endY + gsap.utils.random(-10, 10),
+        duration: dur,
+        x: endX + gsap.utils.random(-5, 5),
+        y: endY + gsap.utils.random(-5, 5),
         ease: "power4"
       }, 0)
       .to(proxy, {
-        duration: duration,
-        drop: "random(10, 15)"
+        duration: dur * 2,
+        drop: "random(50, 60)"
       }, 0)
 
     this.timeline.eventCallback("onUpdate", () => {
 
       this.x = proxy.x;
       this.y = proxy.y + proxy.drop;
+
+      sprite2.x = this.x;
+      sprite2.y = this.y;
     })
   }
 
