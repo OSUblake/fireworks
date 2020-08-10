@@ -17,8 +17,8 @@
     shellSize: Number(25), // {shellSize} only affects explosionType particle
     particleType: "orb", // "{particleType}" polygon, orb
 
-    particleSize: Number(30), // {particleSize}
-    particleSpacing: Number(30), // {particleSpacing}
+    particleSize: Number(20), // {particleSize}
+    particleSpacing: Number(20), // {particleSpacing}
 
     clusterParticles: true, // {clusterParticles} group extra particles in the center of image
     displayGif: false, // {displayGif}
@@ -30,7 +30,7 @@
     minPixelAlpha: 0.9, // min alpha level of pixel to be candidate for particle
     // fps: Number(60), // TODO: fps option?
 
-    useGlow: false,
+    useGlow: true,
 
     colors: [
       0xF05189, // red
@@ -46,7 +46,7 @@
       stats: true,
       particles: false,
       emitters: false,
-      shapes: true,
+      shapes: false,
       particleShape: "rect"
     }
   };

@@ -1,8 +1,9 @@
 class FireworkParticle extends PIXI.Sprite {
 
-  constructor(texture, fireworks, settings) {
+  // constructor(texture, fireworks, settings) {
+  constructor(fireworks, settings) {
 
-    super(texture);
+    super(PIXI.Texture.EMPTY);
 
     this.fireworks = fireworks;
 
@@ -29,6 +30,18 @@ class FireworkParticle extends PIXI.Sprite {
     // this.blendMode = PIXI.BLEND_MODES.ADD;
     // this.blendMode = PIXI.BLEND_MODES.MULTIPLY;
     // this.blendMode = PIXI.BLEND_MODES.SCREEN;
+
+    // this.polygonVars = {
+    //   startAlpha: gsap.utils.random(0.5, 1, true),
+    //   scale: gsap.utils.random(0.5, 1, true),
+    //   duration: gsap.utils.random(1, 2, true),
+    //   friction: gsap.utils.random(0.1, 0.3, true),
+    //   gravity: 400,
+    //   rotation: gsap.utils.random(45 * utils.RAD, 90 * utils.RAD, true),
+    //   spread: 60,
+    //   skew: gsap.utils.random(-45 * utils.RAD, 45 * utils.RAD, true),
+    //   velocity: gsap.utils.random(800, 1100, true),
+    // };
 
     this.timeline = gsap.timeline({
       paused: true,
@@ -94,13 +107,15 @@ class FireworkParticle extends PIXI.Sprite {
 
     this.alpha = 1;
 
+    this.texture = this.textureData.texture;
+
     // if (fireworks.isOrbType) {
     //   this.addGlow(container);
     // }
 
     // this.addGlow(container);
     if (fireworks.useGlow) {
-      this.addGlow();
+      // this.addGlow();
     }
     this.particleContainer = container;
     
@@ -173,17 +188,29 @@ class FireworkParticle extends PIXI.Sprite {
 
     const { dx, dy, fireworks } = this;
 
-    const {
-      duration,
-      friction,
-      gravity,
-      scale,
-      skew,
-      spread,
-      startAlpha,
-      rotation,
-      velocity
-    } = fireworks.polygonVars;
+    this.texture = this.textureData.texture;
+
+    // const {
+    //   duration,
+    //   friction,
+    //   gravity,
+    //   scale,
+    //   skew,
+    //   spread,
+    //   startAlpha,
+    //   rotation,
+    //   velocity
+    // } = fireworks.polygonVars;
+
+    const startAlpha = gsap.utils.random(0.5, 1, true);
+    const scale = gsap.utils.random(0.5, 1, true);
+    const duration = gsap.utils.random(1, 2, true);
+    const friction = gsap.utils.random(0.1, 0.3, true);
+    const gravity = 400;
+    const rotation = gsap.utils.random(45 * utils.RAD, 90 * utils.RAD, true);
+    const spread = 60;
+    const skew = gsap.utils.random(-45 * utils.RAD, 45 * utils.RAD, true);
+    const velocity = gsap.utils.random(800, 1100, true);
 
     this.particleContainer = container;
 
@@ -304,3 +331,15 @@ class FireworkParticle extends PIXI.Sprite {
     }
   }
 }
+
+// FireworkParticle.polygonVars = {
+//   startAlpha: gsap.utils.random(0.5, 1, true),
+//   scale: gsap.utils.random(0.5, 1, true),
+//   duration: gsap.utils.random(1, 2, true),
+//   friction: gsap.utils.random(0.1, 0.3, true),
+//   gravity: 400,
+//   rotation: gsap.utils.random(45 * utils.RAD, 90 * utils.RAD, true),
+//   spread: 60,
+//   skew: gsap.utils.random(-45 * utils.RAD, 45 * utils.RAD, true),
+//   velocity: gsap.utils.random(800, 1100, true),
+// };

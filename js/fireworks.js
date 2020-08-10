@@ -36,8 +36,13 @@ class Fireworks extends PIXI.Application {
     
     this.shapeTextures = new ShapeTextures(this);
     // this.colors.forEach(color => this.shapeTextures.addColor(color));
+
+    this.colors.forEach(color => {
+      this.shapeTextures.addShape(color, "rect");
+      this.shapeTextures.addShape(color, "triangle");
+    });
     this.randomColor = gsap.utils.random(this.colors, true);
-    this.randomShape = gsap.utils.random(["triangle", "rect", "polygon1"], true);
+    this.randomShape = gsap.utils.random(["triangle", "rect", "polygon"], true);
 
     // this.getFPS = this.smoothedAverage();
     // this.getElapsed = this.smoothedAverage();
@@ -79,11 +84,9 @@ class Fireworks extends PIXI.Application {
       .map(emote => new FireworkEmitter(this, emote));
 
     this.onResize();
-    this.createVars();
+    // this.createVars();
 
-    this.mainExplodeY = -(this.height - this.mainExplodeY);
-
-    window.addEventListener("resize", e => this.onResize());
+    this.mainExplodeY = -(this.height - this.mainExplodeY);    
 
     this.emitters.forEach(emitter => emitter.prepare());
 
@@ -100,28 +103,35 @@ class Fireworks extends PIXI.Application {
       utils.log("*** TOTAL PARTICLES", numParticles);
     }
 
+    window.addEventListener("resize", e => this.onResize());
+
     this.fireReady();
   }
 
-  createVars() {
+  // createVars() {
 
-    this.polygonVars = {
-      startAlpha: gsap.utils.random(0.5, 1, true),
-      scale: gsap.utils.random(0.5, 1, true),
-      duration: gsap.utils.random(1, 2, true),
-      friction: gsap.utils.random(0.1, 0.3, true),
-      gravity: 400,
-      rotation: gsap.utils.random(45 * utils.RAD, 90 * utils.RAD, true),
-      spread: 60,
-      skew: gsap.utils.random(-45 * utils.RAD, 45 * utils.RAD, true),
-      velocity: gsap.utils.random(800, 1100, true),
-    };
-  }
+  //   this.polygonVars = {
+  //     startAlpha: gsap.utils.random(0.5, 1, true),
+  //     scale: gsap.utils.random(0.5, 1, true),
+  //     duration: gsap.utils.random(1, 2, true),
+  //     friction: gsap.utils.random(0.1, 0.3, true),
+  //     gravity: 400,
+  //     rotation: gsap.utils.random(45 * utils.RAD, 90 * utils.RAD, true),
+  //     spread: 60,
+  //     skew: gsap.utils.random(-45 * utils.RAD, 45 * utils.RAD, true),
+  //     velocity: gsap.utils.random(800, 1100, true),
+  //   };
+  // }
 
   init() {
 
+    // TODO: added
+    this.shapeTextures.generate();
+
     this.shapesBaseTexture = this.shapeTextures.baseTexture; 
     this.shapesSprite = new PIXI.Sprite(new PIXI.Texture(this.shapesBaseTexture));
+
+    // this.emitters.filter(emitter => emitter.isValid);
 
     if (this.debug.shapes) {
       this.stage.addChild(this.shapesSprite);
@@ -299,7 +309,9 @@ class Fireworks extends PIXI.Application {
       const peakY = endY - offsetY;
       const fadeY = peakY + randomDrop();
 
-      const texture = shapeTextures[shape + "Texture"];  
+      // const texture = shapeTextures[shape + "Texture"];  
+      const texture = shapeTextures.addShape(tint, shape).texture;
+      // const texture = getTexture(tint, shape);
       
       const particle = new PIXI.Sprite(texture);
       particle.tint = tint;

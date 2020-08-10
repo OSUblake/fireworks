@@ -313,19 +313,26 @@ class FireworkEmitter {
         // const frame = shapeTextures.getFrame(rgb, shape);
         // const rect = new PIXI.Rectangle(frame.sx, frame.sy, frame.sSize, frame.sSize);
 
-        const texture = shapeTextures[shape + "Texture"];
+        // const texture = shapeTextures[shape + "Texture"];
 
+        const texture = shapeTextures.addShape(tint, shape);
 
 
         // if (explosionType === "particle") {
         //   texture = 
         // }
 
-        const particle = new FireworkParticle(texture, fireworks, {
+        // if (ct++ < 500) {
+        //   console.log(`MY TEXTURE ${ct}`, texture)
+        // }
+
+        // const particle = new FireworkParticle(texture, fireworks, {
+        const particle = new FireworkParticle(fireworks, {
           centered,
-          tint,
+          // tint,
           dx: xPos - cx,
           dy: yPos - cy,
+          textureData: texture
         });
 
         // this.particleContainer.addChild(particle);
