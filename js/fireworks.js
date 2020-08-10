@@ -7,7 +7,7 @@ class Fireworks extends PIXI.Application {
       view: settings.canvas,
       autoStart: false,
       resizeTo: window,
-      antialias: true,
+      // antialias: true,
       transparent: true
     });
 
@@ -17,9 +17,9 @@ class Fireworks extends PIXI.Application {
       this.stats = utils.createStats();
     }
 
-    this.stage.filterArea = this.screen;
+    // this.stage.filterArea = this.screen;
 
-    this.dpr = window.devicePixelRatio;
+    // this.dpr = window.devicePixelRatio;
 
     this.emitterContainer = new PIXI.Container();
     this.particleContainer = new PIXI.Container();
@@ -31,6 +31,8 @@ class Fireworks extends PIXI.Application {
       // uvs: true,
       tint: true
     }, 16384, true);
+
+    this.particleContainer.roundPixels = true;
 
     if (this.useBlendMode) {
       this.particleContainer.blendMode = PIXI.BLEND_MODES.ADD;
@@ -438,6 +440,8 @@ class Fireworks extends PIXI.Application {
     tl.play(0);
     gsap.ticker.add(this.update);  
     this.update();
+
+    
   }
 
   kill() {
@@ -486,6 +490,7 @@ class Fireworks extends PIXI.Application {
 
     if (this.debug.stats) {
       this.stats.update();
+      // console.log("ACTIVE PARTICELS", this.particleContainer.children.length);
     }
 
     this.renderer.render(this.stage);

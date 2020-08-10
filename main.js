@@ -15,9 +15,9 @@
     maskFirework: false, // {maskFirework} mask emote to a circle
     explosionType: "particle", // "{explosionType}"" particle, image  
     shellSize: Number(25), // {shellSize} only affects explosionType particle
-    particleType: "orb", // "{particleType}" polygon, orb
+    particleType: "polygon", // "{particleType}" polygon, orb
 
-    particleSize: Number(15), // {particleSize}
+    particleSize: Number(20), // {particleSize}
     particleSpacing: Number(15), // {particleSpacing}
 
     clusterParticles: true, // {clusterParticles} group extra particles in the center of image
@@ -151,7 +151,7 @@
 
     } else if (settings.fireworkType === "emotePopper") {
 
-      // gsap.ticker.fps(90);
+      // gsap.ticker.fps(60);
 
       settings.isParticleExplosion = (settings.explosionType === "particle");
 
