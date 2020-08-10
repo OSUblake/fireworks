@@ -126,7 +126,7 @@ export var PhysicsPropsPlugin = {
             curProp.val += curProp.v;
           }
 
-          curProp.set(target, curProp.p, _round(curProp.val + curProp.v * remainder) + curProp.u);
+          curProp.set(target, curProp.p, _round(curProp.val + curProp.v * remainder * curProp.fr) + curProp.u);
         }
       } else {
         //going backwards
@@ -140,7 +140,7 @@ export var PhysicsPropsPlugin = {
             curProp.v -= curProp.a;
           }
 
-          curProp.set(target, curProp.p, _round(curProp.val + curProp.v * remainder) + curProp.u);
+          curProp.set(target, curProp.p, _round(curProp.val + curProp.v * remainder * curProp.fr) + curProp.u);
         }
       }
 

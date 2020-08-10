@@ -32,22 +32,27 @@ class FireworkEmitter {
       fireworks.emitterContainer.addChild(this.image.maskSprite);
     }
 
-    this.particleContainer = new PIXI.ParticleContainer(10000, {
-      vertices: true,
-      position: true,
-      rotation: true,
-      // uvs: true,
-      tint: true
-    }, 16384, true);
+    this.particleContainer = fireworks.particleContainer;
 
-    // this.particleContainer.blendMode = PIXI.BLEND_MODES.MULTIPLY;
-    // this.particleContainer.blendMode = PIXI.BLEND_MODES.SCREEN;
-    this.particleContainer.blendMode = PIXI.BLEND_MODES.ADD;
+    // this.particleContainer = new PIXI.ParticleContainer(10000, {
+    //   vertices: true,
+    //   position: true,
+    //   rotation: true,
+    //   // uvs: true,
+    //   tint: true
+    // }, 16384, true);
 
-    this.particleContainer.roundPixels = false;
+    // // this.particleContainer.blendMode = PIXI.BLEND_MODES.MULTIPLY;
+    // // this.particleContainer.blendMode = PIXI.BLEND_MODES.SCREEN;
+    
 
-    // this.particleContainer = particleContainer;
-    this.fireworks.particleContainer.addChild(this.particleContainer);
+    // if (fireworks.useBlendMode) {
+    //   this.particleContainer.blendMode = PIXI.BLEND_MODES.ADD;
+    // }
+
+    // this.particleContainer.roundPixels = false;
+
+    // this.fireworks.particleContainer.addChild(this.particleContainer);
 
     // this.filterContainer = new PIXI.Container();
     // this.filterContainer.addChild(this.particleContainer);
@@ -130,7 +135,7 @@ class FireworkEmitter {
 
     
 
-    this.fireworks.particleContainer.addChild(this.particleContainer);
+    // this.fireworks.particleContainer.addChild(this.particleContainer);
     // this.fireworks.particleContainer.addChild(this.filterContainer);
 
     // this.timeline.play();
@@ -332,7 +337,8 @@ class FireworkEmitter {
           // tint,
           dx: xPos - cx,
           dy: yPos - cy,
-          textureData: texture
+          textureData: texture,
+          particleContainer: this.particleContainer
         });
 
         // this.particleContainer.addChild(particle);
@@ -396,7 +402,7 @@ class FireworkEmitter {
 
   kill() {
 
-    this.fireworks.particleContainer.removeChild(this.particleContainer);
+    // this.fireworks.particleContainer.removeChild(this.particleContainer);
     // this.fireworks.particleContainer.removeChild(this.filterContainer);
 
     this.fireworks.emitterContainer.removeChild(this.image);

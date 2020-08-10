@@ -93,7 +93,7 @@ export const Physics2DPlugin = {
 				data.step = 0;
 				steps = i = time | 0;
 			}
-			remainder = (time % 1);
+			remainder = (time % 1) * fr;
 			if (i >= 0) { 	//going forward
 				while (i--) {
 					xp.v += xp.a;

@@ -94,7 +94,7 @@ export const PhysicsPropsPlugin = {
 						curProp.v *= curProp.fr;
 						curProp.val += curProp.v;
 					}
-					curProp.set(target, curProp.p, _round(curProp.val + (curProp.v * remainder)) + curProp.u);
+					curProp.set(target, curProp.p, _round(curProp.val + (curProp.v * remainder * curProp.fr)) + curProp.u);
 				}
 
 			} else { 			//going backwards
@@ -106,7 +106,7 @@ export const PhysicsPropsPlugin = {
 						curProp.v /= curProp.fr;
 						curProp.v -= curProp.a;
 					}
-					curProp.set(target, curProp.p, _round(curProp.val + (curProp.v * remainder)) + curProp.u);
+					curProp.set(target, curProp.p, _round(curProp.val + (curProp.v * remainder * curProp.fr)) + curProp.u);
 				}
 			}
 			data.step += steps;

@@ -17,8 +17,8 @@
     shellSize: Number(25), // {shellSize} only affects explosionType particle
     particleType: "orb", // "{particleType}" polygon, orb
 
-    particleSize: Number(20), // {particleSize}
-    particleSpacing: Number(20), // {particleSpacing}
+    particleSize: Number(15), // {particleSize}
+    particleSpacing: Number(15), // {particleSpacing}
 
     clusterParticles: true, // {clusterParticles} group extra particles in the center of image
     displayGif: false, // {displayGif}
@@ -31,6 +31,7 @@
     // fps: Number(60), // TODO: fps option?
 
     useGlow: true,
+    useBlendMode: true,
 
     colors: [
       0xF05189, // red
@@ -53,7 +54,8 @@
   
   const resources = await NerdLoader.load([
     "https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.3.2/pixi.min.js",
-    "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.4.2/gsap.js",
+    "package/dist/gsap.min.js",
+    "package/dist/EasePack.min.js",
     "package/dist/Physics2DPlugin.min.js", 
     "https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.0/howler.min.js",
 
@@ -85,7 +87,9 @@
 
   function animate() {
 
-    gsap.registerPlugin(Physics2DPlugin);
+    gsap.registerPlugin(Physics2DPlugin, RoughEase);
+
+    // console.log("ROUGH EASE", RoughEase)
 
     const launchSound = resources.launchSound.mute(false).volume(settings.volume);
     const popSound = resources.popSound.mute(false).volume(settings.popVolume);

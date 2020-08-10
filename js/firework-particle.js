@@ -1,3 +1,28 @@
+
+function createRoughEases(count = 10) {
+
+  const eases = []
+  
+  for (let i = 0; i < count; i++) {
+
+    const ease = RoughEase.config({ 
+      template: "power3.out", 
+      strength: 2, 
+      points: 100, 
+      // taper: "in", 
+      randomize: true, 
+      clamp: true
+    });
+
+    eases.push(ease);
+  }
+
+  return eases;
+}
+
+const randomRoughEase = gsap.utils.random(createRoughEases(), true);
+
+
 class FireworkParticle extends PIXI.Sprite {
 
   // constructor(texture, fireworks, settings) {
@@ -7,8 +32,8 @@ class FireworkParticle extends PIXI.Sprite {
 
     this.fireworks = fireworks;
 
-    this.renderable = false;
-    this.visible = false;
+    // this.renderable = false;
+    // this.visible = false;
 
     Object.assign(this, {
 
@@ -22,6 +47,8 @@ class FireworkParticle extends PIXI.Sprite {
       dx: 0,
       dy: 0
     }, settings);
+
+    // this.startAlpha
 
     // this.size = fireworks.particleSize;
 
@@ -65,7 +92,7 @@ class FireworkParticle extends PIXI.Sprite {
     }
 
     if (this.particleContainer) {
-      // this.particleContainer.removeChild(this, this.glow);
+      this.particleContainer.removeChild(this);
     }
 
     // if (this.parent) {
@@ -86,10 +113,16 @@ class FireworkParticle extends PIXI.Sprite {
       );
     }
 
-    if (this.glow) {
-      // this.glow.position.set(this.x, this.y);
-      this.glow.position.copyFrom(this.position);
+    if (this.maxSize && (this.width > this.maxSize || this.height > this.maxSize)) {
+      this.width = this.heihgt = this.maxSize;
+      // console.log("MAX SIZE BUST")
     }
+
+    // if (this.glow) {
+    //   // this.glow.position.set(this.x, this.y);
+    //   this.glow.position.copyFrom(this.position);
+    // }
+
   }
 
   addGlow(container) {
@@ -103,27 +136,34 @@ class FireworkParticle extends PIXI.Sprite {
 
   initOrb(emitterX, emitterY, emitterRotation, container) {
 
-    const { dx, dy, fireworks } = this;
+    const { fireworks } = this;
 
-    this.alpha = 1;
+    // this.alpha = 1;
 
     this.texture = this.textureData.texture;
 
-    // if (fireworks.isOrbType) {
-    //   this.addGlow(container);
-    // }
+    const randomOffset = gsap.utils.random(-5, 5, true);
+    const randomScale = gsap.utils.random(0.75, 1);
+    this.alpha = gsap.utils.random(0.5, 1);
 
-    // this.addGlow(container);
-    if (fireworks.useGlow) {
-      // this.addGlow();
-    }
-    this.particleContainer = container;
-    
+    const dx = this.dx + randomOffset();
+    const dy = this.dy + randomOffset();
+
+
+
+    // this.particleContainer = container;    
     this.rotation = Math.random() * Math.PI;  
     
     // container.addChild(this, sprite2);
 
-    this.width = this.height = fireworks.particleSize;
+    // this.width = this.height = fireworks.particleSize;
+    const endSize = fireworks.particleSize * randomScale;
+    this.width = this.height = endSize;
+    
+    // this.clampSize = gsap.utils.clamp(0, this.width);
+    
+
+
     // this.glow.width = this.glow.height = fireworks.particleSize * 0.5;
 
     // sprite2.width = sprite2.height = 4;
@@ -139,9 +179,14 @@ class FireworkParticle extends PIXI.Sprite {
     this.x = emitterX;
     this.y = emitterY;
 
-    const duration = 2;
+    // const duration = 1;
+
     // const speed = 100;
     // const dist = Math.sqrt(dx * dx + dy * dy);
+
+    // const velocity = gsap.utils.mapRange(0, fireworks.maxImageSize, 0, fireworks.maxImageSize / duration, dist);
+
+    // const velocity = 
 
     // const velocitySpread = gsap.utils.random(-1.01, 1.01);
     // const velocitySpread = gsap.utils.random(-10, 10);
@@ -166,20 +211,76 @@ class FireworkParticle extends PIXI.Sprite {
       drop: 0
     };
 
-    const dur = duration + gsap.utils.random(-0.3, 0.3);
+    // const dur = duration + gsap.utils.random(-0.3, 0.3);
+    const duration = 1.5 + gsap.utils.random(-0.1, 0.1);
+    // const startFizzle = gsap.utils.random(duration + 1, duration + 1.2);
+    const startFizzle = gsap.utils.random(duration - 0.25, duration + 1);
+    const fizzleDuration = gsap.utils.random(duration - 1, duration - 0.5);
 
     this.timeline
       .to(this.proxy, {
-        duration: dur,
-        x: endX + gsap.utils.random(-5, 5),
-        y: endY + gsap.utils.random(-5, 5),
+        duration,
+        // duration: dur + gsap.utils.random(-0.1, 0.1),
+        // x: endX + gsap.utils.random(-5, 5),
+        // y: endY + gsap.utils.random(-5, 5),
+        x: endX,
+        y: endY,
         ease: "power2"
       }, 0)
-      .to(this.proxy, {
-        duration: dur,
+      // .to(this.proxy, {
+      //   duration: duration * 3,
+      //   drop: "random(100, 150)",
+      //   ease: "sine.in"
+      // }, 0)
+      // .to(this, {
+      //   duration: duration,
+      //   width: endSize,
+      //   height: endSize
+      // }, 0)
+
+      // .to(this, {
+      //   duration,
+      //   width: endSize,
+      //   height: endSize,
+      //   ease: randomRoughEase(),
+      // }, 0)
+      .to(this, {
+        width: 0,
+        height: 0,
+        alpha: 0.5,
+        duration: fizzleDuration,
+        onComplete: () => this.kill(),
+        ease: randomRoughEase(),
+      }, startFizzle)
+
+      this.timeline.to(this.proxy, {
+        duration: this.timeline.duration(),
+        // drop: "random(100, 150)",
         drop: "random(50, 60)",
         ease: "sine.in"
-      }, 0.2);
+      }, 0);
+
+      // .to(this, {
+      //   duration: dur,
+      //   ease: "none",
+      //   physics2D: {
+      //     angle,
+      //     // friction: 0.1,
+      //     // friction: "random(0.01, 0.015)",
+      //     // friction: frictionValue,
+      //     velocity,
+      //     gravity: 150
+      //   }
+      // }, 0)
+      // .to(this, {
+      //   // alpha: 0,
+      //   // onComplete: () => this.kill(),
+      //   ease: randomEase(),
+      //   duration: dur * 2
+      // }, gsap.utils.random(dur, dur + 0.5))
+      
+
+    
 
     this.timeline.progress(1, true).progress(0, true);
   }
@@ -218,7 +319,7 @@ class FireworkParticle extends PIXI.Sprite {
       // this.addGlow(container);
     }
 
-    this.width = this.height = fireworks.particleSize;
+    // this.width = this.height = fireworks.particleSize;
     
     if (fireworks.debug.particles) {
       this.rotation = emitterRotation;
@@ -322,10 +423,10 @@ class FireworkParticle extends PIXI.Sprite {
 
     if (this.particleContainer) {
       
-      if (this.glow) {
-        this.particleContainer.addChild(this.glow);
-        // this.addChild(this.glow);
-      } 
+      // if (this.glow) {
+      //   this.particleContainer.addChild(this.glow);
+      //   // this.addChild(this.glow);
+      // } 
 
       this.particleContainer.addChild(this);
     }

@@ -73,7 +73,7 @@ class ShapeTextures {
     p3.closePath();
 
     const p4 = this.circlePath = new Path2D();
-    p4.arc(radius, radius, radius, 0, Math.PI * 2);
+    p4.arc(radius, radius, radius * 0.5, 0, Math.PI * 2);
         
     // const gradient = this.ctx.createRadialGradient(radius, radius, radius * 0.25, radius, radius, radius);    
     // gradient.addColorStop(0, "rgba(255,255,255,1)");
@@ -129,28 +129,24 @@ class ShapeTextures {
     const g = (rgb[1] * 255) | 0;
     const b = (rgb[2] * 255) | 0;
 
+    const color1 = `rgba(${r},${g},${b}, 1)`;
+    const color2 = utils.logShade(color1, 0.01);
 
-    const gradient = this.ctx.createRadialGradient(radius, radius, radius * 0.25, radius, radius, radius);    
-    // gradient.addColorStop(0, "rgba(255,255,255,1)");
-    // gradient.addColorStop(0.2, "rgba(255,255,255,0.25)");
-    // gradient.addColorStop(1, "rgba(0,0,0,0)");
 
-    gradient.addColorStop(0, `rgba(${r},${g},${b},1)`);
-    gradient.addColorStop(0.25, `rgba(${r},${g},${b},0.2)`);
-    gradient.addColorStop(0.5, `rgba(${r},${g},${b},0.05)`);
-    gradient.addColorStop(1, `rgba(${r},${g},${b},0)`);
+    const gradient = this.ctx.createRadialGradient(radius, radius, radius * 0.5, radius, radius, radius * 0.0);    
+    gradient.addColorStop(0, color2);
+    gradient.addColorStop(1, color1);
 
-    // gradient.addColorStop(1, `rgba(${0},${0},${0},0)`);
+    // gradient.addColorStop(0, `rgba(${r},${g},${b},1)`);
+    // gradient.addColorStop(0.25, `rgba(${r},${g},${b},0.2)`);
+    // gradient.addColorStop(0.5, `rgba(${r},${g},${b},0.05)`);
+    // gradient.addColorStop(1, `rgba(${r},${g},${b},0)`);
 
-    // gradient.addColorStop(0, color + "ff");
-    // gradient.addColorStop(0.2, color + "3f");
-    // gradient.addColorStop(1, color + "00");
-
-    return gradient;
-
-    // gradient.addColorStop(0, "#ffffffff");
-    // gradient.addColorStop(0.2, "#ffffff3f");
-    // gradient.addColorStop(1, "#ffffff00");
+    // return gradient;
+    return {
+      gradient: color1,
+      shadowColor: utils.logShade(color1, 0)
+    };
   }
 
   getTexture(color, shape) {
@@ -198,7 +194,9 @@ class ShapeTextures {
 
     if (useGradient) {
       // frame.gradient = this.getGradient(fillStyle);
-      frame.gradient = this.getGradient(color);
+      const { shadowColor, gradient } = this.getGradient(color);
+      frame.shadowColor = shadowColor;
+      frame.gradient = gradient;
     }
 
     this.numShapes++;
@@ -216,7 +214,7 @@ class ShapeTextures {
     this.height = this.rows * this.size;
     this.canvas.height = utils.nextPow2(this.height * dpr);
 
-    // const radius = this.particleSize / 2;
+    const radius = this.particleSize / 2;
     const ctx = this.ctx;
     
     for (const [key, frame] of Object.entries(this.shapes)) {
@@ -232,32 +230,52 @@ class ShapeTextures {
 
       if (frame.gradient) {
 
-        const r = frame.rect;
-
-        // ctx.globalCompositeOperation = "multiply";
-        // ctx.fillStyle = frame.fillStyle;
-        // ctx.fillRect(0, 0, r.width, r.height);
-        // ctx.globalCompositeOperation = "destination-atop";
-        // ctx.fillStyle = frame.gradient;
-        // ctx.fill(frame.path);
-
         ctx.fillStyle = frame.gradient;
-        ctx.fill(frame.path);
+        
 
         if (useGlow) {
-          ctx.fillStyle = this.glowGradient;
-          ctx.fill(frame.path)
+          ctx.shadowBlur = radius * 0.5;
+          ctx.shadowColor = frame.shadowColor;
         }
-        // ctx.fillStyle = frame.fillStyle;
-        // ctx.globalCompositeOperation = "source-atop";
-        // ctx.fillRect(0, 0, r.width, r.height);
 
-        // ctx.globalCompositeOperation = "source-over";
+        ctx.fill(frame.path);
+
+        ctx.shadowColor = "rgba(0,0,0,0)";
 
       } else {
+
         ctx.fillStyle = frame.fillStyle;
         ctx.fill(frame.path);
       }
+
+      // if (frame.gradient) {
+
+      //   const r = frame.rect;
+
+      //   // ctx.globalCompositeOperation = "multiply";
+      //   // ctx.fillStyle = frame.fillStyle;
+      //   // ctx.fillRect(0, 0, r.width, r.height);
+      //   // ctx.globalCompositeOperation = "destination-atop";
+      //   // ctx.fillStyle = frame.gradient;
+      //   // ctx.fill(frame.path);
+
+      //   ctx.fillStyle = frame.gradient;
+      //   ctx.fill(frame.path);
+
+      //   if (useGlow) {
+      //     ctx.fillStyle = this.glowGradient;
+      //     ctx.fill(frame.path)
+      //   }
+      //   // ctx.fillStyle = frame.fillStyle;
+      //   // ctx.globalCompositeOperation = "source-atop";
+      //   // ctx.fillRect(0, 0, r.width, r.height);
+
+      //   // ctx.globalCompositeOperation = "source-over";
+
+      // } else {
+      //   ctx.fillStyle = frame.fillStyle;
+      //   ctx.fill(frame.path);
+      // }
 
       // this.ctx.fillStyle = frame.gradient ? frame.gradient : "#ffffff";
       // this.ctx.fillStyle = frame.gradient ? frame.gradient : frame.fillStyle;

@@ -23,6 +23,19 @@ class Fireworks extends PIXI.Application {
 
     this.emitterContainer = new PIXI.Container();
     this.particleContainer = new PIXI.Container();
+
+    this.particleContainer = new PIXI.ParticleContainer(10000, {
+      vertices: true,
+      position: true,
+      rotation: true,
+      // uvs: true,
+      tint: true
+    }, 16384, true);
+
+    if (this.useBlendMode) {
+      this.particleContainer.blendMode = PIXI.BLEND_MODES.ADD;
+    }
+
     this.trailContainer = new PIXI.Container();
     this.mainContainer = new PIXI.Container();
     this.mainContainer.addChild(this.trailContainer, this.emitterContainer, this.particleContainer);    

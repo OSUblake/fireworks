@@ -124,7 +124,7 @@
 	            curProp.val += curProp.v;
 	          }
 
-	          curProp.set(target, curProp.p, _round(curProp.val + curProp.v * remainder) + curProp.u);
+	          curProp.set(target, curProp.p, _round(curProp.val + curProp.v * remainder * curProp.fr) + curProp.u);
 	        }
 	      } else {
 	        while (i--) {
@@ -137,7 +137,7 @@
 	            curProp.v -= curProp.a;
 	          }
 
-	          curProp.set(target, curProp.p, _round(curProp.val + curProp.v * remainder) + curProp.u);
+	          curProp.set(target, curProp.p, _round(curProp.val + curProp.v * remainder * curProp.fr) + curProp.u);
 	        }
 	      }
 

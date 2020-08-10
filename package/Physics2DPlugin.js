@@ -118,7 +118,7 @@ export var Physics2DPlugin = {
         steps = i = time | 0;
       }
 
-      remainder = time % 1;
+      remainder = time % 1 * fr;
 
       if (i >= 0) {
         //going forward
