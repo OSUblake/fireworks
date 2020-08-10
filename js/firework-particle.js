@@ -42,8 +42,8 @@ class FireworkParticle extends PIXI.Sprite {
 
     Object.assign(this, {
 
-      visible: false,
-      renderable: false,
+      // visible: false,
+      // renderable: false,
 
       alive: false,
       // alpha: 1,
@@ -62,7 +62,7 @@ class FireworkParticle extends PIXI.Sprite {
     this.timeline = gsap.timeline({
       paused: true,
       onComplete: this.kill,
-      onUpdate: this.update,
+      // onUpdate: this.update,
       callbackScope: this
     });
 
@@ -82,12 +82,19 @@ class FireworkParticle extends PIXI.Sprite {
 
     // this.destroy();
 
-    this.fireworks.particleContainer.removeChild(this);
+    // this.particleContainer.removeChild(this);
   }
 
   update() {
 
+    // this.x += 1;
+    // this.x *= 0.97;
+
+    // this.y += 1;
+    // this.y *= 0.97;
+
     if (this.proxy) {
+    // if (false) {
       this.position.set(
         this.proxy.x,
         this.proxy.y + this.proxy.drop
@@ -252,7 +259,7 @@ class FireworkParticle extends PIXI.Sprite {
 
   play() {
 
-    this.fireworks.particleContainer.addChild(this);    
+    this.particleContainer.addChild(this);    
 
     this.alive = true;
     this.timeline.play();

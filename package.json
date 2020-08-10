@@ -20,6 +20,7 @@
   "homepage": "https://github.com/OSUblake/fireworks#readme",
   "dependencies": {
     "gsap": "^3.4.2",
+    "pixi-tilemap": "^2.0.6",
     "pixi.js": "^5.3.2",
     "terser": "^5.0.0"
   }

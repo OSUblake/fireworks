@@ -23,21 +23,29 @@ class Fireworks extends PIXI.Application {
     // this.dpr = window.devicePixelRatio;
 
     this.emitterContainer = new PIXI.Container();
-    this.particleContainer = new PIXI.Container();
+    // this.particleContainer = new PIXI.Container();
 
     this.particleContainer = new PIXI.ParticleContainer(16384, {
       vertices: true,
-      position: true,
-      rotation: true,
+      // position: false,
+      // rotation: true,
       // uvs: true,
-      tint: true
+      // tint: true
     }, 16384, true);
+
+    // this.particleContainer = new PIXI.ParticleContainer(20000)
+
+    // this.particleContainer = new PIXI.Container();
 
     this.particleContainer.roundPixels = true;
 
     if (this.useBlendMode) {
       this.particleContainer.blendMode = PIXI.BLEND_MODES.ADD;
     }
+
+    // this.particleContainer = new PIXI.Container();
+
+    this.particleContainer.filterArea = this.screen;
 
     this.trailContainer = new PIXI.Container();
     this.mainContainer = new PIXI.Container();

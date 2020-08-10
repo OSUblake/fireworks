@@ -1,11 +1,3 @@
-// const particleContainer = new PIXI.ParticleContainer(30000, {
-//   vertices: true,
-//   position: true,
-//   rotation: true,
-//   // uvs: true,
-//   tint: true
-// });
-
 class FireworkEmitter {
 
   constructor(fireworks, emote) {
@@ -26,75 +18,31 @@ class FireworkEmitter {
     this.aliveCount = 1;
     this.isValid = false;
 
-    fireworks.emitterContainer.addChild(this.image);
-
-    if (this.image.maskSprite) {
-      fireworks.emitterContainer.addChild(this.image.maskSprite);
-    }
-
-    this.particleContainer = fireworks.particleContainer;
-
-    // this.particleContainer = new PIXI.ParticleContainer(10000, {
+    // this.particleContainer = new PIXI.ParticleContainer(16384, {
     //   vertices: true,
-    //   position: true,
+    //   // position: false,
     //   rotation: true,
     //   // uvs: true,
-    //   tint: true
+    //   // tint: true
     // }, 16384, true);
-
-    // // this.particleContainer.blendMode = PIXI.BLEND_MODES.MULTIPLY;
-    // // this.particleContainer.blendMode = PIXI.BLEND_MODES.SCREEN;
-    
 
     // if (fireworks.useBlendMode) {
     //   this.particleContainer.blendMode = PIXI.BLEND_MODES.ADD;
     // }
 
-    // this.particleContainer.roundPixels = false;
+    // this.particleContainer.filterArea = fireworks.screen;
 
-    // this.fireworks.particleContainer.addChild(this.particleContainer);
+    this.particleContainer = fireworks.particleContainer;
 
-    // this.filterContainer = new PIXI.Container();
-    // this.filterContainer.addChild(this.particleContainer);
+    fireworks.emitterContainer.addChild(this.image);
 
-    const screen = fireworks.screen;
-    // this.particleContainer.filterArea = screen;
-    // this.filterContainer.filterArea = screen;
-
-    // this.filter = new PIXI.filters.GlowFilter({
-    //   color: emote.data.avgColor,
-    //   outerStrength: 0,
-    //   innerStrength: 1,
-    //   distance: 10
-    // });
-
-    // this.filterContainer.filters = [
-    //   // this.filter
-    // ];
-
-    // this.filterContainer.blendMode = PIXI.BLEND_MODES.ADD;
-    // this.filterContainer.blendMode = PIXI.BLEND_MODES.MULTIPLY;
-    // this.filterContainer.blendMode = PIXI.BLEND_MODES.SCREEN;
-
-    // this.timeline = gsap.timeline({
-    //   paused: true,
-    //   onComplete: () => {
-    //     // this.fireworks.particleContainer.removeChild(this.container);
-    //     // this.fireworks.particleContainer.removeChild(this.container2);
-    //   }
-    // });
+    if (this.image.maskSprite) {
+      fireworks.emitterContainer.addChild(this.image.maskSprite);
+    }
   }
 
-
   prepare() {
-    // await this.image.init();
     this.createParticles();
-
-    // console.log("*** EMITTER PARTICLES", this.particles.length);
-    // console.log("PARTICLES", this.particles)
-
-    // var c = this.imageData.getColor(65487.54, 321654.2)
-    // console.log("**** GET COLOR", c)
   }
 
   play() {
@@ -107,11 +55,6 @@ class FireworkEmitter {
   }
 
   explode() {
-
-    // gsap.to(this.filter2, {
-    //   outerStrength: 2,
-    //   duration: this.timeline.duration()
-    // })
 
     const debug = this.fireworks.debug.emitters;
 
@@ -335,7 +278,7 @@ class FireworkEmitter {
           dx: xPos - cx,
           dy: yPos - cy,
           textureData: texture,
-          // particleContainer: this.particleContainer
+          particleContainer: this.particleContainer
         });
 
         // this.particleContainer.addChild(particle);
@@ -377,6 +320,8 @@ class FireworkEmitter {
 
         if (particle.alive) {
           // particle.render();
+
+          particle.update();
           alive++;
         }
       }
