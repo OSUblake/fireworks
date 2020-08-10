@@ -1,3 +1,4 @@
+
 class Fireworks extends PIXI.Application {
 
   constructor(settings) {
@@ -24,7 +25,7 @@ class Fireworks extends PIXI.Application {
     this.emitterContainer = new PIXI.Container();
     this.particleContainer = new PIXI.Container();
 
-    this.particleContainer = new PIXI.ParticleContainer(10000, {
+    this.particleContainer = new PIXI.ParticleContainer(16384, {
       vertices: true,
       position: true,
       rotation: true,
@@ -439,6 +440,7 @@ class Fireworks extends PIXI.Application {
     this.fireworksTimeline.play(0);
     tl.play(0);
     gsap.ticker.add(this.update);  
+    gsap.ticker.lagSmoothing(0)
     this.update();
 
     
@@ -462,6 +464,8 @@ class Fireworks extends PIXI.Application {
   update(time, deltaTime) {
 
     const { emitters, trailParticles } = this;
+
+    // TWEEN.update();
 
     // const currentTime = performance.now();
     // const delta = (currentTime - this.lastTime) * 0.06;
@@ -490,7 +494,7 @@ class Fireworks extends PIXI.Application {
 
     if (this.debug.stats) {
       this.stats.update();
-      // console.log("ACTIVE PARTICELS", this.particleContainer.children.length);
+      // utils.log("ACTIVE PARTICELS", this.particleContainer.children.length);
     }
 
     this.renderer.render(this.stage);

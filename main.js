@@ -56,7 +56,8 @@
     "https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.3.2/pixi.min.js",
     "package/dist/gsap.min.js",
     "package/dist/EasePack.min.js",
-    "package/dist/Physics2DPlugin.min.js", 
+    "package/dist/Physics2DPlugin.min.js?v=1", 
+    // "https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.0/tween.umd.min.js",
     "https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.0/howler.min.js",
 
     { name: "emoteSlot1", url: "images/img-09.png" }, // {emoteSlot1}

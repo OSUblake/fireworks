@@ -118,9 +118,6 @@ class FireworkEmitter {
     const particles = this.particles;
 
     for (let i = 0; i < particles.length; i++) {
-      // particles[i].alive = true;
-      // particles[i].alpha = 0.5;
-      // !debug && particles[i].play();
 
       const particle = particles[i];
 
@@ -164,7 +161,7 @@ class FireworkEmitter {
       // particles[i].initPolygon(x, y, 0);
       // particles[i].initPolygon(x, y, rotation);
       // particles[i][initType](x, y, rotation);
-      particles[i][initType](x, y, rotation, this.particleContainer);
+      particles[i][initType](x, y, rotation);
     }
   }
 
@@ -338,7 +335,7 @@ class FireworkEmitter {
           dx: xPos - cx,
           dy: yPos - cy,
           textureData: texture,
-          particleContainer: this.particleContainer
+          // particleContainer: this.particleContainer
         });
 
         // this.particleContainer.addChild(particle);
