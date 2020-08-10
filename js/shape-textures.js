@@ -3,7 +3,7 @@ class ShapeTextures {
   constructor(fireworks) {
 
     this.fireworks = fireworks;
-    this.particleSize = utils.nextPow2(Math.max(64, fireworks.particleSize));
+    this.particleSize = utils.nextPow2(Math.max(32, fireworks.particleSize));
 
     this.shapes = {};
     this.numShapes = 0;
@@ -47,6 +47,11 @@ class ShapeTextures {
     const p4 = new Path2D();
     p4.arc(radius, radius, radius, 0, Math.PI * 2);
         
+    // const gradient = this.ctx.createRadialGradient(radius, radius, radius * 0.25, radius, radius, radius);    
+    // gradient.addColorStop(0, "rgba(255,255,255,1)");
+    // gradient.addColorStop(0.2, "rgba(255,255,255,0.25)");
+    // gradient.addColorStop(1, "rgba(0,0,0,0)");
+
     const gradient = this.ctx.createRadialGradient(radius, radius, radius * 0.25, radius, radius, radius);    
     gradient.addColorStop(0, "rgba(255,255,255,1)");
     gradient.addColorStop(0.2, "rgba(255,255,255,0.25)");

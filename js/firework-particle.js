@@ -6,9 +6,13 @@ class FireworkParticle extends PIXI.Sprite {
 
     this.fireworks = fireworks;
 
+    this.renderable = false;
+    this.visible = false;
+
     Object.assign(this, {
 
-      // visible: false,
+      visible: false,
+      renderable: false,
 
       alive: false,
       // alpha: 1,
@@ -70,7 +74,8 @@ class FireworkParticle extends PIXI.Sprite {
     }
 
     if (this.glow) {
-      this.glow.position.set(this.x, this.y);
+      // this.glow.position.set(this.x, this.y);
+      this.glow.position.copyFrom(this.position);
     }
   }
 
@@ -271,7 +276,9 @@ class FireworkParticle extends PIXI.Sprite {
       }
 
       // TODO: Waiting on Jack to fix this
-      this.timeline.progress(1, true).progress(0, true);
+      // this.timeline.progress(1, true).progress(0, true);
+
+      // this.timeline.timeScale(0.05)
   }
 
   play() {
@@ -290,6 +297,7 @@ class FireworkParticle extends PIXI.Sprite {
       
       if (this.glow) {
         this.particleContainer.addChild(this.glow);
+        // this.addChild(this.glow);
       } 
 
       this.particleContainer.addChild(this);

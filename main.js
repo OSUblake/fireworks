@@ -15,22 +15,22 @@
     maskFirework: false, // {maskFirework} mask emote to a circle
     explosionType: "particle", // "{explosionType}"" particle, image  
     shellSize: Number(25), // {shellSize} only affects explosionType particle
-    particleType: "polygon", // "{particleType}" polygon, orb
+    particleType: "orb", // "{particleType}" polygon, orb
 
     particleSize: Number(30), // {particleSize}
-    particleSpacing: Number(20), // {particleSpacing}
+    particleSpacing: Number(30), // {particleSpacing}
 
-    clusterParticles: false, // {clusterParticles} group extra particles in the center of image
+    clusterParticles: true, // {clusterParticles} group extra particles in the center of image
     displayGif: false, // {displayGif}
 
     mainExplodeY: 330,
     explodeTime: 1.55, // timestamp when firework explodes in video 
     
-    numParticles: 30,
+    numParticles: 300,
     minPixelAlpha: 0.9, // min alpha level of pixel to be candidate for particle
     // fps: Number(60), // TODO: fps option?
 
-    useGlow: true,
+    useGlow: false,
 
     colors: [
       0xF05189, // red
@@ -46,7 +46,7 @@
       stats: true,
       particles: false,
       emitters: false,
-      shapes: false,
+      shapes: true,
       particleShape: "rect"
     }
   };
@@ -54,7 +54,7 @@
   const resources = await NerdLoader.load([
     "https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.3.2/pixi.min.js",
     "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.4.2/gsap.js",
-    "https://ext-assets.streamlabs.com/users/140067/Physics2DPlugin.min.3.3.4.js",
+    "package/dist/Physics2DPlugin.min.js", 
     "https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.0/howler.min.js",
 
     { name: "emoteSlot1", url: "images/img-09.png" }, // {emoteSlot1}
@@ -146,6 +146,8 @@
       .play();
 
     } else if (settings.fireworkType === "emotePopper") {
+
+      // gsap.ticker.fps(90);
 
       settings.isParticleExplosion = (settings.explosionType === "particle");
 

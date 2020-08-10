@@ -38,7 +38,13 @@ class FireworkEmitter {
       rotation: true,
       // uvs: true,
       tint: true
-    });
+    }, 16384, true);
+
+    // this.particleContainer.blendMode = PIXI.BLEND_MODES.MULTIPLY;
+    // this.particleContainer.blendMode = PIXI.BLEND_MODES.SCREEN;
+    this.particleContainer.blendMode = PIXI.BLEND_MODES.ADD;
+
+    this.particleContainer.roundPixels = false;
 
     // this.particleContainer = particleContainer;
     this.fireworks.particleContainer.addChild(this.particleContainer);
@@ -107,9 +113,19 @@ class FireworkEmitter {
     const particles = this.particles;
 
     for (let i = 0; i < particles.length; i++) {
-      particles[i].alive = true;
-      particles[i].alpha = 0.5;
-      !debug && particles[i].play();
+      // particles[i].alive = true;
+      // particles[i].alpha = 0.5;
+      // !debug && particles[i].play();
+
+      const particle = particles[i];
+
+      if (debug) {
+        particle.alive = true;
+        particle.alpha = 0.5;
+        this.particleContainer.addChild(particle)
+      } else {
+        particle.play();
+      }
     }
 
     
@@ -187,9 +203,14 @@ class FireworkEmitter {
 
     // this.addParticles(true);
 
+    // console.log("NUM PARTICLES", numParticles)
+    // var d = performance.now()
+
     while (len < numParticles) {
+      // console.log("ADD PARTICLES 1", len, d)
       this.addParticles(true);
       len = this.particles.length;
+      // console.log("ADD PARTICLES 2", len, d)
     }
 
     this.isValid = true;
@@ -236,18 +257,28 @@ class FireworkEmitter {
         const xPos = x + offset;
         const yPos = y + offset;
 
-        if (xPos > width || yPos > height) {
-          // console.log("PARTICLE OVERFLOW")
-          // continue;
-        }
+        // if (xPos > width || yPos > height) {
+        //   // console.log("PARTICLE OVERFLOW")
+        //   // continue;
+        // }
 
+        tint = imageData.getColor(xPos, yPos);
+
+        if (tint < 0) {
+          // console.log("NO TINT")
+          continue;
+        }
 
         if (centered) {
           tint = imageData.randomColor();
-        } else {
-          // tint = imageData.getColor(x, y);
-          tint = imageData.getColor(xPos, yPos);
         }
+
+
+        // if (centered) {
+        //   tint = imageData.randomColor();
+        // } else {
+        //   tint = imageData.getColor(xPos, yPos);
+        // }
 
         // if (color.a < 0.9) {
         //   continue;
@@ -255,10 +286,10 @@ class FireworkEmitter {
 
         // console.log("TINT", tint)
 
-        if (tint < 0) {
-          // console.log("NO TINT")
-          continue;
-        }
+        // if (tint < 0) {
+        //   // console.log("NO TINT")
+        //   continue;
+        // }
 
 
         // const rgb = `rgb(${color.r}, ${color.g}, ${color.b})`;      
