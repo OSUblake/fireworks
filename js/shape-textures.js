@@ -4,6 +4,8 @@ class ShapeTextures {
 
     this.fireworks = fireworks;
     this.particleSize = utils.nextPow2(Math.max(32, fireworks.particleSize));
+    // this.particleSize = 16;
+    // this.particleSize = utils.nextPow2(Math.max(16, fireworks.particleSize));
 
     this.shapes = {};
     this.numShapes = 0;
@@ -17,6 +19,8 @@ class ShapeTextures {
 
     // TODO: Make 2048?
     this.width = utils.nextPow2(Math.max(1024, particleSize));
+    this.width = utils.nextPow2(Math.max(2048, particleSize));
+    // this.width = 1000;
     // this.width = 2048;
 
     this.cols = Math.floor(this.width / size);

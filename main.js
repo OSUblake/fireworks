@@ -58,6 +58,7 @@
     "package/dist/EasePack.min.js",
     "package/dist/Physics2DPlugin.min.js?v=1", 
     // "https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.0/tween.umd.min.js",
+    "https://cdn.jsdelivr.net/npm/pixi.js-legacy@5.3.3/dist/pixi-legacy.min.js",
     "https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.0/howler.min.js",
     "pixi-tilemap.js",
 
@@ -153,7 +154,7 @@
 
     } else if (settings.fireworkType === "emotePopper") {
 
-      // gsap.ticker.fps(60);
+      // gsap.ticker.fps(24)
 
       settings.isParticleExplosion = (settings.explosionType === "particle");
 
@@ -163,7 +164,8 @@
 
       settings.isOrbType = (settings.particleType === "orb");
       settings.canvas = document.querySelector("#canvas");
-      settings.dpr = window.devicePixelRatio || 1;      
+      // settings.dpr = window.devicePixelRatio || 1;      
+      settings.dpr = 1;      
 
       if (!settings.debug.enabled) {
         for (let key in settings.debug) {

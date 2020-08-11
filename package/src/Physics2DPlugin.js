@@ -85,26 +85,8 @@ export const Physics2DPlugin = {
 		} else {
 			time *= sps;
 			steps = i = (time | 0) - step;
-			if (i < 0 && tween._dur * sps > 100) { // things break down after a certain number of steps, so we shouldn't walk it back beyond 100 steps.
-				xp.v = xp.vel / sps;
-				yp.v = yp.vel / sps;
-				xp.val = xp.s;
-				yp.val = yp.s;
-				data.step = 0;
-				steps = i = time | 0;
-			}
-			remainder = (time % 1) * fr;
-			if (i >= 0) { 	//going forward
-				while (i--) {
-					xp.v += xp.a;
-					yp.v += yp.a;
-					xp.v *= fr;
-					yp.v *= fr;
-					xp.val += xp.v;
-					yp.val += yp.v;
-				}
-
-			} else { 		//going backwards
+			/*
+			Note: rounding errors build up if we walk the calculations backward which we used to do like this to maximize performance:
 				i = -i;
 				while (i--) {
 					xp.val -= xp.v;
@@ -114,6 +96,24 @@ export const Physics2DPlugin = {
 					xp.v -= xp.a;
 					yp.v -= yp.a;
 				}
+			but now for the sake of accuracy (to ensure rewinding always goes back to EXACTLY the same spot), we force the calculations to go forward every time. So if the tween is going backward, we just start from the beginning and iterate. This is only necessary with friction.
+			 */
+			if (i < 0) {
+				xp.v = xp.vel / sps;
+				yp.v = yp.vel / sps;
+				xp.val = xp.s;
+				yp.val = yp.s;
+				data.step = 0;
+				steps = i = time | 0;
+			}
+			remainder = (time % 1) * fr;
+			while (i--) {
+				xp.v += xp.a;
+				yp.v += yp.a;
+				xp.v *= fr;
+				yp.v *= fr;
+				xp.val += xp.v;
+				yp.val += yp.v;
 			}
 			x = xp.val + xp.v * remainder;
 			y = yp.val + yp.v * remainder;

@@ -1,4 +1,7 @@
 
+// PIXI.settings.SPRITE_BATCH_SIZE = 32;
+// PIXI.settings.SPRITE_MAX_TEXTURES = 32;
+
 class Fireworks extends PIXI.Application {
 
   constructor(settings) {
@@ -9,8 +12,13 @@ class Fireworks extends PIXI.Application {
       autoStart: false,
       resizeTo: window,
       // antialias: true,
-      transparent: true
+      transparent: true,
+
+      // forceCanvas: true,
+      // powerPreference: "high-performance"
     });
+
+    console.log("RENDERER", this.renderer)
 
     Object.assign(this, settings);
 
@@ -28,10 +36,12 @@ class Fireworks extends PIXI.Application {
     this.particleContainer = new PIXI.ParticleContainer(16384, {
       vertices: true,
       // position: false,
-      // rotation: true,
+      rotation: true,
       // uvs: true,
-      // tint: true
+      tint: true
     }, 16384, true);
+
+    // this.particleContainer = new LinkedListContainer();
 
     // this.particleContainer = new PIXI.ParticleContainer(20000)
 
@@ -50,6 +60,7 @@ class Fireworks extends PIXI.Application {
     this.trailContainer = new PIXI.Container();
     this.mainContainer = new PIXI.Container();
     this.mainContainer.addChild(this.trailContainer, this.emitterContainer, this.particleContainer);    
+    // this.mainContainer.addChild(this.trailContainer, this.emitterContainer, this.particleContainer);    
     
     this.canPlay = false;
 
@@ -155,6 +166,8 @@ class Fireworks extends PIXI.Application {
     this.shapesBaseTexture = this.shapeTextures.baseTexture; 
     this.shapesSprite = new PIXI.Sprite(new PIXI.Texture(this.shapesBaseTexture));
 
+    // console.log("BASE TEXTURE", this.shapesBaseTexture)
+
     // this.emitters.filter(emitter => emitter.isValid);
 
     if (this.debug.shapes) {
@@ -167,8 +180,10 @@ class Fireworks extends PIXI.Application {
 
     const { cx, mainExplodeY } = this;
 
-    const minRotation = 80;
-    const maxRotation = 120;
+    // const minRotation = 80;
+    // const maxRotation = 120;
+    const minRotation = 30;
+    const maxRotation = 75;
     const spread = 200;
     const size = this.maxImageSize;
     // const spawnWidth = Math.min(this.spawnWidth, this.width) / 2;
@@ -448,7 +463,7 @@ class Fireworks extends PIXI.Application {
     this.fireworksTimeline.play(0);
     tl.play(0);
     gsap.ticker.add(this.update);  
-    gsap.ticker.lagSmoothing(0)
+    // gsap.ticker.lagSmoothing(0)
     this.update();
 
     

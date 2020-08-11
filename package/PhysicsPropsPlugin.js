@@ -98,9 +98,22 @@ export var PhysicsPropsPlugin = {
     if (hasFr) {
       time *= sps;
       steps = (time | 0) - step;
+      /*
+      Note: rounding errors build up if we walk the calculations backward which we used to do like this to maximize performance:
+      while (i--) {
+      	curProp = vProps[i];
+      	j = -steps;
+      	while (j--) {
+      		curProp.val -= curProp.v;
+      		curProp.v /= curProp.fr;
+      		curProp.v -= curProp.a;
+      	}
+      	curProp.set(target, curProp.p, _round(curProp.val + (curProp.v * remainder * curProp.fr)) + curProp.u);
+      }
+      but now for the sake of accuracy (to ensure rewinding always goes back to EXACTLY the same spot), we force the calculations to go forward every time. So if the tween is going backward, we just start from the beginning and iterate. This is only necessary with friction.
+       */
 
-      if (steps < 0 && tween._dur * sps > 100) {
-        // things break down after a certain number of steps, so we shouldn't walk it back beyond 100 steps.
+      if (steps < 0) {
         while (i--) {
           curProp = vProps[i];
           curProp.v = curProp.vel / sps;
@@ -114,34 +127,17 @@ export var PhysicsPropsPlugin = {
 
       remainder = time % 1;
 
-      if (steps >= 0) {
-        //going forward
-        while (i--) {
-          curProp = vProps[i];
-          j = steps;
+      while (i--) {
+        curProp = vProps[i];
+        j = steps;
 
-          while (j--) {
-            curProp.v += curProp.a;
-            curProp.v *= curProp.fr;
-            curProp.val += curProp.v;
-          }
-
-          curProp.set(target, curProp.p, _round(curProp.val + curProp.v * remainder * curProp.fr) + curProp.u);
+        while (j--) {
+          curProp.v += curProp.a;
+          curProp.v *= curProp.fr;
+          curProp.val += curProp.v;
         }
-      } else {
-        //going backwards
-        while (i--) {
-          curProp = vProps[i];
-          j = -steps;
 
-          while (j--) {
-            curProp.val -= curProp.v;
-            curProp.v /= curProp.fr;
-            curProp.v -= curProp.a;
-          }
-
-          curProp.set(target, curProp.p, _round(curProp.val + curProp.v * remainder * curProp.fr) + curProp.u);
-        }
+        curProp.set(target, curProp.p, _round(curProp.val + curProp.v * remainder * curProp.fr) + curProp.u);
       }
 
       data.step += steps;

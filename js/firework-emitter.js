@@ -261,6 +261,7 @@ class FireworkEmitter {
         // const texture = shapeTextures[shape + "Texture"];
 
         const texture = shapeTextures.addShape(tint, shape);
+        // const texture = shapeTextures.addShape(0xffffff, shape);
 
 
         // if (explosionType === "particle") {

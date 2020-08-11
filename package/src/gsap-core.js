@@ -217,11 +217,13 @@ let _config = {
 		child.parent && (!onlyIfParentHasAutoRemove || child.parent.autoRemoveChildren) && child.parent.remove(child);
 		child._act = 0;
 	},
-	_uncache = animation => {
-		let a = animation;
-		while (a) {
-			a._dirty = 1;
-			a = a.parent;
+	_uncache = (animation, child) => {
+		if (!child || child._end > animation._dur) { // performance optimization: if a child animation is passed in we should only uncache if that child EXTENDS the animation (its end time is beyond the end)
+			let a = animation;
+			while (a) {
+				a._dirty = 1;
+				a = a.parent;
+			}
 		}
 		return animation;
 	},
@@ -245,7 +247,7 @@ let _config = {
 		if (parent && parent.smoothChildTiming && animation._ts) {
 			animation._start = _round(animation._dp._time - (animation._ts > 0 ? totalTime / animation._ts : ((animation._dirty ? animation.totalDuration() : animation._tDur) - totalTime) / -animation._ts));
 			_setEnd(animation);
-			parent._dirty || _uncache(parent); //for performance improvement. If the parent's cache is already dirty, it already took care of marking the ancestors as dirty too, so skip the function call here.
+			parent._dirty || _uncache(parent, animation); //for performance improvement. If the parent's cache is already dirty, it already took care of marking the ancestors as dirty too, so skip the function call here.
 		}
 		return animation;
 	},
@@ -268,7 +270,7 @@ let _config = {
 			}
 		}
 		//if the timeline has already ended but the inserted tween/timeline extends the duration, we should enable this timeline again so that it renders properly. We should also align the playhead with the parent timeline's when appropriate.
-		if (_uncache(timeline)._dp && timeline._initted && timeline._time >= timeline._dur && timeline._ts) {
+		if (_uncache(timeline, child)._dp && timeline._initted && timeline._time >= timeline._dur && timeline._ts) {
 			//in case any of the ancestors had completed but should now be enabled...
 			if (timeline._dur < timeline.duration()) {
 				t = timeline;
@@ -374,8 +376,8 @@ let _config = {
 		totalProgress && !leavePlayhead && (animation._time *= dur / animation._dur);
 		animation._dur = dur;
 		animation._tDur = !repeat ? dur : repeat < 0 ? 1e10 : _round(dur * (repeat + 1) + (animation._rDelay * repeat));
-		skipUncache || _uncache(animation.parent);
 		totalProgress && !leavePlayhead ? _alignPlayhead(animation, (animation._tTime = animation._tDur * totalProgress)) : animation.parent && _setEnd(animation);
+		skipUncache || _uncache(animation.parent, animation);
 		return animation;
 	},
 	_onUpdateTotalDuration = animation => (animation instanceof Timeline) ? _uncache(animation) : _setDuration(animation, animation._dur),
@@ -1623,7 +1625,7 @@ export class Timeline extends Animation {
 		if (!(child instanceof Animation)) {
 			if (_isArray(child)) {
 				child.forEach(obj => this.add(obj, position));
-				return _uncache(this);
+				return this;
 			}
 			if (_isString(child)) {
 				return this.addLabel(child, position);
@@ -1837,7 +1839,7 @@ export class Timeline extends Animation {
 			self = this,
 			child = self._last,
 			prevStart = _bigNum,
-			prev, end, start, parent;
+			prev, start, parent;
 		if (arguments.length) {
 			return self.timeScale((self._repeat < 0 ? self.duration() : self.totalDuration()) / (self.reversed() ? -value : value));
 		}
@@ -1863,8 +1865,7 @@ export class Timeline extends Animation {
 					self.shiftChildren(-start, false, -1e999);
 					prevStart = 0;
 				}
-				end = _setEnd(child);
-				end > max && child._ts && (max = end);
+				child._end > max && child._ts && (max = child._end);
 				child = prev;
 			}
 			_setDuration(self, (self === _globalTimeline && self._time > max) ? self._time : max, 1, 1);

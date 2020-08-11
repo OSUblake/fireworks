@@ -99,7 +99,7 @@
 	      time *= sps;
 	      steps = (time | 0) - step;
 
-	      if (steps < 0 && tween._dur * sps > 100) {
+	      if (steps < 0) {
 	        while (i--) {
 	          curProp = vProps[i];
 	          curProp.v = curProp.vel / sps;
@@ -113,32 +113,17 @@
 
 	      remainder = time % 1;
 
-	      if (steps >= 0) {
-	        while (i--) {
-	          curProp = vProps[i];
-	          j = steps;
+	      while (i--) {
+	        curProp = vProps[i];
+	        j = steps;
 
-	          while (j--) {
-	            curProp.v += curProp.a;
-	            curProp.v *= curProp.fr;
-	            curProp.val += curProp.v;
-	          }
-
-	          curProp.set(target, curProp.p, _round(curProp.val + curProp.v * remainder * curProp.fr) + curProp.u);
+	        while (j--) {
+	          curProp.v += curProp.a;
+	          curProp.v *= curProp.fr;
+	          curProp.val += curProp.v;
 	        }
-	      } else {
-	        while (i--) {
-	          curProp = vProps[i];
-	          j = -steps;
 
-	          while (j--) {
-	            curProp.val -= curProp.v;
-	            curProp.v /= curProp.fr;
-	            curProp.v -= curProp.a;
-	          }
-
-	          curProp.set(target, curProp.p, _round(curProp.val + curProp.v * remainder * curProp.fr) + curProp.u);
-	        }
+	        curProp.set(target, curProp.p, _round(curProp.val + curProp.v * remainder * curProp.fr) + curProp.u);
 	      }
 
 	      data.step += steps;

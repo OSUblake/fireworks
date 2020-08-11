@@ -326,12 +326,14 @@
     child.parent && (!onlyIfParentHasAutoRemove || child.parent.autoRemoveChildren) && child.parent.remove(child);
     child._act = 0;
   },
-      _uncache = function _uncache(animation) {
-    var a = animation;
+      _uncache = function _uncache(animation, child) {
+    if (!child || child._end > animation._dur) {
+      var a = animation;
 
-    while (a) {
-      a._dirty = 1;
-      a = a.parent;
+      while (a) {
+        a._dirty = 1;
+        a = a.parent;
+      }
     }
 
     return animation;
@@ -370,7 +372,7 @@
 
       _setEnd(animation);
 
-      parent._dirty || _uncache(parent);
+      parent._dirty || _uncache(parent, animation);
     }
 
     return animation;
@@ -386,7 +388,7 @@
       }
     }
 
-    if (_uncache(timeline)._dp && timeline._initted && timeline._time >= timeline._dur && timeline._ts) {
+    if (_uncache(timeline, child)._dp && timeline._initted && timeline._time >= timeline._dur && timeline._ts) {
       if (timeline._dur < timeline.duration()) {
         t = timeline;
 
@@ -516,8 +518,8 @@
     totalProgress && !leavePlayhead && (animation._time *= dur / animation._dur);
     animation._dur = dur;
     animation._tDur = !repeat ? dur : repeat < 0 ? 1e10 : _round(dur * (repeat + 1) + animation._rDelay * repeat);
-    skipUncache || _uncache(animation.parent);
     totalProgress && !leavePlayhead ? _alignPlayhead(animation, animation._tTime = animation._tDur * totalProgress) : animation.parent && _setEnd(animation);
+    skipUncache || _uncache(animation.parent, animation);
     return animation;
   },
       _onUpdateTotalDuration = function _onUpdateTotalDuration(animation) {
@@ -2032,7 +2034,7 @@
           child.forEach(function (obj) {
             return _this2.add(obj, position);
           });
-          return _uncache(this);
+          return this;
         }
 
         if (_isString(child)) {
@@ -2320,7 +2322,6 @@
           child = self._last,
           prevStart = _bigNum,
           prev,
-          end,
           start,
           parent;
 
@@ -2356,8 +2357,7 @@
             prevStart = 0;
           }
 
-          end = _setEnd(child);
-          end > max && child._ts && (max = end);
+          child._end > max && child._ts && (max = child._end);
           child = prev;
         }
 

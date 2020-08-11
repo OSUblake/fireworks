@@ -109,7 +109,7 @@
 	      time *= sps;
 	      steps = i = (time | 0) - step;
 
-	      if (i < 0 && tween._dur * sps > 100) {
+	      if (i < 0) {
 	        xp.v = xp.vel / sps;
 	        yp.v = yp.vel / sps;
 	        xp.val = xp.s;
@@ -120,26 +120,13 @@
 
 	      remainder = time % 1 * fr;
 
-	      if (i >= 0) {
-	        while (i--) {
-	          xp.v += xp.a;
-	          yp.v += yp.a;
-	          xp.v *= fr;
-	          yp.v *= fr;
-	          xp.val += xp.v;
-	          yp.val += yp.v;
-	        }
-	      } else {
-	        i = -i;
-
-	        while (i--) {
-	          xp.val -= xp.v;
-	          yp.val -= yp.v;
-	          xp.v /= fr;
-	          yp.v /= fr;
-	          xp.v -= xp.a;
-	          yp.v -= yp.a;
-	        }
+	      while (i--) {
+	        xp.v += xp.a;
+	        yp.v += yp.a;
+	        xp.v *= fr;
+	        yp.v *= fr;
+	        xp.val += xp.v;
+	        yp.val += yp.v;
 	      }
 
 	      x = xp.val + xp.v * remainder;
