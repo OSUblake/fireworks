@@ -11,7 +11,7 @@ class Fireworks extends PIXI.Application {
       view: settings.canvas,
       autoStart: false,
       resizeTo: window,
-      // antialias: true,
+      antialias: false,
       transparent: true,
 
       // forceCanvas: true,

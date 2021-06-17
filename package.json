@@ -4,7 +4,9 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "build": "terser js/nerd-loader.js --output build/nerd-loader.min.js && terser js/stats.js js/utils.js js/emote-data.js js/display-object.js js/shape-textures.js js/firework-emitter.js js/firework-image.js js/firework-particle.js js/fireworks.js --output build/fireworks.min.js",
+    "dev": "parcel three/demo-2/index.html --hmr-port 8080 --open",
+    "build": "parcel build three/demo-2/index.html --experimental-scope-hoisting",
+    "build:old": "terser js/nerd-loader.js --output build/nerd-loader.min.js && terser js/stats.js js/utils.js js/emote-data.js js/display-object.js js/shape-textures.js js/firework-emitter.js js/firework-image.js js/firework-particle.js js/fireworks.js --output build/fireworks.min.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,6 +24,13 @@
     "gsap": "^3.4.2",
     "pixi-tilemap": "^2.0.6",
     "pixi.js": "^5.3.2",
-    "terser": "^5.0.0"
+    "stats.js": "^0.17.0",
+    "terser": "^5.0.0",
+    "three": "^0.119.1",
+    "three-bas": "^2.12.0",
+    "three-orbitcontrols": "^2.110.3"
+  },
+  "devDependencies": {
+    "cssnano": "^4.1.10"
   }
 }
